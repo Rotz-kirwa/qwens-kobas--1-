@@ -2,7 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // API client with error handling
 const apiClient = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('queenkoba_token');
+  const token = localStorage.getItem('token');
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
