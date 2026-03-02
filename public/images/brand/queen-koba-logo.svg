@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Queen Koba Logo Mark</title>
+  <desc id="desc">Elegant abstract monogram mark for Queen Koba</desc>
+  <defs>
+    <linearGradient id="qkGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d8bb83" />
+      <stop offset="55%" stop-color="#b9904f" />
+      <stop offset="100%" stop-color="#8b6f47" />
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#qkGold)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M48 14a24 24 0 1 0 0 48 24 24 0 1 0 0-48z" />
+    <path d="M63 59l14 15" />
+    <path d="M27 74c8-6 15-8 21-8 7 0 14 2 21 8" />
+  </g>
+</svg>

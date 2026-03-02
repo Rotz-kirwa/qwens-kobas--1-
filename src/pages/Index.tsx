@@ -1,6 +1,6 @@
 import Hero from "@/components/Hero";
+import WhyChooseUs from "@/components/WhyChooseUs";
 import BrandStory from "@/components/BrandStory";
-import BenefitsSection from "@/components/BenefitsSection";
 import IngredientsSpotlight from "@/components/IngredientsSpotlight";
 import ProductStore from "@/components/ProductStore";
 import Testimonials from "@/components/Testimonials";
@@ -12,8 +12,8 @@ const Index = () => {
   return (
     <main>
       <Hero />
+      <WhyChooseUs />
       <BrandStory />
-      <BenefitsSection />
       <IngredientsSpotlight />
       <ProductStore />
       <Testimonials />

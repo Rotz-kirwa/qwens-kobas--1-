@@ -14,6 +14,7 @@ import SalePopup from "@/components/SalePopup";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import Story from "./pages/Story";
+import Results from "./pages/Results";
 import Ingredients from "./pages/Ingredients";
 import Shop from "./pages/Shop";
 import Reviews from "./pages/Reviews";
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/all" element={<Index />} />
             <Route path="/story" element={<Story />} />
+            <Route path="/results" element={<Results />} />
             <Route path="/ingredients" element={<Ingredients />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/reviews" element={<Reviews />} />

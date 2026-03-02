@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 interface SaleProduct {
   _id: string;
   name: string;
@@ -24,7 +26,8 @@ export default function SalePopup() {
 
   const fetchSaleProduct = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/products`);
+      const response = await fetch(`${API_URL}/products`);
+      if (!response.ok) return;
       const data = await response.json();
       
       const onSaleProducts = data.products?.filter((p: any) => p.on_sale && p.discount_percentage > 0);
@@ -33,8 +36,8 @@ export default function SalePopup() {
         setSaleProduct(onSaleProducts[0]);
         setTimeout(() => setIsOpen(true), 2000);
       }
-    } catch (error) {
-      console.error('Failed to fetch sale products:', error);
+    } catch {
+      // Backend is optional for this popup; silently skip when unavailable.
     }
   };
 

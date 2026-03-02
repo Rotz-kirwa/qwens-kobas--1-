@@ -26,11 +26,12 @@ export default function PromoPopup() {
     const fetchSaleProducts = async () => {
       try {
         const res = await fetch(`${API_URL}/products`);
+        if (!res.ok) return;
         const data = await res.json();
         const saleProducts = data.products?.filter((p: any) => p.on_sale && p.discount_percentage > 0) || [];
         setProducts(saleProducts);
-      } catch (err) {
-        console.error('Failed to fetch sale products:', err);
+      } catch {
+        // Backend is optional for this popup; silently skip when unavailable.
       }
     };
 

@@ -5,6 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
+const BRAND_LOGO_URL = "https://www.dropbox.com/scl/fi/vciso5r8lrayj5emh92q6/kbl.jpg?rlkey=de8pnnrj5z7o7wk3q16k39slf&st=izkvyifm&raw=1";
+
 const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, logout } = useAuth();
@@ -13,40 +15,41 @@ const Navbar = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "Shop", href: "/shop" },
+    { label: "Results", href: "/results" },
     { label: "Our Story", href: "/story" },
     { label: "Contact", href: "/contact" },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="container mx-auto flex items-center justify-between h-16 md:h-20 px-4">
-        <Link to="/" className="flex items-center gap-3">
-          <img 
-            src="https://www.dropbox.com/scl/fi/9fr8b22db9mlskvvaodqn/kb.jpeg?rlkey=g9sxg31b8d28qgk636a3a024e&st=bt9mn3sn&raw=1" 
-            alt="Queen Koba Logo" 
-            className="h-10 md:h-12 w-auto object-contain"
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/75">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <Link to="/" className="group flex min-w-0 items-center gap-3 md:gap-3.5">
+          <img
+            src={BRAND_LOGO_URL}
+            alt="Queen Koba logo"
+            className="block h-10 w-auto shrink-0 object-contain md:h-11 mix-blend-multiply contrast-[1.04] saturate-95"
           />
-          <span className="font-display text-2xl md:text-3xl font-semibold tracking-wide text-primary">
+          <span className="whitespace-nowrap font-display text-[1.15rem] font-semibold leading-none tracking-[0.07em] text-primary md:text-[1.4rem]">
             Queen Koba
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden items-center gap-7 md:flex">
           {links.map((l) => (
             <Link
               key={l.href}
               to={l.href}
-              className="text-sm font-body tracking-widest uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
+              className="text-[12px] font-body font-semibold uppercase tracking-[0.18em] text-foreground/90 transition-colors duration-300 hover:text-primary"
             >
               {l.label}
             </Link>
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-3">
           {user ? (
             <div className="hidden md:flex items-center gap-3">
-              <span className="text-sm font-body text-muted-foreground">Hi, {user.name.split(' ')[0]}</span>
+              <span className="text-sm font-body font-semibold text-foreground/90">Hi, {user.name.split(' ')[0]}</span>
               <button
                 onClick={logout}
                 className="p-2 text-foreground hover:text-primary transition-colors"
@@ -58,7 +61,7 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className="hidden md:flex items-center gap-2 text-sm font-body text-muted-foreground hover:text-primary transition-colors"
+              className="hidden md:flex items-center gap-2 text-sm font-body font-semibold text-foreground/90 hover:text-primary transition-colors"
             >
               <User className="w-5 h-5" />
               Sign In
@@ -101,38 +104,38 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 bottom-0 w-64 bg-[#2A2520] border-l-2 border-primary z-50 md:hidden shadow-2xl"
+              className="fixed right-0 top-0 bottom-0 z-50 w-64 border-l border-gray-200 bg-[#FAF8F5] shadow-2xl md:hidden"
             >
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b-2 border-primary/30 bg-[#1F1A17]">
-                  <span className="font-display text-xl font-semibold text-[#D4AF37]">Menu</span>
+                <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4">
+                  <span className="font-display text-xl font-semibold text-[#8B6F47]">Menu</span>
                   <button
                     onClick={() => setMobileOpen(false)}
-                    className="p-2 text-[#E5D4B8] hover:text-[#D4AF37] transition-colors"
+                    className="p-2 text-gray-700 transition-colors hover:text-[#8B6F47]"
                     aria-label="Close menu"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="flex flex-col px-4 py-6 gap-4 bg-[#1F1A17]">
+                <div className="flex flex-col gap-4 bg-[#FAF8F5] px-4 py-6">
                   {links.map((l) => (
                     <Link
                       key={l.href}
                       to={l.href}
                       onClick={() => setMobileOpen(false)}
-                      className="text-base tracking-widest uppercase text-white hover:text-[#D4AF37] transition-colors py-3 font-bold border-b border-[#3A3530]"
+                      className="border-b border-gray-200 py-3 text-base font-bold uppercase tracking-widest text-gray-800 transition-colors hover:text-[#8B6F47]"
                     >
                       {l.label}
                     </Link>
                   ))}
                   {user ? (
                     <>
-                      <div className="text-sm text-[#E5D4B8] py-2 border-b border-[#3A3530]">
+                      <div className="border-b border-gray-200 py-2 text-sm text-gray-500">
                         Hi, {user.name}
                       </div>
                       <button
                         onClick={() => { logout(); setMobileOpen(false); }}
-                        className="text-base tracking-widest uppercase text-white hover:text-[#D4AF37] transition-colors py-3 font-bold border-b border-[#3A3530] text-left flex items-center gap-2"
+                        className="flex items-center gap-2 border-b border-gray-200 py-3 text-left text-base font-bold uppercase tracking-widest text-gray-800 transition-colors hover:text-[#8B6F47]"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -142,7 +145,7 @@ const Navbar = () => {
                     <Link
                       to="/login"
                       onClick={() => setMobileOpen(false)}
-                      className="text-base tracking-widest uppercase text-white hover:text-[#D4AF37] transition-colors py-3 font-bold border-b border-[#3A3530] flex items-center gap-2"
+                      className="flex items-center gap-2 border-b border-gray-200 py-3 text-base font-bold uppercase tracking-widest text-gray-800 transition-colors hover:text-[#8B6F47]"
                     >
                       <User className="w-4 h-4" />
                       Sign In

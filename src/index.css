@@ -6,81 +6,81 @@
 
 @layer base {
   :root {
-    --background: 20 12% 7%;
-    --foreground: 38 25% 90%;
+    --background: 36 42% 95%;
+    --foreground: 24 28% 16%;
 
-    --card: 20 14% 11%;
-    --card-foreground: 38 25% 90%;
+    --card: 38 48% 98%;
+    --card-foreground: 24 28% 16%;
 
-    --popover: 20 14% 11%;
-    --popover-foreground: 38 25% 90%;
+    --popover: 38 48% 98%;
+    --popover-foreground: 24 28% 16%;
 
-    --primary: 42 78% 55%;
-    --primary-foreground: 20 12% 7%;
+    --primary: 35 46% 36%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 15% 16%;
-    --secondary-foreground: 38 25% 90%;
+    --secondary: 35 34% 89%;
+    --secondary-foreground: 24 28% 16%;
 
-    --muted: 20 10% 18%;
-    --muted-foreground: 30 12% 55%;
+    --muted: 34 24% 91%;
+    --muted-foreground: 28 12% 38%;
 
-    --accent: 38 65% 42%;
-    --accent-foreground: 38 25% 90%;
+    --accent: 37 50% 82%;
+    --accent-foreground: 27 34% 23%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 20 12% 20%;
-    --input: 20 12% 20%;
-    --ring: 42 78% 55%;
+    --border: 34 22% 82%;
+    --input: 34 22% 82%;
+    --ring: 35 46% 36%;
 
     --radius: 0.25rem;
 
-    --sidebar-background: 20 14% 9%;
-    --sidebar-foreground: 38 25% 90%;
-    --sidebar-primary: 42 78% 55%;
-    --sidebar-primary-foreground: 20 12% 7%;
-    --sidebar-accent: 20 15% 16%;
-    --sidebar-accent-foreground: 38 25% 90%;
-    --sidebar-border: 20 12% 20%;
-    --sidebar-ring: 42 78% 55%;
+    --sidebar-background: 38 48% 98%;
+    --sidebar-foreground: 24 28% 16%;
+    --sidebar-primary: 35 46% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 37 50% 88%;
+    --sidebar-accent-foreground: 24 28% 16%;
+    --sidebar-border: 34 22% 82%;
+    --sidebar-ring: 35 46% 36%;
 
-    --gold-gradient: linear-gradient(135deg, hsl(42 78% 55%), hsl(38 65% 42%));
-    --gold-glow: 0 0 40px hsl(42 78% 55% / 0.15);
-    --hero-overlay: linear-gradient(to right, hsl(20 12% 7% / 0.85), hsl(20 12% 7% / 0.4));
+    --gold-gradient: linear-gradient(135deg, hsl(41 62% 60%), hsl(35 46% 36%));
+    --gold-glow: 0 0 34px hsl(38 62% 55% / 0.24);
+    --hero-overlay: linear-gradient(to right, hsl(36 42% 95% / 0.46), hsl(36 42% 95% / 0.14));
 
     --font-display: 'Cormorant Garamond', serif;
     --font-body: 'Outfit', sans-serif;
   }
 
   .dark {
-    --background: 20 12% 7%;
-    --foreground: 38 25% 90%;
-    --card: 20 14% 11%;
-    --card-foreground: 38 25% 90%;
-    --popover: 20 14% 11%;
-    --popover-foreground: 38 25% 90%;
-    --primary: 42 78% 55%;
-    --primary-foreground: 20 12% 7%;
-    --secondary: 20 15% 16%;
-    --secondary-foreground: 38 25% 90%;
-    --muted: 20 10% 18%;
-    --muted-foreground: 30 12% 55%;
-    --accent: 38 65% 42%;
-    --accent-foreground: 38 25% 90%;
+    --background: 36 42% 95%;
+    --foreground: 24 28% 16%;
+    --card: 38 48% 98%;
+    --card-foreground: 24 28% 16%;
+    --popover: 38 48% 98%;
+    --popover-foreground: 24 28% 16%;
+    --primary: 35 46% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 35 34% 89%;
+    --secondary-foreground: 24 28% 16%;
+    --muted: 34 24% 91%;
+    --muted-foreground: 28 12% 38%;
+    --accent: 37 50% 82%;
+    --accent-foreground: 27 34% 23%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 20 12% 20%;
-    --input: 20 12% 20%;
-    --ring: 42 78% 55%;
-    --sidebar-background: 20 14% 9%;
-    --sidebar-foreground: 38 25% 90%;
-    --sidebar-primary: 42 78% 55%;
-    --sidebar-primary-foreground: 20 12% 7%;
-    --sidebar-accent: 20 15% 16%;
-    --sidebar-accent-foreground: 38 25% 90%;
-    --sidebar-border: 20 12% 20%;
-    --sidebar-ring: 42 78% 55%;
+    --border: 34 22% 82%;
+    --input: 34 22% 82%;
+    --ring: 35 46% 36%;
+    --sidebar-background: 38 48% 98%;
+    --sidebar-foreground: 24 28% 16%;
+    --sidebar-primary: 35 46% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 37 50% 88%;
+    --sidebar-accent-foreground: 24 28% 16%;
+    --sidebar-border: 34 22% 82%;
+    --sidebar-ring: 35 46% 36%;
   }
 }
 
@@ -137,12 +137,12 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(20 12% 7%);
+  background: hsl(35 30% 90%);
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(20 12% 20%);
+  background: hsl(34 25% 55%);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(42 78% 55% / 0.5);
+  background: hsl(35 46% 36% / 0.72);
 }
