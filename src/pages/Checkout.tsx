@@ -111,7 +111,16 @@ const Checkout = () => {
       try {
         setLoading(true);
         const response = await paymentAPI.getByCountry(country);
-        const methods = Array.isArray(response) ? response : response?.payment_methods || [];
+        const methodsRaw = Array.isArray(response)
+          ? response
+          : response?.methods || response?.payment_methods || [];
+        const methods = methodsRaw.map((method: any) => ({
+          id: method.id || method.code || method.name?.toLowerCase().replace(/\s+/g, "_"),
+          name: method.name,
+          type: method.type || method.code || "mobile_money",
+          description: method.description || "Secure payment option",
+          logo: method.logo,
+        }));
         if (methods.length > 0) {
           setPaymentMethods(methods);
         }
@@ -170,13 +179,36 @@ const Checkout = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Login Required",
+          description: "Please sign in to complete checkout.",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      const orderPayload = {
+        shipping_address: {
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          postal_code: formData.postalCode,
+          country,
+        },
+        payment_method: paymentMethod || "card",
+      };
+
+      await ordersAPI.create(orderPayload);
+
       toast({
         title: "Order Placed Successfully!",
-        description: `Your order of ${formatCurrency(total, country)} has been received. You will receive a payment prompt shortly.`,
+        description: `Your order of ${formatCurrency(finalTotal, country)} has been received.`,
       });
       
       clearCart();

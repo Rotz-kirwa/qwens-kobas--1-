@@ -1,35 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const heroImages = [
-  { desktop: "/images/hero/desktop/hero-1.jpg", mobile: "/images/hero/mobile/hero-1.jpg" },
-  { desktop: "/images/hero/desktop/hero-2.jpg", mobile: "/images/hero/mobile/hero-2.jpg" },
-  { desktop: "/images/hero/desktop/hero-3.jpg", mobile: "/images/hero/mobile/hero-3.jpg" },
-  { desktop: "/images/hero/desktop/hero-4.jpg", mobile: "/images/hero/mobile/hero-4.jpg" },
-  { desktop: "/images/hero/desktop/hero-5.jpg", mobile: "/images/hero/mobile/hero-5.jpg" },
-  { desktop: "/images/hero/desktop/hero-6.jpg", mobile: "/images/hero/mobile/hero-6.jpg" },
-  { desktop: "/images/hero/desktop/hero-7.jpg", mobile: "/images/hero/mobile/hero-7.jpg" },
-  { desktop: "/images/hero/desktop/hero-8.jpg", mobile: "/images/hero/mobile/hero-8.jpg" },
-  { desktop: "/images/hero/desktop/hero-9.jpg", mobile: "/images/hero/mobile/hero-9.jpg" },
-];
+const HERO_IMAGE =
+  "https://www.dropbox.com/scl/fi/zf1y5dmj9i0wixkhuyn0c/qkh.jpeg?rlkey=td6tace4g5emoapt47vjxblqt&st=u5ci2snw&raw=1";
 
 const Hero = () => {
-  const [currentImage, setCurrentImage] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
   return (
-    <section className="relative h-screen min-h-[600px] max-h-[900px] flex items-center overflow-hidden">
+    <section className="relative h-screen min-h-[640px] max-h-[940px] flex items-center overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentImage}
+            key="hero-single-image"
             className="absolute inset-0 overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -39,16 +20,16 @@ const Hero = () => {
             <picture className="w-full h-full">
               <source
                 media="(min-width: 1024px)"
-                srcSet={heroImages[currentImage].desktop}
+                srcSet={HERO_IMAGE}
                 type="image/jpeg"
               />
               <source
                 media="(max-width: 1023px)"
-                srcSet={heroImages[currentImage].mobile}
+                srcSet={HERO_IMAGE}
                 type="image/jpeg"
               />
               <img
-                src={heroImages[currentImage].desktop}
+                src={HERO_IMAGE}
                 alt="Queen Koba - radiant melanin-rich skin"
                 className="w-full h-full object-cover"
                 style={{ 
@@ -56,9 +37,10 @@ const Hero = () => {
                   maxHeight: '100%', 
                   objectFit: 'cover', 
                   display: 'block',
-                  objectPosition: currentImage === 0 ? 'center' : 'center 40%'
+                  objectPosition: "center"
                 }}
-                loading="lazy"
+                loading="eager"
+                fetchPriority="high"
                 decoding="async"
               />
             </picture>
@@ -93,7 +75,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-lg font-body"
+            className="text-base md:text-lg text-foreground font-semibold leading-relaxed mb-10 max-w-lg font-body drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
           >
             Safe. Natural. Powerful. Crafted in Kenya for queens who deserve radiant, even, healthy skin — without toxins.
           </motion.p>

@@ -39,13 +39,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Login failed');
+      throw new Error(error.message || error.error || 'Login failed');
     }
 
     const data = await response.json();
+    const token = data.token || data.access_token;
+    if (!token) throw new Error('Authentication token missing from response');
+
     setUser(data.user);
     localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('token', token);
   };
 
   const signup = async (name: string, email: string, password: string, phone: string) => {
@@ -57,13 +60,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Signup failed');
+      throw new Error(error.message || error.error || 'Signup failed');
     }
 
     const data = await response.json();
+    const token = data.token || data.access_token;
+    if (!token) throw new Error('Authentication token missing from response');
+
     setUser(data.user);
     localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('token', token);
   };
 
   const loginWithGoogle = () => {

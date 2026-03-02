@@ -3,10 +3,10 @@ import { useRef, useState, useEffect } from "react";
 import { Star, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import productsImg from "@/assets/products-bg.jpg";
+import { products as initialProducts } from "@/data/products";
+import { productsAPI } from "@/lib/api";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-interface Product {
+interface ApiProduct {
   _id: string;
   name: string;
   description: string;
@@ -22,13 +22,71 @@ interface Product {
   on_sale?: boolean;
 }
 
-const ProductCard = ({ product, index }: { product: Product; index: number }) => {
+interface StoreProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  in_stock: boolean;
+  image_url?: string;
+  rating?: number;
+  reviews?: number;
+  discount_percentage?: number;
+  on_sale?: boolean;
+}
+
+const fallbackStoreProducts: StoreProduct[] = initialProducts.map((product) => {
+  const discountPercentage =
+    product.originalPrice && product.originalPrice > product.price
+      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      : 0;
+
+  return {
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    in_stock: true,
+    image_url: product.image,
+    rating: product.rating,
+    reviews: product.reviews,
+    discount_percentage: discountPercentage,
+    on_sale: discountPercentage > 0,
+  };
+});
+
+const mapApiProduct = (product: ApiProduct): StoreProduct => ({
+  id: product._id,
+  name: product.name,
+  description: product.description,
+  price: product.prices?.KES?.amount || 0,
+  in_stock: product.in_stock ?? true,
+  image_url: product.image_url,
+  rating: product.rating,
+  reviews: product.reviews,
+  discount_percentage: product.discount_percentage,
+  on_sale: product.on_sale,
+});
+
+const isInitialCatalog = (items: StoreProduct[]) => {
+  const names = items.map((item) => item.name);
+  return (
+    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Cleanser")) &&
+    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Toner")) &&
+    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Serum")) &&
+    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Cream")) &&
+    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Mask")) &&
+    names.some((name) => name.includes("Full Royal Routine"))
+  );
+};
+
+const ProductCard = ({ product, index }: { product: StoreProduct; index: number }) => {
   const [qty, setQty] = useState(1);
   const { addToCart } = useCart();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
-  const price = product.prices?.KES?.amount || 0;
+  const price = product.price;
   const discount = product.discount_percentage || 0;
   const discountedPrice = discount > 0 ? price * (1 - discount / 100) : price;
   const rating = product.rating || 4.5;
@@ -60,7 +118,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 
       <div className="p-8 flex flex-col flex-1">
         <h3 className="font-display text-xl md:text-2xl font-semibold mb-2">{product.name}</h3>
-        <p className="text-sm text-muted-foreground font-body mb-4 leading-relaxed">{product.description}</p>
+        <p className="text-sm text-muted-foreground font-body mb-4 leading-relaxed whitespace-pre-line">{product.description}</p>
 
         <div className="flex items-center gap-2 mb-4">
           <div className="flex">
@@ -116,7 +174,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
           <button
             onClick={() => { 
               addToCart({
-                id: product._id,
+                id: product.id,
                 name: product.name,
                 price: discount > 0 ? discountedPrice : price,
                 rating: rating,
@@ -142,18 +200,21 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 const ProductStore = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<StoreProduct[]>(fallbackStoreProducts);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/products`)
-      .then(res => res.json())
+    productsAPI.getAll()
       .then(data => {
-        setProducts(data.products || []);
+        const apiProducts: StoreProduct[] = Array.isArray(data.products)
+          ? data.products.map(mapApiProduct)
+          : [];
+        setProducts(apiProducts.length > 0 && isInitialCatalog(apiProducts) ? apiProducts : fallbackStoreProducts);
         setLoading(false);
       })
       .catch(err => {
         console.error('Failed to fetch products:', err);
+        setProducts(fallbackStoreProducts);
         setLoading(false);
       });
   }, []);
@@ -178,7 +239,7 @@ const ProductStore = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product, i) => (
-              <ProductCard key={product._id} product={product} index={i} />
+              <ProductCard key={product.id} product={product} index={i} />
             ))}
           </div>
         )}
