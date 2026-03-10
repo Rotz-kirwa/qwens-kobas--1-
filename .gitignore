@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Nested repos and local backend clone
+admin/
+backend/
+qwen-koba-admin/

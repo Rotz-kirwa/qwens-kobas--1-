@@ -6,7 +6,7 @@ const HERO_IMAGE =
 
 const Hero = () => {
   return (
-    <section className="relative min-h-[140vh] md:min-h-[155vh] lg:min-h-[170vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[92vh] md:min-h-[108vh] lg:min-h-[120vh] flex items-center overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <picture className="w-full h-full">
           <source
@@ -22,7 +22,7 @@ const Hero = () => {
           <motion.img
             src={HERO_IMAGE}
             alt="Queen Koba - radiant melanin-rich skin"
-            className="w-full h-full object-cover saturate-[1.08] contrast-[1.04] brightness-[0.82]"
+            className="w-full h-full object-cover saturate-[1.04] contrast-[1.02] brightness-[0.82]"
             style={{ 
               maxWidth: '100%', 
               maxHeight: '100%', 
@@ -30,9 +30,9 @@ const Hero = () => {
               display: 'block',
               objectPosition: "center top"
             }}
-            initial={{ scale: 1.02 }}
-            animate={{ scale: 1.08 }}
-            transition={{ duration: 3.4, ease: "easeOut" }}
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.03 }}
+            transition={{ duration: 2.8, ease: "easeOut" }}
             loading="eager"
             fetchpriority="high"
             decoding="async"
@@ -43,13 +43,13 @@ const Hero = () => {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-32 md:py-0">
-        <div className="max-w-2xl">
+      <div className="relative container mx-auto px-4 py-24 md:py-0">
+        <div className="max-w-xl">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-sm tracking-[0.3em] uppercase text-white font-body mb-6"
+            className="text-xs md:text-sm tracking-[0.3em] uppercase font-body mb-5 text-[#E8D3C0]"
           >
             Queen Koba
           </motion.p>
@@ -58,25 +58,25 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-light leading-[0.95] mb-6 text-white"
+            className="font-display text-4xl md:text-6xl lg:text-7xl font-light leading-[0.95] mb-5 text-[#F5F5F5]"
           >
-            Dark Spots &amp; Uneven Tone Stealing Your <span className="font-semibold italic text-white">Glow?</span>
+            Dark Spots &amp; Uneven Tone Stealing Your <span className="font-semibold italic text-[#D4AF37]">Glow?</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="text-base md:text-lg text-white font-semibold leading-relaxed mb-10 max-w-lg font-body drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
+            className="text-sm md:text-base text-[#F5F5F5] font-semibold leading-relaxed mb-8 max-w-md font-body drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
           >
-            Naturally Brighten Up to 2 Shades - Toxin-Free, Melanin-Safe Luxury
+            <span className="text-[#E8D3C0]">Naturally</span> Brighten Up to 2 Shades - Toxin-Free, Melanin-Safe Luxury
           </motion.p>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.6 }}
-            className="font-display italic text-xl md:text-2xl text-white mb-10 drop-shadow-[0_1px_1px_rgba(0,0,0,0.28)]"
+            className="font-display italic text-lg md:text-xl mb-8 text-[#B76E79] drop-shadow-[0_1px_1px_rgba(0,0,0,0.28)]"
           >
             Queen Koba: Eternal Radiance, Naturally You
           </motion.p>
