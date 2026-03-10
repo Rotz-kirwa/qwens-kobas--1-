@@ -1,12 +1,17 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+interface ApiRequestInit extends RequestInit {
+  quietError?: boolean;
+}
+
 // API client with error handling
-const apiClient = async (endpoint: string, options: RequestInit = {}) => {
+const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
   const token = localStorage.getItem('token');
+  const { quietError = false, ...requestOptions } = options;
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...requestOptions.headers,
   };
 
   if (token) {
@@ -15,7 +20,7 @@ const apiClient = async (endpoint: string, options: RequestInit = {}) => {
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
+      ...requestOptions,
       headers,
     });
 
@@ -27,7 +32,9 @@ const apiClient = async (endpoint: string, options: RequestInit = {}) => {
 
     return data;
   } catch (error) {
-    console.error('API Error:', error);
+    if (!quietError) {
+      console.error('API Error:', error);
+    }
     throw error;
   }
 };
@@ -56,7 +63,7 @@ export const authAPI = {
 
 // Products API
 export const productsAPI = {
-  getAll: () => apiClient('/products'),
+  getAll: () => apiClient('/products', { quietError: true }),
   getById: (id: string) => apiClient(`/products/${id}`),
 };
 

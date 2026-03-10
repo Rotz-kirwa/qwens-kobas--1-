@@ -1,15 +1,19 @@
+import { Suspense, lazy } from "react";
 import Hero from "@/components/Hero";
 import WhyChooseUs from "@/components/WhyChooseUs";
-import Testimonials from "@/components/Testimonials";
-import IngredientsSpotlight from "@/components/IngredientsSpotlight";
+
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const IngredientsSpotlight = lazy(() => import("@/components/IngredientsSpotlight"));
 
 const Home = () => {
   return (
     <main>
       <Hero />
       <WhyChooseUs />
-      <Testimonials />
-      <IngredientsSpotlight />
+      <Suspense fallback={null}>
+        <Testimonials />
+        <IngredientsSpotlight />
+      </Suspense>
     </main>
   );
 };

@@ -1,20 +1,23 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
-import { ShieldCheck, ShieldOff, FlaskConical, MapPin } from "lucide-react";
+import { ShieldCheck, ShieldOff, FlaskConical } from "lucide-react";
+
+const transparencyImage =
+  "https://www.dropbox.com/scl/fi/zxgwxymwoevlm0jezfq1t/qpr.jpeg?rlkey=t9n79yhhahzjm85ad98aacdr2&st=wy7fx6g4&raw=1";
 
 const keyIngredients = [
-  { name: "Purifying Qasil", desc: "Ancient Somali beauty leaf that deeply cleanses, brightens, and tightens pores naturally." },
-  { name: "Antioxidant Moringa", desc: "East African superfood oil rich in oleic acid — fights free radicals and deeply nourishes." },
-  { name: "Tranexamic Acid", desc: "Gold-standard brightening active that inhibits melanin transfer for visible clarity." },
-  { name: "Niacinamide", desc: "Vitamin B3 powerhouse — minimizes pores, strengthens barrier, and evens skin tone." },
-  { name: "Kojic Dipalmitate", desc: "Gentle, stable tyrosinase inhibitor that fades dark spots without irritation." },
+  { name: "Licorice Root", desc: "Curbs excess melanin to help reduce uneven tone and persistent discoloration." },
+  { name: "Moringa", desc: "Brightens with antioxidants while supporting a nourished, healthy-looking glow." },
+  { name: "Aloe + Liwa", desc: "Aloe soothes while Liwa helps fade spots without compromising comfort." },
+  { name: "Qasil", desc: "Purifies the skin gently and helps keep the complexion fresh, clean, and refined." },
+  { name: "Snail Mucin + Shea", desc: "Snail mucin plumps while shea hydrates with a richer, more luxurious finish." },
 ];
 
 const trustBadges = [
-  { icon: ShieldOff, label: "No Mercury" },
-  { icon: ShieldOff, label: "No Hydroquinone" },
-  { icon: ShieldCheck, label: "No Steroids" },
-  { icon: MapPin, label: "Crafted in Kenya" },
+  { icon: ShieldCheck, label: "100% Toxin-Free" },
+  { icon: ShieldCheck, label: "Handcrafted African Botanicals" },
+  { icon: ShieldOff, label: "No Risks" },
+  { icon: ShieldOff, label: "No Compromises" },
 ];
 
 const inciList = [
@@ -45,8 +48,39 @@ const IngredientsSpotlight = () => {
             Because Queens Deserve to <span className="italic text-gold-gradient">Know</span>
           </h2>
           <p className="text-muted-foreground font-body mt-4 max-w-3xl mx-auto">
-            We believe in complete honesty. Below is the full INCI ingredient list for our core formulas. Ingredients listed in descending order of predominance. No mercury, no hydroquinone, no steroids. Crafted with care in Kenya.
+            100% toxin-free · Handcrafted African Botanicals
           </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.05, duration: 0.7 }}
+          className="mb-16 overflow-hidden rounded-sm border border-primary/15 bg-background shadow-[0_24px_60px_rgba(0,0,0,0.08)]"
+        >
+          <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="flex justify-center bg-secondary/20 p-4 md:p-6">
+              <img
+                src={transparencyImage}
+                alt="Queen Koba ingredient transparency"
+                className="max-h-[420px] w-auto max-w-full object-contain"
+              />
+            </div>
+
+            <div className="flex flex-col justify-center p-8 md:p-10">
+              <p className="font-body text-sm uppercase tracking-[0.24em] text-primary">
+                100% toxin-free · Handcrafted African Botanicals
+              </p>
+              <p className="mt-5 font-body text-base leading-8 text-foreground">
+                Licorice root curbs excess melanin · Moringa brightens with antioxidants.
+                Aloe soothes · Liwa fades spots · Qasil purifies · Snail mucin plumps ·
+                Shea hydrates luxuriously
+              </p>
+              <p className="mt-5 font-body text-sm uppercase tracking-[0.24em] text-primary">
+                No risks. No compromises.
+              </p>
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
@@ -104,7 +138,7 @@ const IngredientsSpotlight = () => {
             >
               <h4 className="font-display text-lg font-semibold text-primary mb-4">Full Ingredient Transparency – Because Queens Deserve to Know</h4>
               <p className="font-body text-sm text-muted-foreground leading-loose mb-4">
-                We believe in complete honesty. Below is the full INCI ingredient list for our core formulas (shared base across the line, with minor variations per product—check individual product pages for exacts). Ingredients listed in descending order of predominance. No mercury, no hydroquinone, no steroids. Crafted with care in Kenya.
+                100% toxin-free · Handcrafted African Botanicals. Licorice root curbs excess melanin. Moringa brightens with antioxidants. Aloe soothes · Liwa fades spots · Qasil purifies · Snail mucin plumps · Shea hydrates luxuriously. No risks. No compromises.
               </p>
               <p className="font-body text-sm text-muted-foreground leading-loose">
                 {inciList.join(" · ")}

@@ -40,7 +40,7 @@ const Hero = () => {
                   objectPosition: "center"
                 }}
                 loading="eager"
-                fetchPriority="high"
+                fetchpriority="high"
                 decoding="async"
               />
             </picture>

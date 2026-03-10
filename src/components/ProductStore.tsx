@@ -2,7 +2,6 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Star, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import productsImg from "@/assets/products-bg.jpg";
 import { products as initialProducts } from "@/data/products";
 import { productsAPI } from "@/lib/api";
 
@@ -33,7 +32,70 @@ interface StoreProduct {
   reviews?: number;
   discount_percentage?: number;
   on_sale?: boolean;
+  badges?: string[];
+  stock_left?: number;
+  urgency_tag?: string;
+  cta_label?: string;
+  footer_note?: string;
+  bundle_message?: string;
 }
+
+const productMarketing: Record<string, Partial<StoreProduct>> = {
+  "new-cleanser": {
+    badges: ["Best Seller", "4.9 ★"],
+    stock_left: 12,
+    urgency_tag: "Buy Now, Glow Tomorrow",
+  },
+  "new-toner": {
+    badges: ["Loved by Melanin Queens"],
+    stock_left: 9,
+    urgency_tag: "Buy Now, Glow Tomorrow",
+  },
+  "new-serum": {
+    badges: ["Hero Product", "Limited Stock"],
+    stock_left: 5,
+    urgency_tag: "Buy Now, Glow Tomorrow",
+  },
+  "new-cream": {
+    badges: ["Skin Barrier Favorite"],
+    urgency_tag: "Buy Now, Glow Tomorrow",
+  },
+  "new-mask": {
+    badges: ["Weekend Reset"],
+    stock_left: 7,
+    urgency_tag: "Buy Now, Glow Tomorrow",
+  },
+  "new-bundle": {
+    badges: ["Save 25%", "Free Shipping"],
+    stock_left: 4,
+    cta_label: "Grab the Bundle & Save",
+    bundle_message: "Worth KSh 10,650. Limited kits this month.",
+  },
+  cleanser: {
+    badges: ["Original Formula"],
+  },
+  toner: {
+    badges: ["Classic Tone Care"],
+  },
+  serum: {
+    badges: ["Radiance Classic"],
+  },
+  cream: {
+    badges: ["Barrier Restore"],
+  },
+  mask: {
+    badges: ["Weekly Ritual"],
+  },
+  bundle: {
+    badges: ["Original Bundle"],
+  },
+};
+
+const shopTrustBadges = [
+  "Cruelty-Free",
+  "Sustainable Sourcing",
+  "No Harsh Chemicals",
+];
 
 const fallbackStoreProducts: StoreProduct[] = initialProducts.map((product) => {
   const discountPercentage =
@@ -52,6 +114,7 @@ const fallbackStoreProducts: StoreProduct[] = initialProducts.map((product) => {
     reviews: product.reviews,
     discount_percentage: discountPercentage,
     on_sale: discountPercentage > 0,
+    ...productMarketing[product.id],
   };
 });
 
@@ -68,15 +131,47 @@ const mapApiProduct = (product: ApiProduct): StoreProduct => ({
   on_sale: product.on_sale,
 });
 
-const isInitialCatalog = (items: StoreProduct[]) => {
+const isExpectedCatalog = (items: StoreProduct[]) => {
   const names = items.map((item) => item.name);
   return (
+    names.some((name) => name.includes("Complexion Clarifying Cleanser 120ml")) &&
+    names.some((name) => name.includes("Brightening Toner 120ml")) &&
+    names.some((name) => name.includes("Complexion Clarifying Serum 30ml")) &&
+    names.some((name) => name.includes("Complexion Clarifying Cream 50ml")) &&
+    names.some((name) => name.includes("Brightening Face Mask 120ml")) &&
+    names.some((name) => name.includes("The Complete Radiance Ritual Kit")) &&
     names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Cleanser")) &&
     names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Toner")) &&
     names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Serum")) &&
     names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Cream")) &&
     names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Mask")) &&
     names.some((name) => name.includes("Full Royal Routine"))
+  );
+};
+
+const BundleCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 11, minutes: 45 });
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59 };
+        if (prev.days > 0) return { days: prev.days - 1, hours: 23, minutes: 59 };
+        return { days: 2, hours: 11, minutes: 45 };
+      });
+    }, 60000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="mt-4 inline-flex items-center gap-3 rounded-sm border border-primary/20 bg-primary/5 px-4 py-2 text-xs font-body uppercase tracking-[0.2em] text-primary">
+      <span>Bundle Timer</span>
+      <span>{String(timeLeft.days).padStart(2, "0")}d</span>
+      <span>{String(timeLeft.hours).padStart(2, "0")}h</span>
+      <span>{String(timeLeft.minutes).padStart(2, "0")}m</span>
+    </div>
   );
 };
 
@@ -100,11 +195,26 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
       transition={{ delay: index * 0.1, duration: 0.6 }}
       className="luxury-card flex flex-col overflow-hidden p-0 relative"
     >
-      {product.on_sale && discount > 0 && (
-        <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-sm z-10 shadow-lg">
-          {discount}% OFF
-        </div>
-      )}
+      <div className="absolute left-4 right-4 top-4 z-10 flex flex-wrap gap-2">
+        {product.badges?.map((badge) => (
+          <span
+            key={badge}
+            className="rounded-full bg-background/90 px-3 py-1 text-[10px] font-body font-bold uppercase tracking-[0.2em] text-primary shadow-md backdrop-blur"
+          >
+            {badge}
+          </span>
+        ))}
+        {product.on_sale && discount > 0 && (
+          <span className="rounded-full bg-red-600 px-3 py-1 text-[10px] font-body font-bold uppercase tracking-[0.2em] text-white shadow-md">
+            {discount}% Off
+          </span>
+        )}
+        {typeof product.stock_left === "number" && (
+          <span className="rounded-full bg-black/75 px-3 py-1 text-[10px] font-body font-bold uppercase tracking-[0.2em] text-white">
+            Only {product.stock_left} left
+          </span>
+        )}
+      </div>
       {product.image_url && (
         <div className="w-full overflow-hidden">
           <img 
@@ -119,6 +229,11 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
       <div className="p-8 flex flex-col flex-1">
         <h3 className="font-display text-xl md:text-2xl font-semibold mb-2">{product.name}</h3>
         <p className="text-sm text-muted-foreground font-body mb-4 leading-relaxed whitespace-pre-line">{product.description}</p>
+        {product.bundle_message && (
+          <p className="mb-4 text-xs font-body uppercase tracking-[0.22em] text-primary">
+            {product.bundle_message}
+          </p>
+        )}
 
         <div className="flex items-center gap-2 mb-4">
           <div className="flex">
@@ -133,6 +248,14 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
             {rating}/5 ({reviews} reviews)
           </span>
         </div>
+
+        {product.urgency_tag && (
+          <p className="mb-4 text-xs font-body font-bold uppercase tracking-[0.24em] text-primary">
+            {product.urgency_tag}
+          </p>
+        )}
+
+        {product.isBundle && <BundleCountdown />}
 
         <div className="flex items-end justify-between gap-4 mt-auto pt-4 border-t border-border/50">
         <div>
@@ -188,7 +311,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
             disabled={!product.in_stock}
           >
             <ShoppingBag className="w-4 h-4" />
-            {product.in_stock ? 'Add' : 'Out of Stock'}
+            {product.in_stock ? product.cta_label || "Add to Cart" : "Out of Stock"}
           </button>
         </div>
       </div>
@@ -209,11 +332,10 @@ const ProductStore = () => {
         const apiProducts: StoreProduct[] = Array.isArray(data.products)
           ? data.products.map(mapApiProduct)
           : [];
-        setProducts(apiProducts.length > 0 && isInitialCatalog(apiProducts) ? apiProducts : fallbackStoreProducts);
+        setProducts(apiProducts.length > 0 && isExpectedCatalog(apiProducts) ? apiProducts : fallbackStoreProducts);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Failed to fetch products:', err);
+      .catch(() => {
         setProducts(fallbackStoreProducts);
         setLoading(false);
       });
@@ -237,11 +359,41 @@ const ProductStore = () => {
         {loading ? (
           <div className="text-center py-12">Loading products...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.35, duration: 0.6 }}
+              className="mt-12 rounded-sm border border-primary/20 bg-background px-6 py-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
+            >
+              <img
+                src="https://www.dropbox.com/scl/fi/waicevj5xuzm33zgg2hmp/sp7.jpeg?rlkey=ojau7f05ljcqt7d2qhodwmnrz&st=u7hk5mfy&raw=1"
+                alt="Queen Koba ethical trust"
+                className="mx-auto mb-6 max-h-[240px] w-auto max-w-full object-contain"
+              />
+              <p className="mx-auto max-w-4xl text-sm leading-7 text-muted-foreground font-body">
+                Results vary; gentle and natural - patch test recommended. 100% toxin-free
+                (no mercury, hydroquinone, steroids). Dermatologist-inspired for melanin-rich
+                skin. Your safety is our promise.
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                {shopTrustBadges.map((badge) => (
+                  <span
+                    key={badge}
+                    className="rounded-full border border-primary/20 px-4 py-2 text-xs font-body font-bold uppercase tracking-[0.2em] text-primary"
+                  >
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </>
         )}
       </div>
     </section>
