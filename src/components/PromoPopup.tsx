@@ -23,6 +23,9 @@ export default function PromoPopup() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const hasSeenPopup = sessionStorage.getItem('promoPopupSeen');
+    if (hasSeenPopup) return;
+
     const fetchSaleProducts = async () => {
       try {
         const res = await fetch(`${API_URL}/products`);
@@ -41,32 +44,23 @@ export default function PromoPopup() {
   useEffect(() => {
     if (products.length === 0) return;
 
-    // Show first popup after 5 seconds
     const initialTimer = setTimeout(() => {
       setShowPopup(true);
     }, 5000);
 
-    // Rotate through products every 30 seconds
-    const interval = setInterval(() => {
-      setShowPopup(false);
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % products.length);
-        setShowPopup(true);
-      }, 500);
-    }, 30000);
-
     return () => {
       clearTimeout(initialTimer);
-      clearInterval(interval);
     };
   }, [products]);
 
   const handleShopNow = () => {
+    sessionStorage.setItem('promoPopupSeen', 'true');
     setShowPopup(false);
     navigate('/shop');
   };
 
   const handleClose = () => {
+    sessionStorage.setItem('promoPopupSeen', 'true');
     setShowPopup(false);
   };
 
