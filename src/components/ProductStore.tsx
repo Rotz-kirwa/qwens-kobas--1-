@@ -66,28 +66,10 @@ const productMarketing: Record<string, Partial<StoreProduct>> = {
     urgency_tag: "Buy Now, Glow Tomorrow",
   },
   "new-bundle": {
-    badges: ["Save 25%", "Free Shipping"],
+    badges: ["Full Kit", "Free Shipping"],
     stock_left: 4,
     cta_label: "Grab the Bundle & Save",
-    bundle_message: "Worth KSh 10,650. Limited kits this month.",
-  },
-  cleanser: {
-    badges: ["Original Formula"],
-  },
-  toner: {
-    badges: ["Classic Tone Care"],
-  },
-  serum: {
-    badges: ["Radiance Classic"],
-  },
-  cream: {
-    badges: ["Barrier Restore"],
-  },
-  mask: {
-    badges: ["Weekly Ritual"],
-  },
-  bundle: {
-    badges: ["Original Bundle"],
+    bundle_message: "Full Product Kit • KSh 9,999. Limited kits this month.",
   },
 };
 
@@ -139,13 +121,7 @@ const isExpectedCatalog = (items: StoreProduct[]) => {
     names.some((name) => name.includes("Complexion Clarifying Serum 30ml")) &&
     names.some((name) => name.includes("Complexion Clarifying Cream 50ml")) &&
     names.some((name) => name.includes("Brightening Face Mask 120ml")) &&
-    names.some((name) => name.includes("The Complete Radiance Ritual Kit")) &&
-    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Cleanser")) &&
-    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Toner")) &&
-    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Serum")) &&
-    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Cream")) &&
-    names.some((name) => name.includes("Eternal Radiance - Complexion Clarifying Mask")) &&
-    names.some((name) => name.includes("Full Royal Routine"))
+    names.some((name) => name.includes("Full Product Kit"))
   );
 };
 
@@ -372,11 +348,6 @@ const ProductStore = () => {
               transition={{ delay: 0.35, duration: 0.6 }}
               className="mt-12 rounded-sm border border-primary/20 bg-background px-6 py-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
             >
-              <img
-                src="https://www.dropbox.com/scl/fi/waicevj5xuzm33zgg2hmp/sp7.jpeg?rlkey=ojau7f05ljcqt7d2qhodwmnrz&st=u7hk5mfy&raw=1"
-                alt="Queen Koba ethical trust"
-                className="mx-auto mb-6 max-h-[240px] w-auto max-w-full object-contain"
-              />
               <p className="mx-auto max-w-4xl text-sm leading-7 text-muted-foreground font-body">
                 Results vary; gentle and natural - patch test recommended. 100% toxin-free
                 (no mercury, hydroquinone, steroids). Dermatologist-inspired for melanin-rich
