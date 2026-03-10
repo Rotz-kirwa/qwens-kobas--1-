@@ -5,12 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:frontend": "vite",
+    "dev:admin": "npm run dev --prefix admin/qwen-koba-admin",
+    "dev:backend": "cd backend/koba--backend-only && if [ -x venv/bin/python ]; then venv/bin/python queenkoba_postgresql.py; else python3 queenkoba_postgresql.py; fi",
+    "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:admin\" \"npm run dev:backend\"",
     "build": "vite build",
+    "build:frontend": "vite build",
+    "build:admin": "npm run build --prefix admin/qwen-koba-admin",
+    "build:all": "concurrently \"npm run build:frontend\" \"npm run build:admin\"",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "install:admin": "npm install --prefix admin/qwen-koba-admin"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -74,6 +82,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

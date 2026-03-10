@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev --prefix .",
-    "dev:admin": "npm run dev --prefix admin-dashboard",
-    "dev:backend": "cd backend && source venv/bin/activate && python queen-koba-backend/queenkoba_mongodb.py",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:admin\" \"npm run dev:backend\"",
-    "build": "npm run build --prefix .",
-    "build:admin": "npm run build --prefix admin-dashboard"
+    "dev:frontend": "npm run dev --prefix .",
+    "dev:admin": "npm run dev --prefix admin/qwen-koba-admin",
+    "dev:backend": "cd backend/koba--backend-only && if [ -x venv/bin/python ]; then venv/bin/python queenkoba_postgresql.py; else python3 queenkoba_postgresql.py; fi",
+    "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:admin\" \"npm run dev:backend\"",
+    "build:frontend": "npm run build --prefix .",
+    "build:admin": "npm run build --prefix admin/qwen-koba-admin",
+    "build:all": "concurrently \"npm run build:frontend\" \"npm run build:admin\"",
+    "install:admin": "npm install --prefix admin/qwen-koba-admin"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
