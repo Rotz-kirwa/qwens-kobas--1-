@@ -3,19 +3,19 @@ import { useRef } from "react";
 
 const WHY_CHOOSE_IMAGES = [
   {
-    src: "https://www.dropbox.com/scl/fi/k211triytrd5x9dvrpeza/radiannce.jpeg?rlkey=7b2gdcwdxfqg5tok7mxnh70yg&raw=1",
+    src: "/images/local/why-radiance.jpeg",
     alt: "Radiance skincare result",
   },
   {
-    src: "https://www.dropbox.com/scl/fi/g1yuybvie0dnuyam5sxup/naturally.jpeg?rlkey=xummo0b9f5e34arn45celk9of&raw=1",
+    src: "/images/local/why-naturally.jpeg",
     alt: "Naturally bright skincare result",
   },
   {
-    src: "https://www.dropbox.com/scl/fi/36ono7hig59zzuv33jril/glow.jpeg?rlkey=j8cyb4qi7k8pe8t3y3mses8ed&raw=1",
+    src: "/images/local/why-glow.jpeg",
     alt: "Healthy glow skincare result",
   },
   {
-    src: "https://www.dropbox.com/scl/fi/5bh3mzy6bxh4kmh131th7/brighten.jpeg?rlkey=jg1vsqzigxbv1nev9mzfdcr8p&raw=1",
+    src: "/images/local/why-brighten.jpeg",
     alt: "Brightened complexion result",
   },
 ];
@@ -50,7 +50,8 @@ const WhyChooseUs = () => {
                   src={image.src}
                   alt={image.alt}
                   className="w-full h-full min-h-[145px] md:min-h-[190px] object-cover"
-                  loading="lazy"
+                  loading={index < 2 ? "eager" : "lazy"}
+                  fetchpriority={index < 2 ? "high" : "low"}
                   decoding="async"
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />

@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const HERO_IMAGE =
-  "https://www.dropbox.com/scl/fi/zf1y5dmj9i0wixkhuyn0c/qkh.jpeg?rlkey=td6tace4g5emoapt47vjxblqt&st=u5ci2snw&raw=1";
+  "/images/local/home-hero-qkh.jpeg";
 
 const Hero = () => {
   return (

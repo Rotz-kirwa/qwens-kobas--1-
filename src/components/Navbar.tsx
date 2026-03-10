@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
-const BRAND_LOGO_URL = "https://www.dropbox.com/scl/fi/vciso5r8lrayj5emh92q6/kbl.jpg?rlkey=de8pnnrj5z7o7wk3q16k39slf&st=izkvyifm&raw=1";
+const BRAND_LOGO_URL = "/images/local/logo-kbl.jpg";
 
 const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
