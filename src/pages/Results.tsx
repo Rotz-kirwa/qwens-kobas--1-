@@ -67,8 +67,8 @@ const testimonials = [
 
 const Results = () => {
   return (
-    <main className="pt-20">
-      <section className="relative overflow-hidden">
+    <main>
+      <section className="relative min-h-[92vh] overflow-hidden pt-20 md:min-h-[105vh]">
         <img
           src={RESULTS_HERO_IMAGE}
           alt="Queen Koba results hero"

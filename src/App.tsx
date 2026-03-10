@@ -12,8 +12,6 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Home from "./pages/Home";
 
 const CartDrawer = lazy(() => import("@/components/CartDrawer"));
-const PromoPopup = lazy(() => import("@/components/PromoPopup"));
-const SalePopup = lazy(() => import("@/components/SalePopup"));
 const Index = lazy(() => import("./pages/Index"));
 const Story = lazy(() => import("./pages/Story"));
 const Results = lazy(() => import("./pages/Results"));
@@ -44,10 +42,6 @@ const App = () => (
             <CartDrawer />
           </Suspense>
           <WhatsAppFloat />
-          <Suspense fallback={null}>
-            <PromoPopup />
-            <SalePopup />
-          </Suspense>
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Home />} />
