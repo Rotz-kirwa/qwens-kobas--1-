@@ -60,11 +60,6 @@ const productMarketing: Record<string, Partial<StoreProduct>> = {
     badges: ["Skin Barrier Favorite"],
     urgency_tag: "Buy Now, Glow Tomorrow",
   },
-  "new-mask": {
-    badges: ["Weekend Reset"],
-    stock_left: 7,
-    urgency_tag: "Buy Now, Glow Tomorrow",
-  },
   "new-bundle": {
     badges: ["Full Kit", "Free Shipping"],
     stock_left: 4,
@@ -120,7 +115,6 @@ const isExpectedCatalog = (items: StoreProduct[]) => {
     names.some((name) => name.includes("Brightening Toner 120ml")) &&
     names.some((name) => name.includes("Complexion Clarifying Serum 30ml")) &&
     names.some((name) => name.includes("Complexion Clarifying Cream 50ml")) &&
-    names.some((name) => name.includes("Brightening Face Mask 120ml")) &&
     names.some((name) => name.includes("Full Product Kit"))
   );
 };

@@ -1,5 +1,5 @@
 import { motion, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { ShieldCheck, ShieldOff, FlaskConical } from "lucide-react";
 
 const transparencyImage =
@@ -20,19 +20,9 @@ const trustBadges = [
   { icon: ShieldOff, label: "No Compromises" },
 ];
 
-const inciList = [
-  "Aloe Barbadensis Leaf Juice", "Cetearyl Olivate", "Snail Secretion Filtrate",
-  "Niacinamide", "Tranexamic Acid", "Azelaic Acid", "Kojic Dipalmitate",
-  "Glycyrrhiza Glabra Root Extract", "Centella Asiatica Extract",
-  "Moringa Oleifera Seed Oil", "Hyaluronic Acid", "Ceramide NP/AP/EOP",
-  "Allantoin", "Tocopherol", "Qasil", "Liwa", "Disodium EDTA",
-  "Xanthan Gum", "Geogard ECT", "Jasmine-Citrus Essential Oil Blend",
-];
-
 const IngredientsSpotlight = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const [showInci, setShowInci] = useState(false);
 
   return (
     <section id="ingredients" className="section-spacing bg-secondary/30">
@@ -114,37 +104,6 @@ const IngredientsSpotlight = () => {
               <span className="font-body text-xs tracking-widest uppercase">{label}</span>
             </div>
           ))}
-        </motion.div>
-
-        {/* INCI Transparency */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center"
-        >
-          <button
-            onClick={() => setShowInci(!showInci)}
-            className="font-body text-sm tracking-widest uppercase text-primary hover:text-primary/80 transition-colors border-b border-primary/30 pb-1"
-          >
-            {showInci ? "Hide" : "View"} Full INCI List
-          </button>
-
-          {showInci && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="mt-8 luxury-card text-left"
-            >
-              <h4 className="font-display text-lg font-semibold text-primary mb-4">Full Ingredient Transparency – Because Queens Deserve to Know</h4>
-              <p className="font-body text-sm text-muted-foreground leading-loose mb-4">
-                100% toxin-free · Handcrafted African Botanicals. Licorice root curbs excess melanin. Moringa brightens with antioxidants. Aloe soothes · Liwa fades spots · Qasil purifies · Snail mucin plumps · Shea hydrates luxuriously. No risks. No compromises.
-              </p>
-              <p className="font-body text-sm text-muted-foreground leading-loose">
-                {inciList.join(" · ")}
-              </p>
-            </motion.div>
-          )}
         </motion.div>
       </div>
     </section>

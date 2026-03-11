@@ -26,7 +26,7 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 112,
     description: "Target dark spots and hyperpigmentation with liwa and moringa. Fade unevenness and unlock up to 2 shades brighter glow. Feel empowered and radiant.",
-    image: "https://www.dropbox.com/scl/fi/akek115wovbezb0m923q0/sp3.jpeg?rlkey=w25aqom0rmq40uwmqse84cawb&st=bfb2q8v8&raw=1",
+    image: "https://www.dropbox.com/scl/fi/ydx5ia5xvcblz5a7d8ty2/sp4.jpeg?rlkey=jy5lypf5j1csv88fy7s33pte9&st=r8air5om&raw=1",
   },
   {
     id: "new-cream",
@@ -35,15 +35,6 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 95,
     description: "Deeply hydrate and plump with shea and snail mucin. Lock in brightness, smooth texture, and boost lasting confidence.",
-    image: "https://www.dropbox.com/scl/fi/ydx5ia5xvcblz5a7d8ty2/sp4.jpeg?rlkey=jy5lypf5j1csv88fy7s33pte9&st=r8air5om&raw=1",
-  },
-  {
-    id: "new-mask",
-    name: "Brightening Face Mask 120ml",
-    price: 2499,
-    rating: 4.6,
-    reviews: 43,
-    description: "Weekly reset: qasil and aloe clarify and brighten, reducing dullness for a high-end glow. Pamper yourself with a self-love ritual.",
     image: "https://www.dropbox.com/scl/fi/bparrxju6nzi3y816yoc7/sp5.jpeg?rlkey=mae29d7hd4dq88lj4hlvf8fju&st=yqb89dwv&raw=1",
   },
   {

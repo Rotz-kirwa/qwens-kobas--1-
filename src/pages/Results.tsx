@@ -2,14 +2,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock3, FlaskConical, Leaf, ShieldCheck, Star } from "lucide-react";
 
-const RESULTS_HERO_IMAGE =
-  "https://www.dropbox.com/scl/fi/x1nk08f8gru7n1o699jme/tp1.jpeg?rlkey=djry321laqjq65hydowsglee3&st=c260vvht&raw=1";
 const RESULTS_SUPPORT_IMAGE =
   "https://www.dropbox.com/scl/fi/rbkbdc750xw1drznche0a/rs1.jpeg?rlkey=fhgchugyidb4sg55tjdnvmir9&st=fn5nc2gk&raw=1";
 const RESULTS_SUPPORT_IMAGE_2 =
   "https://www.dropbox.com/scl/fi/rrwlx88xncctp68mf7qs1/d1.jpeg?rlkey=tsfeliz4u80qh7umv9zr16o59&st=kahhk9sl&raw=1";
-const RESULTS_CASE_IMAGE =
-  "https://www.dropbox.com/scl/fi/7yrskjjpwt8epsz2cnl5u/w123.jpeg?rlkey=l7deiwnknzw6zrqz3l6bda7mx&st=mv2h6m9o&raw=1";
 
 const glowMetrics = [
   {
@@ -68,35 +64,7 @@ const testimonials = [
 const Results = () => {
   return (
     <main>
-      <section className="relative min-h-[92vh] overflow-hidden pt-20 md:min-h-[105vh]">
-        <img
-          src={RESULTS_HERO_IMAGE}
-          alt="Queen Koba results hero"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/38 via-black/24 to-black/46" />
-        <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/20 blur-[90px]" />
-        <div className="container mx-auto px-4 py-16 md:py-22">
-          <div className="relative mx-auto max-w-3xl text-center">
-            <p className="mb-4 text-sm uppercase tracking-[0.32em] text-primary">Results</p>
-            <h1 className="mb-5 font-display text-5xl font-light leading-[0.95] md:text-7xl">
-              <span className="text-gold-gradient">Real Results.</span>{" "}
-              <span className="italic text-gold-gradient">Regal Radiance.</span>
-            </h1>
-            <p className="mx-auto mb-7 max-w-2xl text-base leading-relaxed text-white md:text-lg">
-              Safe transformation for melanin-rich skin, powered by Kenyan botanicals and precision skincare science.
-            </p>
-            <Link
-              to="/shop"
-              className="inline-flex items-center rounded-full bg-gold-gradient px-8 py-4 text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground shadow-[0_14px_36px_rgba(95,67,27,0.28)] transition-transform duration-300 hover:-translate-y-0.5"
-            >
-              Shop the Glow
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 md:py-20">
+      <section className="pt-24 md:pt-28 pb-16 md:pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-10 text-center">
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-primary">Before & After</p>
@@ -171,19 +139,6 @@ const Results = () => {
               </motion.article>
             </div>
 
-            <motion.article
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ delay: 0.08, duration: 0.5 }}
-              className="relative overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-[0_18px_45px_rgba(24,17,8,0.12)]"
-            >
-              <img
-                src={RESULTS_CASE_IMAGE}
-                alt="Queen Koba visible results"
-                className="block w-full h-auto"
-              />
-            </motion.article>
           </div>
         </div>
       </section>

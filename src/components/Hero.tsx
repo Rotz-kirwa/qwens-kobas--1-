@@ -76,7 +76,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.6 }}
-            className="font-display italic text-lg md:text-xl mb-8 text-[#B76E79] drop-shadow-[0_1px_1px_rgba(0,0,0,0.28)]"
+            className="font-display italic text-lg md:text-xl mb-8 text-[#D4AF37] drop-shadow-[0_1px_1px_rgba(0,0,0,0.28)]"
           >
             Queen Koba: Eternal Radiance, Naturally You
           </motion.p>

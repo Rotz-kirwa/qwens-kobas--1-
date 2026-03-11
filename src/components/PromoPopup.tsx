@@ -1,74 +1,36 @@
-import { useEffect, useState } from 'react';
-import { X, ShoppingBag } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { X, ShoppingBag, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-interface SaleProduct {
-  _id: string;
-  name: string;
-  description: string;
-  discount_percentage: number;
-  image_url: string;
-  prices: {
-    KES: { amount: number };
-  };
-}
+const FULL_KIT_IMAGE =
+  "https://www.dropbox.com/scl/fi/waicevj5xuzm33zgg2hmp/sp7.jpeg?rlkey=ojau7f05ljcqt7d2qhodwmnrz&st=u7hk5mfy&raw=1";
 
 export default function PromoPopup() {
   const [showPopup, setShowPopup] = useState(false);
-  const [products, setProducts] = useState<SaleProduct[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hasSeenPopup = sessionStorage.getItem('promoPopupSeen');
+    const hasSeenPopup = sessionStorage.getItem("fullKitPopupSeen");
     if (hasSeenPopup) return;
 
-    const fetchSaleProducts = async () => {
-      try {
-        const res = await fetch(`${API_URL}/products`);
-        if (!res.ok) return;
-        const data = await res.json();
-        const saleProducts = data.products?.filter((p: any) => p.on_sale && p.discount_percentage > 0) || [];
-        setProducts(saleProducts);
-      } catch {
-        // Backend is optional for this popup; silently skip when unavailable.
-      }
-    };
+    const timer = window.setTimeout(() => {
+      setShowPopup(true);
+    }, 1800);
 
-    fetchSaleProducts();
+    return () => window.clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    if (products.length === 0) return;
-
-    const initialTimer = setTimeout(() => {
-      setShowPopup(true);
-    }, 5000);
-
-    return () => {
-      clearTimeout(initialTimer);
-    };
-  }, [products]);
+  const handleClose = () => {
+    sessionStorage.setItem("fullKitPopupSeen", "true");
+    setShowPopup(false);
+  };
 
   const handleShopNow = () => {
-    sessionStorage.setItem('promoPopupSeen', 'true');
+    sessionStorage.setItem("fullKitPopupSeen", "true");
     setShowPopup(false);
-    navigate('/shop');
+    navigate("/shop");
   };
-
-  const handleClose = () => {
-    sessionStorage.setItem('promoPopupSeen', 'true');
-    setShowPopup(false);
-  };
-
-  if (products.length === 0) return null;
-
-  const product = products[currentIndex];
-  const originalPrice = product.prices?.KES?.amount || 0;
-  const discountedPrice = originalPrice * (1 - product.discount_percentage / 100);
 
   return (
     <AnimatePresence>
@@ -77,92 +39,81 @@ export default function PromoPopup() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm"
           onClick={handleClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 50 }}
-            transition={{ type: 'spring', damping: 20 }}
+            initial={{ opacity: 0, y: 28, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.96 }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl max-w-md w-full relative shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-primary/15 bg-background shadow-[0_28px_80px_rgba(0,0,0,0.28)]"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 bg-white/90 rounded-full p-2 text-gray-600 hover:text-gray-900 shadow-lg"
+              className="absolute right-4 top-4 z-10 rounded-full bg-background/90 p-2 text-foreground shadow-md transition-colors hover:text-primary"
+              aria-label="Close promo popup"
             >
-              <X className="w-5 h-5" />
+              <X className="h-4 w-4" />
             </button>
 
             <div className="relative">
-              <div className="absolute top-4 left-4 bg-gradient-to-r from-red-600 to-red-500 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg animate-pulse">
-                {product.discount_percentage}% OFF
+              <div className="absolute left-4 top-4 z-10 rounded-full bg-primary px-4 py-1.5 text-[10px] font-body font-bold uppercase tracking-[0.22em] text-primary-foreground shadow-lg">
+                Full Kit
               </div>
-              {product.image_url && (
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-64 object-cover"
-                />
-              )}
+              <img
+                src={FULL_KIT_IMAGE}
+                alt="Queen Koba Full Product Kit"
+                className="h-64 w-full object-cover"
+              />
             </div>
 
-            <div className="p-8 text-center">
-              <div className="inline-block bg-gradient-to-r from-[#8B6F47] to-[#6d5638] text-white px-4 py-1 rounded-full text-sm font-semibold mb-3">
-                LIMITED TIME OFFER
-              </div>
-
-              <h3 className="text-2xl font-serif font-bold text-gray-800 mb-2">
-                {product.name}
+            <div className="p-6 md:p-7">
+              <p className="text-xs font-body uppercase tracking-[0.26em] text-primary">
+                Limited kits this month
+              </p>
+              <h3 className="mt-3 font-display text-3xl font-light text-foreground">
+                Full Product Kit
               </h3>
-
-              <p className="text-gray-600 mb-4 text-sm line-clamp-2">
-                {product.description}
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                Mask, toner, serum, cream, and cleanser together in one complete routine.
+                The full kit for brighter, even, melanin-safe radiance.
+              </p>
+              <p className="mt-4 text-xs font-body uppercase tracking-[0.22em] text-primary">
+                Full Product Kit • KSh 9,999. Limited kits this month.
               </p>
 
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <span className="text-xl line-through text-gray-400">
-                  KSh {originalPrice.toLocaleString()}
-                </span>
-                <span className="text-3xl font-bold text-red-600">
-                  KSh {Math.round(discountedPrice).toLocaleString()}
-                </span>
+              <div className="mt-5 flex items-center gap-2 text-sm text-foreground">
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                  ))}
+                </div>
+                <span>5/5 (200 reviews)</span>
               </div>
 
-              <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-3 mb-4">
-                <p className="text-sm font-semibold text-red-700">
-                  🔥 Save KSh {Math.round(originalPrice - discountedPrice).toLocaleString()} Today!
-                </p>
+              <div className="mt-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-body uppercase tracking-[0.2em] text-muted-foreground">
+                    Price
+                  </p>
+                  <p className="mt-1 font-display text-3xl font-semibold text-primary">
+                    KSh 9,999
+                  </p>
+                </div>
+                <div className="rounded-full border border-border px-4 py-2 text-sm font-body">
+                  1
+                </div>
               </div>
 
               <button
                 onClick={handleShopNow}
-                className="w-full bg-gradient-to-r from-[#8B6F47] to-[#6d5638] text-white py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold-gradient px-6 py-4 text-xs font-body font-bold uppercase tracking-[0.2em] text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
               >
-                <ShoppingBag className="w-5 h-5" />
-                Shop Now
+                <ShoppingBag className="h-4 w-4" />
+                Grab the Bundle &amp; Save
               </button>
-
-              <button
-                onClick={handleClose}
-                className="w-full mt-3 text-gray-500 hover:text-gray-700 text-sm"
-              >
-                Maybe later
-              </button>
-
-              {products.length > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {products.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`h-2 rounded-full transition-all ${
-                        idx === currentIndex ? 'w-8 bg-[#8B6F47]' : 'w-2 bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           </motion.div>
         </motion.div>

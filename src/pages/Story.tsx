@@ -16,7 +16,8 @@ const STORY_BADGES = [
   },
   {
     title: "Cruelty-Free & Sustainable",
-    image: STORY_TRUST_IMAGE,
+    image:
+      "https://www.dropbox.com/scl/fi/6m4t9w6trv2lxkc3n0fya/cr7.jpeg?rlkey=g4ibnz4ui8tyivtcrkq5ufahz&st=v5tv15u1&raw=1",
   },
   {
     title: "Dermatologist-Inspired Safety",
@@ -176,7 +177,9 @@ const Story = () => {
                 <img
                   src={badge.image}
                   alt={badge.title}
-                  className="block h-72 w-full object-cover"
+                  className={`block w-full object-cover ${
+                    badge.title === "Cruelty-Free & Sustainable" ? "h-96" : "h-72"
+                  }`}
                 />
                 <div className="p-6">
                   <p className="text-sm uppercase tracking-[0.24em] text-primary">Badge</p>

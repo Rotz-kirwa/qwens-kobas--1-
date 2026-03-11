@@ -1,4 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const LOCAL_API_RETRY_COOLDOWN_MS = 30000;
+let localApiUnavailableUntil = 0;
 
 interface ApiRequestInit extends RequestInit {
   quietError?: boolean;
@@ -8,6 +10,8 @@ interface ApiRequestInit extends RequestInit {
 const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
   const token = localStorage.getItem('token');
   const { quietError = false, ...requestOptions } = options;
+  const now = Date.now();
+  const isLocalApi = API_BASE_URL.includes('localhost:5000') || API_BASE_URL.includes('127.0.0.1:5000');
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -16,6 +20,10 @@ const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  if (isLocalApi && localApiUnavailableUntil > now) {
+    throw new Error('Local API unavailable');
   }
 
   try {
@@ -32,6 +40,9 @@ const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
 
     return data;
   } catch (error) {
+    if (isLocalApi) {
+      localApiUnavailableUntil = Date.now() + LOCAL_API_RETRY_COOLDOWN_MS;
+    }
     if (!quietError) {
       console.error('API Error:', error);
     }
