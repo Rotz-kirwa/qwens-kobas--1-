@@ -15,11 +15,6 @@ const STORY_BADGES = [
       "https://www.dropbox.com/scl/fi/9m6pelk20xy4z1w3hzi01/mh.jpeg?rlkey=flezqw5z0vnhfp47ms7mm5ozi&st=bdnr1igg&raw=1",
   },
   {
-    title: "Cruelty-Free & Sustainable",
-    image:
-      "https://www.dropbox.com/scl/fi/6m4t9w6trv2lxkc3n0fya/cr7.jpeg?rlkey=g4ibnz4ui8tyivtcrkq5ufahz&st=v5tv15u1&raw=1",
-  },
-  {
     title: "Dermatologist-Inspired Safety",
     image:
       "https://www.dropbox.com/scl/fi/xp4pg3fl6i9zks0caeok2/ds.jpeg?rlkey=q5m8c72ktnz4of9yhpwde2g5h&st=xwezzobc&raw=1",
@@ -168,20 +163,21 @@ const Story = () => {
             </h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid justify-center gap-6 md:grid-cols-2 xl:grid-cols-2">
             {STORY_BADGES.map((badge) => (
               <article
                 key={badge.title}
-                className="overflow-hidden rounded-[28px] border border-primary/15 bg-card shadow-[0_20px_50px_rgba(24,17,8,0.08)]"
+                className="mx-auto w-full max-w-[32rem] overflow-hidden rounded-[28px] border border-primary/15 bg-card shadow-[0_20px_50px_rgba(24,17,8,0.08)]"
               >
-                <img
-                  src={badge.image}
-                  alt={badge.title}
-                  className={`block w-full object-cover ${
-                    badge.title === "Cruelty-Free & Sustainable" ? "h-96" : "h-72"
-                  }`}
-                />
-                <div className="p-6">
+                <div className="relative h-[24rem] overflow-hidden md:h-[28rem]">
+                  <img
+                    src={badge.image}
+                    alt={badge.title}
+                    className="block h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/8 to-transparent" />
+                </div>
+                <div className="p-6 md:p-7">
                   <p className="text-sm uppercase tracking-[0.24em] text-primary">Badge</p>
                   <h3 className="mt-3 font-display text-2xl font-light">{badge.title}</h3>
                 </div>

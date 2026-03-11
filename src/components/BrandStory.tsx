@@ -3,6 +3,9 @@ import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { ShieldCheck, Leaf, FlaskConical } from "lucide-react";
 
+const STORY_PROBLEM_IMAGE =
+  "https://www.dropbox.com/scl/fi/gg49jldng153nu47ksstw/picofthegals-1.png?rlkey=3atcpufhut8ime40hxt7zvb3n&st=xf8iytyi&raw=1";
+
 const BrandStory = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -23,14 +26,29 @@ const BrandStory = () => {
           transition={{ duration: 0.8 }}
           className="mb-16"
         >
-          <div className="max-w-3xl">
-            <p className="text-sm tracking-[0.3em] uppercase text-primary font-body mb-4">The Problem</p>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light mb-6">
-              Your Melanin Deserves <span className="italic text-gold-gradient">Better</span>
-            </h2>
-            <p className="text-muted-foreground font-body leading-relaxed max-w-xl">
-              Millions of women risk their health with dangerous bleaching creams. Queen Koba is the safe complexion-clarifying revolution — inspired by African queens, crafted proudly in Kenya.
-            </p>
+          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="max-w-3xl">
+              <p className="mb-4 font-body text-sm uppercase tracking-[0.3em] text-primary">
+                The Problem
+              </p>
+              <h2 className="mb-6 font-display text-4xl font-light md:text-5xl lg:text-6xl">
+                Your Melanin Deserves <span className="italic text-gold-gradient">Better</span>
+              </h2>
+              <p className="max-w-xl font-body leading-relaxed text-muted-foreground">
+                Millions of women risk their health with dangerous bleaching creams.
+                Queen Koba is the safe complexion-clarifying revolution, inspired by
+                African queens, crafted proudly in Kenya.
+              </p>
+            </div>
+
+            <div className="overflow-hidden rounded-[28px] border border-primary/15 bg-background shadow-[0_24px_60px_rgba(24,17,8,0.12)]">
+              <img
+                src={STORY_PROBLEM_IMAGE}
+                alt="Women represented in Queen Koba's story"
+                className="block h-full w-full object-cover"
+                loading="lazy"
+              />
+            </div>
           </div>
         </motion.div>
 

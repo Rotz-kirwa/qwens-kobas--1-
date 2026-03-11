@@ -17,7 +17,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviews: 64,
     description: "Mist away dullness and balance tone with licorice root and aloe. Soothes instantly and reveals even radiance. Your daily step to luminous skin.",
-    image: "https://www.dropbox.com/scl/fi/1li9uz2b1jgnyvyauad30/sp1.jpeg?rlkey=49jifr26uug6r3c26ywkxkhfl&st=bf603a4k&raw=1",
+    image: "https://www.dropbox.com/scl/fi/akek115wovbezb0m923q0/sp3.jpeg?rlkey=w25aqom0rmq40uwmqse84cawb&st=vb6mzc2a&raw=1",
   },
   {
     id: "new-serum",
@@ -38,6 +38,15 @@ export const products: Product[] = [
     image: "https://www.dropbox.com/scl/fi/bparrxju6nzi3y816yoc7/sp5.jpeg?rlkey=mae29d7hd4dq88lj4hlvf8fju&st=yqb89dwv&raw=1",
   },
   {
+    id: "new-mask",
+    name: "Brightening Face Mask 120ml",
+    price: 1499,
+    rating: 4.8,
+    reviews: 76,
+    description: "Weekly reset: Qasil + aloe clarify and brighten, reduce dullness for high-end glow. Pamper yourself to self-love.",
+    image: "https://www.dropbox.com/scl/fi/srxgy8id5smigxy8vtepg/sp6.jpeg?rlkey=4s4p1hq245l9htmf3952f0xnb&st=9jgl6wjw&raw=1",
+  },
+  {
     id: "new-bundle",
     name: "Full Product Kit",
     price: 9999,
@@ -45,6 +54,6 @@ export const products: Product[] = [
     reviews: 200,
     description: "Mask, toner, serum, cream, and cleanser together in one complete routine. The full kit for brighter, even, melanin-safe radiance.",
     isBundle: true,
-    image: "https://www.dropbox.com/scl/fi/waicevj5xuzm33zgg2hmp/sp7.jpeg?rlkey=ojau7f05ljcqt7d2qhodwmnrz&st=u7hk5mfy&raw=1",
+    image: "https://www.dropbox.com/scl/fi/xbfgwzkqvfqe2hhybwwhp/er.png?rlkey=jovtvo8ux3daj3m7h2pkkie3c&st=hs1zy0lr&raw=1",
   },
 ];
