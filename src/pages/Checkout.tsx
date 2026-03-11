@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CreditCard, Smartphone, Building2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { paymentAPI, ordersAPI } from "@/lib/api";
+import { paymentAPI, ordersAPI, isApiOfflineError } from "@/lib/api";
 import SEO from "@/components/SEO";
 
 const getPaymentIcon = (type: string) => {
@@ -74,7 +74,7 @@ const getFallbackMethods = (country: string): PaymentMethod[] => {
 }
 
 const Checkout = () => {
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, deliverySelection, shippingFee } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -99,7 +99,7 @@ const Checkout = () => {
     email: "",
     phone: "",
     address: "",
-    city: "",
+    city: deliverySelection.county,
     postalCode: "",
   });
 
@@ -127,7 +127,9 @@ const Checkout = () => {
         }
         setPaymentMethod("");
       } catch (error) {
-        console.error('Failed to fetch payment methods:', error);
+        if (!isApiOfflineError(error)) {
+          console.error('Failed to fetch payment methods:', error);
+        }
         // Keep fallback methods already set
       } finally {
         setLoading(false);
@@ -167,7 +169,7 @@ const Checkout = () => {
     }
   };
 
-  const finalTotal = total - (total * discount / 100);
+  const finalTotal = total - (total * discount / 100) + shippingFee;
 
   const getPaymentMethodType = () => {
     const method = paymentMethods.find(m => m.id === paymentMethod);
@@ -201,8 +203,19 @@ const Checkout = () => {
           city: formData.city,
           postal_code: formData.postalCode,
           country,
+          county: deliverySelection.county,
+          delivery_point: deliverySelection.point,
+          delivery_method: deliverySelection.method,
+          delivery_eta: deliverySelection.eta,
         },
         payment_method: paymentMethod || "card",
+        delivery: {
+          county: deliverySelection.county,
+          point: deliverySelection.point,
+          method: deliverySelection.method,
+          shipping_fee: shippingFee,
+          eta: deliverySelection.eta,
+        },
       };
 
       await ordersAPI.create(orderPayload);
@@ -218,7 +231,9 @@ const Checkout = () => {
       console.error('Order submission failed:', error);
       toast({
         title: "Order Failed",
-        description: "Failed to place order. Please try again.",
+        description: isApiOfflineError(error)
+          ? "The backend is offline. Start the API server on port 5000 to place orders."
+          : "Failed to place order. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -666,11 +681,22 @@ const Checkout = () => {
                 )}
                 <div className="flex justify-between font-body text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-primary">{finalTotal >= 5000 ? "FREE" : formatCurrency(500, country)}</span>
+                  <span className="text-primary">{formatCurrency(shippingFee, country)}</span>
+                </div>
+                <div className="rounded-[18px] border border-primary/15 bg-secondary/10 px-4 py-3 text-sm">
+                  <p className="font-body font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                    Delivery Selection
+                  </p>
+                  <p className="mt-2 text-muted-foreground">
+                    {deliverySelection.county} · {deliverySelection.point}
+                  </p>
+                  <p className="text-muted-foreground capitalize">
+                    {deliverySelection.method === "door" ? "Door delivery" : "Pickup station"} · {deliverySelection.eta}
+                  </p>
                 </div>
                 <div className="flex justify-between font-display text-xl font-semibold pt-3 border-t border-border">
                   <span>Total</span>
-                  <span className="text-primary">{formatCurrency(finalTotal >= 5000 ? finalTotal : finalTotal + 500, country)}</span>
+                  <span className="text-primary">{formatCurrency(finalTotal, country)}</span>
                 </div>
                 <div className="pt-4 border-t border-border">
                   <label className="block text-sm font-body mb-2">Promo Code</label>

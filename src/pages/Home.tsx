@@ -5,7 +5,7 @@ import SEO from "@/components/SEO";
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const IngredientsSpotlight = lazy(() => import("@/components/IngredientsSpotlight"));
 const HERO_FOLLOWUP_IMAGE =
-  "https://www.dropbox.com/scl/fi/xbfgwzkqvfqe2hhybwwhp/er.png?rlkey=jovtvo8ux3daj3m7h2pkkie3c&st=w2hu6mjw&raw=1";
+  "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1";
 
 const Home = () => {
   return (

@@ -115,33 +115,12 @@ const Results = () => {
                   alt="Queen Koba additional skincare result"
                   className="block w-full h-auto"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent px-5 py-6 md:px-7 md:py-7">
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-                        Aisha, 28, Medium Brown Skin
-                      </p>
-                      <p className="mt-2 font-body text-sm leading-6 text-white">
-                        "After 4 weeks with the Serum & Mask, my dark spots faded 60-70%, tone
-                        evened beautifully - skin feels alive and confident! No irritation, just glow."
-                      </p>
-                      <p className="mt-2 text-xs font-body uppercase tracking-[0.18em] text-primary">
-                        5 ★ | Verified Purchase | Before/After Slider
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-                        Nia, 35, Deep Tone
-                      </p>
-                      <p className="mt-2 font-body text-sm leading-6 text-white">
-                        "Switched from toxic creams - Queen Koba Toner & Cream gave me visible brightness
-                        and evenness in 5 weeks. Luxurious, safe, and life-changing."
-                      </p>
-                      <p className="mt-2 text-xs font-body uppercase tracking-[0.18em] text-primary">
-                        5 ★ | Best for Hyperpigmentation
-                      </p>
-                    </div>
-                  </div>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent px-5 py-6 md:px-7 md:py-7">
+                  <p className="max-w-2xl font-body text-sm leading-6 text-white md:text-base">
+                    Real women. Real transformation. Queen Koba rituals are designed to help
+                    melanin-rich skin look clearer, smoother, and naturally radiant with every week
+                    of consistent care.
+                  </p>
                 </div>
               </motion.article>
             </div>

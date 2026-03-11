@@ -1,11 +1,27 @@
-import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
+import { X, Plus, Minus, Trash2, ShoppingBag, MapPin, Truck, Store } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { getCountyDelivery, kenyaDeliveryLocations } from "@/data/kenyaDelivery";
 
 const CartDrawer = () => {
-  const { items, isOpen, setIsOpen, removeFromCart, updateQuantity, total, clearCart } = useCart();
+  const {
+    items,
+    isOpen,
+    setIsOpen,
+    removeFromCart,
+    updateQuantity,
+    total,
+    clearCart,
+    deliverySelection,
+    setCounty,
+    setDeliveryPoint,
+    setDeliveryMethod,
+    shippingFee,
+    grandTotal,
+  } = useCart();
   const navigate = useNavigate();
+  const activeCounty = getCountyDelivery(deliverySelection.county);
 
   const handleCheckout = () => {
     setIsOpen(false);
@@ -90,19 +106,133 @@ const CartDrawer = () => {
                 </div>
 
                 <div className="p-6 border-t border-border space-y-4">
+                  <div className="rounded-[22px] border border-primary/15 bg-secondary/10 p-4">
+                    <div className="mb-4 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <p className="font-body text-sm font-semibold uppercase tracking-[0.18em] text-foreground/80">
+                        Delivery Across Kenya
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
+                          Choose your county
+                        </label>
+                        <select
+                          value={deliverySelection.county}
+                          onChange={(event) => setCounty(event.target.value)}
+                          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                        >
+                          {kenyaDeliveryLocations.map((location) => (
+                            <option key={location.county} value={location.county}>
+                              {location.county}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
+                          Major delivery point
+                        </label>
+                        <select
+                          value={deliverySelection.point}
+                          onChange={(event) => setDeliveryPoint(event.target.value)}
+                          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                        >
+                          {activeCounty.points.map((point) => (
+                            <option key={point} value={point}>
+                              {point}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryMethod("pickup")}
+                          className={`rounded-[20px] border p-4 text-left transition-all ${
+                            deliverySelection.method === "pickup"
+                              ? "border-primary bg-primary/5 shadow-[0_12px_24px_rgba(0,0,0,0.08)]"
+                              : "border-border bg-background"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="rounded-xl bg-secondary/40 p-2">
+                              <Store className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="font-body text-sm font-semibold uppercase tracking-[0.16em] text-foreground/85">
+                                Pickup Station
+                              </p>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                Delivery fee KSh {activeCounty.pickupFee.toLocaleString()}
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Ready for pickup in {activeCounty.eta}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryMethod("door")}
+                          className={`rounded-[20px] border p-4 text-left transition-all ${
+                            deliverySelection.method === "door"
+                              ? "border-primary bg-primary/5 shadow-[0_12px_24px_rgba(0,0,0,0.08)]"
+                              : "border-border bg-background"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="rounded-xl bg-secondary/40 p-2">
+                              <Truck className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="font-body text-sm font-semibold uppercase tracking-[0.16em] text-foreground/85">
+                                Door Delivery
+                              </p>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                Delivery fee KSh {activeCounty.doorFee.toLocaleString()}
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Estimated arrival in {activeCounty.eta}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex justify-between items-center">
                     <span className="font-body text-sm text-muted-foreground uppercase tracking-wide">Subtotal</span>
                     <span className="font-display text-2xl font-semibold text-primary">
                       KSh {total.toLocaleString()}
                     </span>
                   </div>
-                  {total >= 5000 && (
-                    <p className="text-xs text-primary font-body tracking-wide">✓ Free shipping included</p>
-                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="font-body text-sm text-muted-foreground uppercase tracking-wide">
+                      Shipping
+                    </span>
+                    <span className="font-body text-sm font-semibold text-foreground">
+                      KSh {shippingFee.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-border pt-4">
+                    <span className="font-body text-sm text-muted-foreground uppercase tracking-wide">
+                      Total
+                    </span>
+                    <span className="font-display text-2xl font-semibold text-primary">
+                      KSh {grandTotal.toLocaleString()}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground font-body">
                     <span>🔒 Secure Checkout</span>
                     <span>·</span>
-                    <span>M-Pesa Ready</span>
+                    <span>{deliverySelection.county} delivery ready</span>
                   </div>
                   <button 
                     onClick={handleCheckout}

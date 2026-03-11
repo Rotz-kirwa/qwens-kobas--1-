@@ -6,6 +6,10 @@ interface ApiRequestInit extends RequestInit {
   quietError?: boolean;
 }
 
+export const isApiOfflineError = (error: unknown) =>
+  error instanceof Error &&
+  (error.message === "Local API unavailable" || error.message === "Failed to fetch");
+
 // API client with error handling
 const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
   const token = localStorage.getItem('token');
@@ -103,7 +107,7 @@ export const ordersAPI = {
 
 // Payment Methods API
 export const paymentAPI = {
-  getByCountry: (country: string) => apiClient(`/payment-methods/${country}`),
+  getByCountry: (country: string) => apiClient(`/payment-methods/${country}`, { quietError: true }),
 };
 
 export default {

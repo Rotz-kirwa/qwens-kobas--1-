@@ -54,6 +54,6 @@ export const products: Product[] = [
     reviews: 200,
     description: "Mask, toner, serum, cream, and cleanser together in one complete routine. The full kit for brighter, even, melanin-safe radiance.",
     isBundle: true,
-    image: "https://www.dropbox.com/scl/fi/xbfgwzkqvfqe2hhybwwhp/er.png?rlkey=jovtvo8ux3daj3m7h2pkkie3c&st=hs1zy0lr&raw=1",
+    image: "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1",
   },
 ];
