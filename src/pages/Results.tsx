@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock3, FlaskConical, Leaf, ShieldCheck, Star } from "lucide-react";
+import SEO from "@/components/SEO";
 
 const RESULTS_SUPPORT_IMAGE =
   "https://www.dropbox.com/scl/fi/rbkbdc750xw1drznche0a/rs1.jpeg?rlkey=fhgchugyidb4sg55tjdnvmir9&st=fn5nc2gk&raw=1";
@@ -64,6 +65,12 @@ const testimonials = [
 const Results = () => {
   return (
     <main>
+      <SEO
+        title="Results"
+        description="See Queen Koba skincare results, customer glow stories, and our approach to brightening, smoothing, and clarifying melanin-rich skin safely."
+        path="/results"
+        keywords="Queen Koba results, skincare before and after, melanin skincare testimonials, brightening results"
+      />
       <section className="pt-24 md:pt-28 pb-16 md:pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-10 text-center">

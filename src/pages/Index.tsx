@@ -7,10 +7,17 @@ import Testimonials from "@/components/Testimonials";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 
 const Index = () => {
   return (
     <main>
+      <SEO
+        title="All Sections"
+        description="Browse the full Queen Koba experience in one page."
+        path="/all"
+        robots="noindex,follow"
+      />
       <Hero />
       <WhyChooseUs />
       <BrandStory />

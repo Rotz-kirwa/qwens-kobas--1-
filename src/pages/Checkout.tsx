@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CreditCard, Smartphone, Building2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { paymentAPI, ordersAPI } from "@/lib/api";
+import SEO from "@/components/SEO";
 
 const getPaymentIcon = (type: string) => {
   if (type.includes('card') || type.includes('visa') || type.includes('mastercard')) return CreditCard;
@@ -228,6 +229,12 @@ const Checkout = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen pt-32 pb-20">
+        <SEO
+          title="Checkout"
+          description="Complete your Queen Koba order."
+          path="/checkout"
+          robots="noindex,nofollow"
+        />
         <div className="container mx-auto px-4 text-center">
           <h1 className="font-display text-4xl mb-4">Your cart is empty</h1>
           <button
@@ -243,6 +250,12 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-20 bg-secondary/20">
+      <SEO
+        title="Checkout"
+        description="Secure checkout for Queen Koba skincare orders."
+        path="/checkout"
+        robots="noindex,nofollow"
+      />
       <div className="container mx-auto px-4 max-w-6xl">
         <button
           onClick={() => navigate(-1)}

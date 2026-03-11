@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -60,6 +61,12 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-20">
+      <SEO
+        title="Contact"
+        description="Contact Queen Koba for skincare questions, product support, and help choosing the right routine for melanin-rich skin."
+        path="/contact"
+        keywords="contact Queen Koba, skincare support Kenya, Queen Koba help"
+      />
       <div className="container mx-auto px-4 max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

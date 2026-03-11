@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Leaf, ShieldCheck, Sparkles, Droplets } from "lucide-react";
 import BrandStory from "@/components/BrandStory";
+import SEO from "@/components/SEO";
 
 const STORY_HERO_VIDEO =
   "/queenkoba-story-hero.mp4";
@@ -24,6 +25,12 @@ const STORY_BADGES = [
 const Story = () => {
   return (
     <main className="pt-20">
+      <SEO
+        title="Our Story"
+        description="Discover the Queen Koba story: a Kenyan skincare brand inspired by African queens and built to serve melanin-rich skin with safe, elegant formulas."
+        path="/story"
+        keywords="Queen Koba story, Kenyan beauty brand, melanin skincare story, African botanicals skincare"
+      />
       <section className="relative min-h-[72vh] overflow-hidden border-b border-border/60 bg-black">
         <video
           key={STORY_HERO_VIDEO}

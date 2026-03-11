@@ -4,6 +4,7 @@ import { Mail, Lock, LogIn } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import SEO from "@/components/SEO";
 
 const Login = () => {
   const { login, loginWithGoogle } = useAuth();
@@ -29,6 +30,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-20 flex items-center justify-center">
+      <SEO
+        title="Login"
+        description="Sign in to your Queen Koba account."
+        path="/login"
+        robots="noindex,nofollow"
+      />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}

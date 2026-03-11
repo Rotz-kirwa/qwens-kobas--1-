@@ -4,6 +4,7 @@ import { User, Mail, Lock, Phone, UserPlus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import SEO from "@/components/SEO";
 
 const Signup = () => {
   const { signup, loginWithGoogle } = useAuth();
@@ -29,6 +30,12 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-20 flex items-center justify-center">
+      <SEO
+        title="Create Account"
+        description="Create your Queen Koba account to manage checkout and orders."
+        path="/signup"
+        robots="noindex,nofollow"
+      />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}

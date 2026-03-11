@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import Hero from "@/components/Hero";
+import SEO from "@/components/SEO";
 
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const IngredientsSpotlight = lazy(() => import("@/components/IngredientsSpotlight"));
@@ -9,6 +10,20 @@ const HERO_FOLLOWUP_IMAGE =
 const Home = () => {
   return (
     <main>
+      <SEO
+        title="Premium Kenyan Skincare for Melanin-Rich Skin"
+        description="Shop Queen Koba skincare for melanin-rich skin: toxin-free cleansers, toners, serums, masks, creams, and full routines crafted in Kenya."
+        path="/"
+        keywords="Queen Koba, Kenyan skincare, melanin rich skin, brightening skincare, toxin-free skincare, African botanicals"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Queen Koba",
+          url: "https://queenkoba.com/",
+          description:
+            "Premium Kenyan skincare for melanin-rich skin with toxin-free formulas and African botanicals.",
+        }}
+      />
       <Hero />
       <section className="bg-background py-8 md:py-12">
         <div className="container mx-auto px-4">
