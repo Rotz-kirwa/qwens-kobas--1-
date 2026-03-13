@@ -3,7 +3,8 @@ import { ShoppingBag, Menu, X, User, LogOut } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "@/components/NavLink";
 
 const BRAND_LOGO_URL = "/images/local/logo-kbl.jpg";
 
@@ -11,6 +12,7 @@ const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
 
   const links = [
     { label: "Home", href: "/" },
@@ -19,6 +21,8 @@ const Navbar = () => {
     { label: "Our Story", href: "/story" },
     { label: "Contact", href: "/contact" },
   ];
+
+  const isActive = (href: string) => location.pathname === href;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/75">
@@ -36,13 +40,14 @@ const Navbar = () => {
 
         <div className="hidden items-center gap-7 md:flex">
           {links.map((l) => (
-            <Link
+            <NavLink
               key={l.href}
               to={l.href}
               className="text-[12px] font-body font-semibold uppercase tracking-[0.18em] text-foreground/90 transition-colors duration-300 hover:text-primary"
+              activeClassName="text-primary"
             >
               {l.label}
-            </Link>
+            </NavLink>
           ))}
         </div>
 
@@ -123,7 +128,9 @@ const Navbar = () => {
                       key={l.href}
                       to={l.href}
                       onClick={() => setMobileOpen(false)}
-                      className="border-b border-gray-200 py-3 text-base font-bold uppercase tracking-widest text-gray-800 transition-colors hover:text-[#8B6F47]"
+                      className={`border-b border-gray-200 py-3 text-base font-bold uppercase tracking-widest transition-colors hover:text-[#8B6F47] ${
+                        isActive(l.href) ? "text-[#8B6F47]" : "text-gray-800"
+                      }`}
                     >
                       {l.label}
                     </Link>

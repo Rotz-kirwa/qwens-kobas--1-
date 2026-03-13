@@ -6,7 +6,6 @@ import ProductStore from "@/components/ProductStore";
 import Testimonials from "@/components/Testimonials";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import FinalCTA from "@/components/FinalCTA";
-import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 
 const Index = () => {
@@ -26,7 +25,6 @@ const Index = () => {
       <Testimonials />
       <SafetyDisclaimer />
       <FinalCTA />
-      <Footer />
     </main>
   );
 };

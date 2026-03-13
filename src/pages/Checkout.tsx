@@ -22,15 +22,16 @@ interface PaymentMethod {
 }
 
 const paymentLogos: Record<string, string> = {
-  mpesa: "https://pbs.twimg.com/ext_tw_video_thumb/1181852139011936256/pu/img/1UCUl2bSj2RCyq6H.jpg",
-  airtel_money: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzoFx31kmrStLhhxN53irFXTILQ93sX9hkSQ&s",
-  card: "https://i.pinimg.com/736x/bd/16/2c/bd162c26d6a49bbd39126cd9e5e79d19.jpg",
-  bank_transfer: "https://i.pinimg.com/736x/9b/3d/bd/9b3dbd2bce3d86a3d63a79b1ecf86b4e.jpg",
-  mtn_mobile_money: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGvdmkSOboNGNU79JdQJe3lvmojdN64iSfwQ&s",
-  ecocash: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/EcoCash_Logo.svg/1200px-EcoCash_Logo.svg.png",
-  lumicash: "https://play-lh.googleusercontent.com/9XKZHKBLqsLYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJYYqJY",
-  orange_money: "https://i.pinimg.com/736x/e6/b1/69/e6b169c06abd09abf3e54dfb5b1a1abd.jpg",
-  vodacom_mpesa: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkc_60sjm9kRnV0NNknGFr4YHywQ4dy5J9xA&s",
+  mpesa: "/payment/mpesa.svg",
+  airtel: "/payment/airtel.svg",
+  airtel_money: "/payment/airtel.svg",
+  card: "/payment/card.svg",
+  bank_transfer: "",
+  mtn_mobile_money: "/payment/airtel.svg",
+  ecocash: "/payment/mastercard.svg",
+  lumicash: "/payment/airtel.svg",
+  orange_money: "/payment/airtel.svg",
+  vodacom_mpesa: "/payment/mpesa.svg",
 };
 
 const currencyConfig: Record<string, { code: string; symbol: string; rate: number }> = {
@@ -73,6 +74,35 @@ const getFallbackMethods = (country: string): PaymentMethod[] => {
   return methods[country] || methods.Kenya;
 }
 
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+const isTransientMpesaStatusError = (error: unknown) =>
+  error instanceof Error &&
+  (
+    error.message.includes("Failed to query M-Pesa payment status") ||
+    error.message.includes("500.001.1001")
+  );
+
+const formatMpesaFailureDetails = (payment: any) => {
+  const friendly = getFriendlyMpesaFailureMessage(payment?.result_desc);
+  const rawBits = [
+    payment?.result_code !== undefined && payment?.result_code !== null
+      ? `Code: ${payment.result_code}`
+      : null,
+    payment?.result_desc ? `Raw: ${payment.result_desc}` : null,
+  ].filter(Boolean);
+
+  return rawBits.length > 0 ? `${friendly} (${rawBits.join(" | ")})` : friendly;
+};
+
+const getFriendlyMpesaFailureMessage = (description?: string) => {
+  if (!description) return "M-Pesa payment was cancelled or failed.";
+  if (description.toLowerCase().includes("user cannot be reached")) {
+    return "The phone could not be reached for the M-Pesa prompt. Confirm the number is active, on, and has network, then try again.";
+  }
+  return description;
+};
+
 const Checkout = () => {
   const { items, total, clearCart, deliverySelection, shippingFee } = useCart();
   const navigate = useNavigate();
@@ -88,12 +118,9 @@ const Checkout = () => {
   const [promoApplied, setPromoApplied] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState({
     phoneNumber: "",
-    cardNumber: "",
-    cardExpiry: "",
-    cardCvv: "",
-    accountNumber: "",
     bankName: "",
   });
+  const [paymentMessage, setPaymentMessage] = useState("");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -121,6 +148,9 @@ const Checkout = () => {
           type: method.type || method.code || "mobile_money",
           description: method.description || "Secure payment option",
           logo: method.logo,
+        })).map((method: PaymentMethod) => ({
+          ...method,
+          logo: method.logo || paymentLogos[method.id],
         }));
         if (methods.length > 0) {
           setPaymentMethods(methods);
@@ -144,6 +174,52 @@ const Checkout = () => {
 
   const handlePaymentInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setPaymentDetails({ ...paymentDetails, [e.target.name]: e.target.value });
+  };
+
+  const validateStepOne = () => {
+    const requiredFields = [
+      ["Full name", formData.fullName],
+      ["Email", formData.email],
+      ["Phone number", formData.phone],
+      ["Address", formData.address],
+      ["City", formData.city],
+    ];
+
+    const missingField = requiredFields.find(([, value]) => !value.trim());
+    if (missingField) {
+      toast({
+        title: "Missing Information",
+        description: `${missingField[0]} is required before continuing.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateStepThree = () => {
+    const paymentType = getPaymentMethodType();
+
+    if (paymentType === "mobile" && !paymentDetails.phoneNumber.trim()) {
+      toast({
+        title: "Phone Number Required",
+        description: "Enter the mobile money number that should receive the payment prompt.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (paymentType === "bank" && !paymentDetails.bankName.trim()) {
+      toast({
+        title: "Bank Selection Required",
+        description: "Choose your preferred bank before reviewing the order.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
   };
 
   const applyPromoCode = async () => {
@@ -182,6 +258,7 @@ const Checkout = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      setPaymentMessage("");
 
       const token = localStorage.getItem("token");
       if (!token) {
@@ -195,6 +272,20 @@ const Checkout = () => {
       }
 
       const orderPayload = {
+        items: items.map((item) => ({
+          product_id: item.product.id,
+          product_name: item.product.name,
+          quantity: item.quantity,
+          price_per_item_kes: item.product.price,
+          item_total_kes: item.product.price * item.quantity,
+        })),
+        totals: {
+          currency: "KES",
+          subtotal_kes: total,
+          shipping_kes: shippingFee,
+          discount_percent: discount,
+          grand_total_kes: finalTotal,
+        },
         shipping_address: {
           name: formData.fullName,
           email: formData.email,
@@ -209,6 +300,12 @@ const Checkout = () => {
           delivery_eta: deliverySelection.eta,
         },
         payment_method: paymentMethod || "card",
+        payment_details: {
+          type: getPaymentMethodType(),
+          phone_number:
+            getPaymentMethodType() === "mobile" ? paymentDetails.phoneNumber : undefined,
+          bank_name: getPaymentMethodType() === "bank" ? paymentDetails.bankName : undefined,
+        },
         delivery: {
           county: deliverySelection.county,
           point: deliverySelection.point,
@@ -218,7 +315,56 @@ const Checkout = () => {
         },
       };
 
-      await ordersAPI.create(orderPayload);
+      const response = await ordersAPI.create(orderPayload);
+
+      if (paymentMethod === "mpesa") {
+        const orderId = response?.order_id;
+        const customerMessage =
+          response?.payment?.customer_message ||
+          "STK push sent. Check your phone and enter your M-Pesa PIN.";
+
+        setPaymentMessage(customerMessage);
+        toast({
+          title: "STK Push Sent",
+          description: customerMessage,
+        });
+
+        if (!orderId) {
+          throw new Error("Order reference missing after M-Pesa initiation.");
+        }
+
+        for (let attempt = 0; attempt < 20; attempt += 1) {
+          await wait(3000);
+          let statusResponse;
+          try {
+            statusResponse = await paymentAPI.getMpesaStatus(orderId);
+          } catch (error) {
+            if (isTransientMpesaStatusError(error)) {
+              continue;
+            }
+            throw error;
+          }
+          const payment = statusResponse?.payment;
+
+          if (payment?.payment_status === "paid") {
+            toast({
+              title: "Payment Confirmed",
+              description: "Your M-Pesa payment was received successfully.",
+            });
+            clearCart();
+            setTimeout(() => navigate("/shop"), 1200);
+            return;
+          }
+
+          if (payment?.payment_status === "failed") {
+            throw new Error(formatMpesaFailureDetails(payment));
+          }
+        }
+
+        throw new Error(
+          "Payment is still pending. Complete the M-Pesa prompt, then try again in a moment."
+        );
+      }
 
       toast({
         title: "Order Placed Successfully!",
@@ -233,7 +379,9 @@ const Checkout = () => {
         title: "Order Failed",
         description: isApiOfflineError(error)
           ? "The backend is offline. Start the API server on port 5000 to place orders."
-          : "Failed to place order. Please try again.",
+          : error instanceof Error
+            ? error.message
+            : "Failed to place order. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -395,7 +543,11 @@ const Checkout = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => setStep(2)}
+                    onClick={() => {
+                      if (validateStepOne()) {
+                        setStep(2);
+                      }
+                    }}
                     className="w-full py-4 bg-gold-gradient text-primary-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity"
                   >
                     Continue to Payment
@@ -429,11 +581,24 @@ const Checkout = () => {
                             : "border-border hover:border-primary/50"
                         }`}
                       >
-                        <img 
-                          src={method.logo} 
-                          alt={method.name} 
-                          className="w-full h-full object-cover"
-                        />
+                        {method.logo ? (
+                          <img
+                            src={method.logo}
+                            alt={method.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-secondary/30">
+                            {(() => {
+                              const Icon = getPaymentIcon(method.type);
+                              return <Icon className="h-10 w-10 text-primary" />;
+                            })()}
+                          </div>
+                        )}
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-4 py-3 text-left text-white">
+                          <p className="text-sm font-semibold">{method.name}</p>
+                          <p className="text-xs text-white/80">{method.description}</p>
+                        </div>
                         {paymentMethod === method.id && (
                           <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                             <CheckCircle2 className="w-12 h-12 text-primary drop-shadow-lg" />
@@ -487,55 +652,24 @@ const Checkout = () => {
                         className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
                         required
                       />
-                      <p className="text-xs text-muted-foreground mt-2">You will receive a payment prompt on this number</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        For M-Pesa use a Safaricom number like 2547XXXXXXXX. You will receive an STK push on this phone.
+                      </p>
                     </div>
                   </div>
                 )}
 
                 {/* Card Payment */}
                 {getPaymentMethodType() === 'card' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-body mb-2">Card Number *</label>
-                      <input
-                        type="text"
-                        name="cardNumber"
-                        value={paymentDetails.cardNumber}
-                        onChange={handlePaymentInputChange}
-                        placeholder="1234 5678 9012 3456"
-                        maxLength={19}
-                        className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-body mb-2">Expiry Date *</label>
-                        <input
-                          type="text"
-                          name="cardExpiry"
-                          value={paymentDetails.cardExpiry}
-                          onChange={handlePaymentInputChange}
-                          placeholder="MM/YY"
-                          maxLength={5}
-                          className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-body mb-2">CVV *</label>
-                        <input
-                          type="text"
-                          name="cardCvv"
-                          value={paymentDetails.cardCvv}
-                          onChange={handlePaymentInputChange}
-                          placeholder="123"
-                          maxLength={4}
-                          className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                          required
-                        />
-                      </div>
-                    </div>
+                  <div className="rounded-sm border border-primary/15 bg-secondary/20 p-4">
+                    <p className="text-sm font-body font-semibold text-foreground">
+                      Card payments are handled after order confirmation.
+                    </p>
+                    <p className="mt-2 text-sm font-body text-muted-foreground">
+                      For security, this page does not collect raw card numbers or CVV details.
+                      After you place the order, the next payment step is shared using your contact
+                      details.
+                    </p>
                   </div>
                 )}
 
@@ -560,21 +694,10 @@ const Checkout = () => {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-body mb-2">Account Number *</label>
-                      <input
-                        type="text"
-                        name="accountNumber"
-                        value={paymentDetails.accountNumber}
-                        onChange={handlePaymentInputChange}
-                        placeholder="Enter your account number"
-                        className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                        required
-                      />
-                    </div>
                     <div className="bg-secondary/50 p-4 rounded-sm">
                       <p className="text-sm font-body text-muted-foreground">
-                        You will receive bank transfer instructions via email after placing your order.
+                        Transfer instructions will be sent after the order is placed. No account
+                        number is collected on this page.
                       </p>
                     </div>
                   </div>
@@ -588,7 +711,11 @@ const Checkout = () => {
                     Back
                   </button>
                   <button
-                    onClick={() => setStep(4)}
+                    onClick={() => {
+                      if (validateStepThree()) {
+                        setStep(4);
+                      }
+                    }}
                     className="flex-1 py-4 bg-gold-gradient text-primary-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity"
                   >
                     Review Order
@@ -624,8 +751,10 @@ const Checkout = () => {
                     {getPaymentMethodType() === 'mobile' && paymentDetails.phoneNumber && (
                       <p className="text-sm font-body text-muted-foreground">Phone: {paymentDetails.phoneNumber}</p>
                     )}
-                    {getPaymentMethodType() === 'card' && paymentDetails.cardNumber && (
-                      <p className="text-sm font-body text-muted-foreground">Card: **** **** **** {paymentDetails.cardNumber.slice(-4)}</p>
+                    {getPaymentMethodType() === 'card' && (
+                      <p className="text-sm font-body text-muted-foreground">
+                        Secure card instructions follow after order confirmation.
+                      </p>
                     )}
                     {getPaymentMethodType() === 'bank' && paymentDetails.bankName && (
                       <p className="text-sm font-body text-muted-foreground">Bank: {paymentDetails.bankName}</p>
@@ -643,9 +772,14 @@ const Checkout = () => {
                       disabled={loading}
                       className="flex-1 py-4 bg-gold-gradient text-primary-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                     >
-                      {loading ? "Processing..." : "Place Order"}
+                      {loading ? "Processing..." : paymentMethod === "mpesa" ? "Send STK Push" : "Place Order"}
                     </button>
                   </div>
+                  {paymentMessage && (
+                    <div className="rounded-sm border border-primary/20 bg-primary/5 px-4 py-3 text-sm font-body text-foreground">
+                      {paymentMessage}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

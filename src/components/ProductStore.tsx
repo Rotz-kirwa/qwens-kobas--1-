@@ -2,8 +2,12 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Star, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { products as initialProducts } from "@/data/products";
 import { productsAPI } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { setAuthRedirect } from "@/lib/authRedirect";
 
 interface ApiProduct {
   _id: string;
@@ -23,6 +27,7 @@ interface ApiProduct {
 
 interface StoreProduct {
   id: string;
+  catalogKey: string;
   name: string;
   description: string;
   price: number;
@@ -45,33 +50,63 @@ const productMarketing: Record<string, Partial<StoreProduct>> = {
     badges: ["Best Seller", "4.9 ★"],
     stock_left: 12,
     urgency_tag: "Buy Now, Glow Tomorrow",
+    rating: 4.8,
+    reviews: 87,
   },
   "new-toner": {
     badges: ["Loved by Melanin Queens"],
     stock_left: 9,
     urgency_tag: "Buy Now, Glow Tomorrow",
+    rating: 4.7,
+    reviews: 64,
   },
   "new-serum": {
     badges: ["Hero Product", "Limited Stock"],
     stock_left: 5,
     urgency_tag: "Buy Now, Glow Tomorrow",
+    rating: 4.9,
+    reviews: 112,
   },
   "new-cream": {
     badges: ["Skin Barrier Favorite"],
     urgency_tag: "Buy Now, Glow Tomorrow",
+    rating: 4.8,
+    reviews: 95,
   },
   "new-mask": {
     badges: ["Weekly Reset", "Glow Boost"],
     stock_left: 7,
     urgency_tag: "Spa Night, Elevated",
+    rating: 4.8,
+    reviews: 76,
   },
   "new-bundle": {
     badges: ["Full Kit", "Free Shipping"],
     stock_left: 4,
     cta_label: "Grab the Bundle & Save",
     bundle_message: "Full Product Kit • KSh 9,999. Limited kits this month.",
+    rating: 5,
+    reviews: 200,
+  },
+  "test-kit": {
+    badges: ["Test Product", "M-Pesa QA"],
+    stock_left: 99,
+    urgency_tag: "Use for checkout testing only",
+    cta_label: "Add Test Product",
+    rating: 5,
+    reviews: 1,
   },
 };
+
+const catalogOrder = [
+  "new-cleanser",
+  "new-toner",
+  "new-serum",
+  "new-cream",
+  "new-mask",
+  "new-bundle",
+  "test-kit",
+] as const;
 
 const shopTrustBadges = [
   "Cruelty-Free",
@@ -87,6 +122,7 @@ const fallbackStoreProducts: StoreProduct[] = initialProducts.map((product) => {
 
   return {
     id: product.id,
+    catalogKey: product.id,
     name: product.name,
     description: product.description,
     price: product.price,
@@ -100,29 +136,53 @@ const fallbackStoreProducts: StoreProduct[] = initialProducts.map((product) => {
   };
 });
 
-const mapApiProduct = (product: ApiProduct): StoreProduct => ({
-  id: product._id,
-  name: product.name,
-  description: product.description,
-  price: product.prices?.KES?.amount || 0,
-  in_stock: product.in_stock ?? true,
-  image_url: product.image_url,
-  rating: product.rating,
-  reviews: product.reviews,
-  discount_percentage: product.discount_percentage,
-  on_sale: product.on_sale,
-});
+const canonicalProductsByKey = Object.fromEntries(
+  fallbackStoreProducts.map((product) => [product.catalogKey, product])
+) as Record<string, StoreProduct>;
 
-const isExpectedCatalog = (items: StoreProduct[]) => {
-  const names = items.map((item) => item.name);
-  return (
-    names.some((name) => name.includes("Complexion Clarifying Cleanser 120ml")) &&
-    names.some((name) => name.includes("Brightening Toner 120ml")) &&
-    names.some((name) => name.includes("Complexion Clarifying Serum 30ml")) &&
-    names.some((name) => name.includes("Complexion Clarifying Cream 50ml")) &&
-    names.some((name) => name.includes("Brightening Face Mask 120ml")) &&
-    names.some((name) => name.includes("Full Product Kit"))
-  );
+const getProductMarketingKey = (name: string) => {
+  const normalizedName = name.toLowerCase();
+
+  if (normalizedName.includes("cleanser")) return "new-cleanser";
+  if (normalizedName.includes("toner")) return "new-toner";
+  if (normalizedName.includes("serum")) return "new-serum";
+  if (normalizedName.includes("cream")) return "new-cream";
+  if (normalizedName.includes("mask")) return "new-mask";
+  if (normalizedName.includes("full product kit") || normalizedName.includes("bundle")) {
+    return "new-bundle";
+  }
+
+  return null;
+};
+
+const mapApiProduct = (product: ApiProduct): StoreProduct | null => {
+  const marketingKey = getProductMarketingKey(product.name);
+
+  if (!marketingKey) {
+    return null;
+  }
+
+  const canonicalProduct = canonicalProductsByKey[marketingKey];
+
+  if (!canonicalProduct) {
+    return null;
+  }
+
+  return {
+    id: product._id,
+    catalogKey: marketingKey,
+    name: canonicalProduct.name,
+    description: canonicalProduct.description,
+    price: canonicalProduct.price,
+    in_stock: product.in_stock ?? true,
+    image_url: canonicalProduct.image_url,
+    rating: canonicalProduct.rating,
+    reviews: canonicalProduct.reviews,
+    discount_percentage: canonicalProduct.discount_percentage,
+    on_sale: canonicalProduct.on_sale,
+    isBundle: marketingKey === "new-bundle",
+    ...(productMarketing[marketingKey] ?? {}),
+  };
 };
 
 const BundleCountdown = () => {
@@ -154,6 +214,9 @@ const BundleCountdown = () => {
 const ProductCard = ({ product, index }: { product: StoreProduct; index: number }) => {
   const [qty, setQty] = useState(1);
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
@@ -162,6 +225,33 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
   const discountedPrice = discount > 0 ? price * (1 - discount / 100) : price;
   const rating = product.rating || 4.5;
   const reviews = product.reviews || 0;
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      setAuthRedirect("/checkout");
+      toast({
+        title: "Sign In Required",
+        description: "Create an account or sign in before adding products to your cart.",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: "/checkout" } });
+      return;
+    }
+
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: discount > 0 ? discountedPrice : price,
+        rating,
+        reviews,
+        description: product.description,
+        image: product.image_url,
+      },
+      qty
+    );
+    setQty(1);
+  };
 
   return (
     <motion.div
@@ -202,7 +292,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
         </div>
       )}
 
-      <div className="p-8 flex flex-col flex-1">
+      <div className="flex flex-1 flex-col p-6 md:p-7">
         <h3 className="font-display text-xl md:text-2xl font-semibold mb-2">{product.name}</h3>
         <p className="text-sm text-muted-foreground font-body mb-4 leading-relaxed whitespace-pre-line">{product.description}</p>
         {product.bundle_message && (
@@ -233,7 +323,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
 
         {product.isBundle && <BundleCountdown />}
 
-        <div className="flex items-end justify-between gap-4 mt-auto pt-4 border-t border-border/50">
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-border/50 pt-4">
         <div>
           {discount > 0 ? (
             <div>
@@ -251,7 +341,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <div className="flex items-center border border-border rounded-sm">
             <button
               onClick={() => setQty(Math.max(1, qty - 1))}
@@ -271,18 +361,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
           </div>
 
           <button
-            onClick={() => { 
-              addToCart({
-                id: product.id,
-                name: product.name,
-                price: discount > 0 ? discountedPrice : price,
-                rating: rating,
-                reviews: reviews,
-                description: product.description,
-                image: product.image_url
-              }, qty); 
-              setQty(1); 
-            }}
+            onClick={handleAddToCart}
             className="flex items-center gap-2 px-5 py-2.5 bg-gold-gradient text-primary-foreground font-body text-xs font-bold tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity"
             disabled={!product.in_stock}
           >
@@ -305,10 +384,18 @@ const ProductStore = () => {
   useEffect(() => {
     productsAPI.getAll()
       .then(data => {
-        const apiProducts: StoreProduct[] = Array.isArray(data.products)
-          ? data.products.map(mapApiProduct)
+        const apiProducts = Array.isArray(data.products)
+          ? data.products
+              .map(mapApiProduct)
+              .filter((product): product is StoreProduct => product !== null)
           : [];
-        setProducts(apiProducts.length > 0 && isExpectedCatalog(apiProducts) ? apiProducts : fallbackStoreProducts);
+
+        const mergedCatalog = catalogOrder.map((key) => {
+          const apiProduct = apiProducts.find((product) => product.catalogKey === key);
+          return apiProduct ?? canonicalProductsByKey[key];
+        });
+
+        setProducts(mergedCatalog);
         setLoading(false);
       })
       .catch(() => {
@@ -318,13 +405,13 @@ const ProductStore = () => {
   }, []);
 
   return (
-    <section id="shop" className="section-spacing">
+    <section id="shop" className="py-12 md:py-14 lg:py-16">
       <div className="container mx-auto px-4" ref={ref}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          className="mb-10 text-center md:mb-12"
         >
           <p className="text-sm tracking-[0.3em] uppercase text-primary font-body mb-4">The Collection</p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light">
@@ -336,7 +423,7 @@ const ProductStore = () => {
           <div className="text-center py-12">Loading products...</div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {products.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
@@ -346,7 +433,7 @@ const ProductStore = () => {
               initial={{ opacity: 0, y: 24 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.35, duration: 0.6 }}
-              className="mt-12 rounded-sm border border-primary/20 bg-background px-6 py-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
+              className="mt-8 rounded-sm border border-primary/20 bg-background px-6 py-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.06)] md:mt-10"
             >
               <p className="mx-auto max-w-4xl text-sm leading-7 text-muted-foreground font-body">
                 Results vary; gentle and natural - patch test recommended. 100% toxin-free

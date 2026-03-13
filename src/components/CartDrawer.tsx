@@ -1,8 +1,11 @@
 import { X, Plus, Minus, Trash2, ShoppingBag, MapPin, Truck, Store } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getCountyDelivery, kenyaDeliveryLocations } from "@/data/kenyaDelivery";
+import { useToast } from "@/hooks/use-toast";
+import { setAuthRedirect } from "@/lib/authRedirect";
 
 const CartDrawer = () => {
   const {
@@ -20,11 +23,23 @@ const CartDrawer = () => {
     shippingFee,
     grandTotal,
   } = useCart();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const activeCounty = getCountyDelivery(deliverySelection.county);
 
   const handleCheckout = () => {
     setIsOpen(false);
+    if (!isAuthenticated) {
+      setAuthRedirect("/checkout");
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in or create an account before proceeding to checkout.",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: "/checkout" } });
+      return;
+    }
     navigate("/checkout");
   };
 

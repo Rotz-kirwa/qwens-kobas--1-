@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import SEO from "@/components/SEO";
+import { consumeAuthRedirect } from "@/lib/authRedirect";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -18,9 +18,10 @@ const AuthCallback = () => {
         const userData = JSON.parse(decodeURIComponent(user));
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userData));
+        window.dispatchEvent(new Event("queenkoba-auth-changed"));
         
         toast({ title: 'Welcome!', description: 'Successfully logged in with Google.' });
-        navigate('/shop');
+        navigate(consumeAuthRedirect() || '/shop');
       } catch (error) {
         toast({ title: 'Error', description: 'Authentication failed', variant: 'destructive' });
         navigate('/login');

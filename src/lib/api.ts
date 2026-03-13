@@ -36,15 +36,30 @@ const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
       headers,
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    const responseText = await response.text();
+    const data = contentType.includes("application/json") && responseText
+      ? JSON.parse(responseText)
+      : responseText;
 
     if (!response.ok) {
-      throw new Error(data.message || 'API request failed');
+      const message =
+        typeof data === "object" && data !== null && "message" in data
+          ? String(data.message)
+          : typeof data === "string" && data
+            ? data
+            : 'API request failed';
+      const details =
+        typeof data === "object" && data !== null && "details" in data && data.details
+          ? String(data.details)
+          : "";
+      const combinedMessage = details ? `${message}: ${details}` : message;
+      throw new Error(combinedMessage);
     }
 
     return data;
   } catch (error) {
-    if (isLocalApi) {
+    if (isLocalApi && error instanceof TypeError) {
       localApiUnavailableUntil = Date.now() + LOCAL_API_RETRY_COOLDOWN_MS;
     }
     if (!quietError) {
@@ -108,6 +123,7 @@ export const ordersAPI = {
 // Payment Methods API
 export const paymentAPI = {
   getByCountry: (country: string) => apiClient(`/payment-methods/${country}`, { quietError: true }),
+  getMpesaStatus: (orderId: string) => apiClient(`/payments/mpesa/status/${orderId}`, { quietError: true }),
 };
 
 export default {

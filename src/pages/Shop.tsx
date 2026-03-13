@@ -3,7 +3,7 @@ import SEO from "@/components/SEO";
 
 const Shop = () => {
   return (
-    <main className="pt-20">
+    <main className="pt-14 md:pt-16">
       <SEO
         title="Shop Skincare Products"
         description="Browse Queen Koba products including brightening toner, clarifying serum, face mask, cream, cleanser, and the full skincare kit."

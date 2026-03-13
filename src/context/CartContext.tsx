@@ -51,6 +51,23 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const buildDeliverySelection = (
+  county: string,
+  method: DeliveryMethod,
+  point?: string,
+): DeliverySelection => {
+  const config = getCountyDelivery(county);
+
+  return {
+    county: config.county,
+    point: point && config.points.includes(point) ? point : config.points[0],
+    method,
+    pickupFee: config.pickupFee,
+    doorFee: config.doorFee,
+    eta: config.eta,
+  };
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem("queenkoba-cart");
@@ -60,17 +77,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [deliverySelection, setDeliverySelection] = useState<DeliverySelection>(() => {
     const saved = localStorage.getItem("queenkoba-delivery");
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved) as Partial<DeliverySelection>;
+      return buildDeliverySelection(
+        parsed.county || defaultKenyaDelivery.county,
+        parsed.method === "door" ? "door" : "pickup",
+        parsed.point,
+      );
     }
 
-    return {
-      county: defaultKenyaDelivery.county,
-      point: defaultKenyaDelivery.points[0],
-      method: "pickup",
-      pickupFee: defaultKenyaDelivery.pickupFee,
-      doorFee: defaultKenyaDelivery.doorFee,
-      eta: defaultKenyaDelivery.eta,
-    };
+    return buildDeliverySelection(defaultKenyaDelivery.county, "pickup");
   });
 
   useEffect(() => {
@@ -111,15 +126,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearCart = useCallback(() => setItems([]), []);
 
   const setCounty = useCallback((county: string) => {
-    const config = getCountyDelivery(county);
-    setDeliverySelection((prev) => ({
-      ...prev,
-      county: config.county,
-      point: config.points[0],
-      pickupFee: config.pickupFee,
-      doorFee: config.doorFee,
-      eta: config.eta,
-    }));
+    setDeliverySelection((prev) => buildDeliverySelection(county, prev.method));
   }, []);
 
   const setDeliveryPoint = useCallback((point: string) => {

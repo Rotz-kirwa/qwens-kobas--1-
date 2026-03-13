@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const AUTH_CHANGED_EVENT = "queenkoba-auth-changed";
 
 interface User {
   id: string;
@@ -13,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string, phone: string) => Promise<void>;
-  loginWithGoogle: () => void;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -24,11 +25,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const syncStoredSession = () => {
+      const storedUser = localStorage.getItem('user');
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (!event.key || event.key === "user" || event.key === "token") {
+        syncStoredSession();
+      }
+    };
+
+    const handleAuthChanged = () => {
+      syncStoredSession();
+    };
+
+    syncStoredSession();
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener(AUTH_CHANGED_EVENT, handleAuthChanged);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener(AUTH_CHANGED_EVENT, handleAuthChanged);
+    };
   }, []);
+
+  const persistSession = (nextUser: User | null, token?: string | null) => {
+    if (nextUser && token) {
+      localStorage.setItem('user', JSON.stringify(nextUser));
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+
+    setUser(nextUser);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  };
 
   const login = async (email: string, password: string) => {
     const response = await fetch(`${API_URL}/auth/login`, {
@@ -46,9 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = data.token || data.access_token;
     if (!token) throw new Error('Authentication token missing from response');
 
-    setUser(data.user);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', token);
+    persistSession(data.user, token);
   };
 
   const signup = async (name: string, email: string, password: string, phone: string) => {
@@ -67,19 +98,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = data.token || data.access_token;
     if (!token) throw new Error('Authentication token missing from response');
 
-    setUser(data.user);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', token);
+    persistSession(data.user, token);
   };
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     window.location.href = `${API_URL}/auth/google`;
+    return Promise.resolve();
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    persistSession(null);
   };
 
   return (

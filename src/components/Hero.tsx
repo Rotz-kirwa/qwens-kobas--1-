@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 
 const HERO_IMAGE =
   "https://www.dropbox.com/scl/fi/dlm8mxurz33lyfahdig88/bg.png?rlkey=uazruv0hawvwkwjxtsmacpmo1&st=4qjh0r3d&raw=1";
@@ -81,75 +80,6 @@ const Hero = () => {
             Queen Koba: Eternal Radiance, Naturally You
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
-            className="hidden sm:flex flex-col sm:flex-row gap-4"
-          >
-            <Link
-              to="/shop"
-              className="group relative inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 overflow-hidden font-body font-bold text-xs sm:text-sm tracking-widest uppercase rounded-sm transition-all duration-300"
-            >
-              {/* Animated background */}
-              <span className="absolute inset-0 bg-gold-gradient" />
-              <span className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              {/* Glow effect */}
-              <span className="absolute inset-0 rounded-sm blur-xl bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              {/* Button content */}
-              <span className="relative flex items-center gap-2 text-primary-foreground">
-                <span className="group-hover:translate-x-1 transition-transform">Shop Now</span>
-                <svg
-                  className="w-5 h-5 group-hover:translate-x-2 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </span>
-              
-              {/* Shine effect */}
-              <span className="absolute inset-0 rounded-sm overflow-hidden">
-                <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              </span>
-            </Link>
-          </motion.div>
-
-          {/* Mobile floating button */}
-          <Link
-            to="/shop"
-            className="sm:hidden fixed bottom-8 left-8 z-50 group inline-flex items-center justify-center px-5 py-3 overflow-hidden font-body font-bold text-xs tracking-widest uppercase rounded-full shadow-2xl transition-all duration-300"
-          >
-            {/* Animated background */}
-            <span className="absolute inset-0 bg-gold-gradient" />
-            <span className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
-            
-            {/* Button content */}
-            <span className="relative flex items-center gap-2 text-primary-foreground">
-              <span>Shop Now</span>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </span>
-          </Link>
         </div>
       </div>
     </section>

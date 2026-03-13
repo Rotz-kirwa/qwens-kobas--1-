@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-labelledby="title desc">
+  <title id="title">Visa and Mastercard</title>
+  <desc id="desc">Combined card payment graphic</desc>
+  <rect width="320" height="180" rx="24" fill="#12264F"/>
+  <rect x="26" y="32" width="268" height="116" rx="16" fill="#ffffff" opacity="0.1"/>
+  <rect x="42" y="52" width="118" height="76" rx="14" fill="#ffffff"/>
+  <rect x="160" y="52" width="118" height="76" rx="14" fill="#F6F0E5"/>
+  <text x="101" y="98" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#1A1F71">VISA</text>
+  <circle cx="202" cy="90" r="22" fill="#EB001B"/>
+  <circle cx="228" cy="90" r="22" fill="#F79E1B" fill-opacity="0.9"/>
+</svg>
