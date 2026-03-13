@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
 
-const hiddenRoutes = new Set(["/login", "/signup", "/auth/callback"]);
+const hiddenRoutes = new Set(["/login", "/signup", "/auth/callback", "/checkout"]);
 
 const ShopNowFloat = () => {
   const { pathname } = useLocation();
+  const { isOpen } = useCart();
 
-  if (hiddenRoutes.has(pathname)) {
+  if (hiddenRoutes.has(pathname) || isOpen) {
     return null;
   }
 

@@ -1,14 +1,23 @@
+import { useLocation } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
+
 const WhatsAppFloat = () => {
+  const { pathname } = useLocation();
+  const { isOpen } = useCart();
   const phoneNumber = "254119559180";
   const message = "Hi Queen Koba! I'm interested in your products.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+  if (isOpen || pathname === "/checkout") {
+    return null;
+  }
 
   return (
     <a
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-8 right-8 z-50 group"
+      className="fixed bottom-6 right-5 z-50 group md:bottom-8 md:right-8"
       aria-label="Chat on WhatsApp"
     >
       {/* Ripple effect */}

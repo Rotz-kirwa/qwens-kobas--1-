@@ -384,7 +384,7 @@ const ProductStore = () => {
         const mergedCatalog = catalogOrder.map((key) => {
           const apiProduct = apiProducts.find((product) => product.catalogKey === key);
           return apiProduct ?? canonicalProductsByKey[key];
-        });
+        }).filter((product): product is StoreProduct => Boolean(product));
 
         setProducts(mergedCatalog);
         setLoading(false);
@@ -415,7 +415,7 @@ const ProductStore = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {products.map((product, i) => (
+              {products.filter(Boolean).map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
             </div>
