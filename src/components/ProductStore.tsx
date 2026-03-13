@@ -88,14 +88,6 @@ const productMarketing: Record<string, Partial<StoreProduct>> = {
     rating: 5,
     reviews: 200,
   },
-  "test-kit": {
-    badges: ["Test Product", "M-Pesa QA"],
-    stock_left: 99,
-    urgency_tag: "Use for checkout testing only",
-    cta_label: "Add Test Product",
-    rating: 5,
-    reviews: 1,
-  },
 };
 
 const catalogOrder = [
@@ -105,7 +97,6 @@ const catalogOrder = [
   "new-cream",
   "new-mask",
   "new-bundle",
-  "test-kit",
 ] as const;
 
 const shopTrustBadges = [

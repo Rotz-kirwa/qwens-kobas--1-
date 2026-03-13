@@ -56,13 +56,4 @@ export const products: Product[] = [
     isBundle: true,
     image: "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1",
   },
-  {
-    id: "test-kit",
-    name: "M-Pesa Test Product",
-    price: 2,
-    rating: 5.0,
-    reviews: 1,
-    description: "Dedicated low-cost product for testing checkout and M-Pesa STK push safely before using live order values.",
-    image: "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1",
-  },
 ];
