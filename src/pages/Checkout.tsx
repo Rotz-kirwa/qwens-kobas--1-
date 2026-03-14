@@ -391,7 +391,7 @@ const Checkout = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen pt-32 pb-20">
+      <div className="min-h-screen overflow-x-hidden pt-32 pb-20">
         <SEO
           title="Checkout"
           description="Complete your Queen Koba order."
@@ -412,14 +412,14 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-secondary/20">
+    <div className="min-h-screen overflow-x-hidden bg-secondary/20 pb-20 pt-24">
       <SEO
         title="Checkout"
         description="Secure checkout for Queen Koba skincare orders."
         path="/checkout"
         robots="noindex,nofollow"
       />
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto max-w-6xl overflow-x-hidden px-4">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
@@ -428,22 +428,22 @@ const Checkout = () => {
           <span className="font-body text-sm tracking-wide uppercase">Back</span>
         </button>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-5 lg:col-span-2 lg:space-y-6">
             {/* Progress Steps */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="mb-6 flex items-center justify-between gap-1 overflow-hidden sm:mb-8 sm:gap-2">
               {[1, 2, 3, 4].map((s) => (
-                <div key={s} className="flex items-center flex-1">
+                <div key={s} className="flex min-w-0 flex-1 items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-body font-bold ${
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold font-body sm:h-10 sm:w-10 sm:text-base ${
                       step >= s ? "bg-gold-gradient text-primary-foreground" : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
                   </div>
                   {s < 4 && (
-                    <div className={`flex-1 h-1 mx-2 ${step > s ? "bg-primary" : "bg-muted"}`} />
+                    <div className={`mx-1 h-1 min-w-0 flex-1 sm:mx-2 ${step > s ? "bg-primary" : "bg-muted"}`} />
                   )}
                 </div>
               ))}
@@ -454,11 +454,11 @@ const Checkout = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="luxury-card"
+                className="luxury-card p-5 sm:p-8"
               >
                 <h2 className="font-display text-3xl font-semibold mb-6">Shipping Information</h2>
                 <div className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <label className="block text-sm font-body mb-2">Full Name *</label>
                       <input
@@ -482,7 +482,7 @@ const Checkout = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <label className="block text-sm font-body mb-2">Phone Number *</label>
                       <input
@@ -519,7 +519,7 @@ const Checkout = () => {
                       required
                     />
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <label className="block text-sm font-body mb-2">City *</label>
                       <input
@@ -561,7 +561,7 @@ const Checkout = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="luxury-card"
+                className="luxury-card p-5 sm:p-8"
               >
                 <h2 className="font-display text-3xl font-semibold mb-6">Payment Method</h2>
                 <p className="text-muted-foreground font-body mb-6">Select your preferred payment method for {country}</p>
@@ -570,12 +570,12 @@ const Checkout = () => {
                     <p className="text-muted-foreground font-body">Loading payment methods...</p>
                   </div>
                 ) : (
-                  <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {paymentMethods.map((method) => (
                       <button
                         key={method.id}
                         onClick={() => setPaymentMethod(method.id)}
-                        className={`relative h-32 border-4 rounded-lg overflow-hidden transition-all ${
+                        className={`relative h-28 overflow-hidden rounded-lg border-[3px] transition-all sm:h-32 sm:border-4 ${
                           paymentMethod === method.id
                             ? "border-primary ring-4 ring-primary/30"
                             : "border-border hover:border-primary/50"
@@ -595,7 +595,7 @@ const Checkout = () => {
                             })()}
                           </div>
                         )}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-4 py-3 text-left text-white">
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-3 py-3 text-left text-white sm:px-4">
                           <p className="text-sm font-semibold">{method.name}</p>
                           <p className="text-xs text-white/80">{method.description}</p>
                         </div>
@@ -608,17 +608,17 @@ const Checkout = () => {
                     ))}
                   </div>
                 )}
-                <div className="flex gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                   <button
                     onClick={() => setStep(1)}
-                    className="flex-1 py-4 border border-border text-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:bg-secondary transition-colors"
+                    className="flex-1 rounded-sm border border-border py-4 text-foreground font-body text-sm font-bold uppercase tracking-widest transition-colors hover:bg-secondary"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => setStep(3)}
                     disabled={!paymentMethod}
-                    className="flex-1 py-4 bg-gold-gradient text-primary-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="flex-1 rounded-sm bg-gold-gradient py-4 text-primary-foreground font-body text-sm font-bold uppercase tracking-widest transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     Continue to Payment
                   </button>
@@ -631,7 +631,7 @@ const Checkout = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="luxury-card"
+                className="luxury-card p-5 sm:p-8"
               >
                 <h2 className="font-display text-3xl font-semibold mb-6">Payment Details</h2>
                 <p className="text-muted-foreground font-body mb-6">
@@ -703,10 +703,10 @@ const Checkout = () => {
                   </div>
                 )}
 
-                <div className="flex gap-4 mt-6">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
                   <button
                     onClick={() => setStep(2)}
-                    className="flex-1 py-4 border border-border text-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:bg-secondary transition-colors"
+                    className="flex-1 rounded-sm border border-border py-4 text-foreground font-body text-sm font-bold uppercase tracking-widest transition-colors hover:bg-secondary"
                   >
                     Back
                   </button>
@@ -716,7 +716,7 @@ const Checkout = () => {
                         setStep(4);
                       }
                     }}
-                    className="flex-1 py-4 bg-gold-gradient text-primary-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity"
+                    className="flex-1 rounded-sm bg-gold-gradient py-4 text-primary-foreground font-body text-sm font-bold uppercase tracking-widest transition-opacity hover:opacity-90"
                   >
                     Review Order
                   </button>
@@ -729,7 +729,7 @@ const Checkout = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="luxury-card"
+                className="luxury-card p-5 sm:p-8"
               >
                 <h2 className="font-display text-3xl font-semibold mb-6">Review Your Order</h2>
                 <div className="space-y-6">
@@ -760,17 +760,17 @@ const Checkout = () => {
                       <p className="text-sm font-body text-muted-foreground">Bank: {paymentDetails.bankName}</p>
                     )}
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                     <button
                       onClick={() => setStep(3)}
-                      className="flex-1 py-4 border border-border text-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:bg-secondary transition-colors"
+                      className="flex-1 rounded-sm border border-border py-4 text-foreground font-body text-sm font-bold uppercase tracking-widest transition-colors hover:bg-secondary"
                     >
                       Back
                     </button>
                     <button
                       onClick={handleSubmit}
                       disabled={loading}
-                      className="flex-1 py-4 bg-gold-gradient text-primary-foreground font-body font-bold text-sm tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                      className="flex-1 rounded-sm bg-gold-gradient py-4 text-primary-foreground font-body text-sm font-bold uppercase tracking-widest transition-opacity hover:opacity-90 disabled:opacity-50"
                     >
                       {loading ? "Processing..." : paymentMethod === "mpesa" ? "Send STK Push" : "Place Order"}
                     </button>
@@ -787,16 +787,16 @@ const Checkout = () => {
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="luxury-card sticky top-24">
+            <div className="luxury-card top-24 p-5 sm:p-8 lg:sticky">
               <h3 className="font-display text-2xl font-semibold mb-6">Order Summary</h3>
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex gap-4 pb-4 border-b border-border/50">
-                    <div className="flex-1">
+                  <div key={item.product.id} className="flex gap-3 border-b border-border/50 pb-4 sm:gap-4">
+                    <div className="min-w-0 flex-1">
                       <h4 className="font-display text-sm font-semibold mb-1">{item.product.name}</h4>
                       <p className="text-xs text-muted-foreground font-body">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-body text-sm font-semibold">
+                    <p className="shrink-0 font-body text-sm font-semibold">
                       {formatCurrency(item.product.price * item.quantity, country)}
                     </p>
                   </div>
@@ -834,7 +834,7 @@ const Checkout = () => {
                 </div>
                 <div className="pt-4 border-t border-border">
                   <label className="block text-sm font-body mb-2">Promo Code</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <input
                       type="text"
                       value={promoCode}

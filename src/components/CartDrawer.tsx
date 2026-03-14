@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { X, Plus, Minus, Trash2, ShoppingBag, MapPin, Truck, Store } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -28,6 +29,19 @@ const CartDrawer = () => {
   const { toast } = useToast();
   const activeCounty = getCountyDelivery(deliverySelection.county);
 
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const handleCheckout = () => {
     setIsOpen(false);
     if (!isAuthenticated) {
@@ -55,11 +69,11 @@ const CartDrawer = () => {
             className="fixed inset-0 bg-background/60 backdrop-blur-sm z-50"
           />
           <motion.div
-            initial={{ x: "100%", y: 0 }}
-            animate={{ x: 0, y: 0 }}
-            exit={{ x: "100%", y: 0 }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 top-auto z-50 flex h-[84vh] w-full flex-col rounded-t-[2rem] border border-border bg-card shadow-[0_-24px_60px_rgba(0,0,0,0.16)] md:inset-y-0 md:left-auto md:right-0 md:top-0 md:h-auto md:max-w-md md:rounded-none md:rounded-l-[1.75rem] md:border-y-0 md:border-r-0"
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+            className="fixed inset-x-0 bottom-0 top-auto z-50 flex h-[min(84svh,calc(100svh-0.5rem))] max-h-[calc(100svh-0.5rem)] w-full flex-col overflow-hidden rounded-t-[2rem] border border-border bg-card shadow-[0_-24px_60px_rgba(0,0,0,0.16)] overscroll-contain md:inset-y-0 md:left-auto md:right-0 md:top-0 md:h-auto md:max-h-none md:max-w-md md:rounded-none md:rounded-l-[1.75rem] md:border-y-0 md:border-r-0"
           >
             <div className="border-b border-border px-4 pb-3 pt-2 md:px-6 md:py-6">
               <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-border md:hidden" />
@@ -89,10 +103,10 @@ const CartDrawer = () => {
               </div>
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-40 md:p-6 md:space-y-6 md:pb-6">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 pb-32 space-y-4 overscroll-contain md:p-6 md:space-y-6 md:pb-6">
                   {items.map((item) => (
                     <div key={item.product.id} className="flex gap-3 border-b border-border/50 pb-4 md:gap-4 md:pb-6">
-                      <div className="flex-1">
+                      <div className="min-w-0 flex-1">
                         <h3 className="mb-1 font-display text-base font-semibold leading-snug md:text-lg">{item.product.name}</h3>
                         <p className="text-sm text-primary font-body font-semibold">
                           KSh {item.product.price.toLocaleString()}
@@ -121,7 +135,7 @@ const CartDrawer = () => {
                           </button>
                         </div>
                       </div>
-                      <p className="font-display text-base font-semibold text-foreground md:text-lg">
+                      <p className="shrink-0 font-display text-base font-semibold text-foreground md:text-lg">
                         KSh {(item.product.price * item.quantity).toLocaleString()}
                       </p>
                     </div>
@@ -228,7 +242,7 @@ const CartDrawer = () => {
                   </div>
                 </div>
 
-                <div className="sticky bottom-0 border-t border-border bg-card/95 px-4 py-3 backdrop-blur md:static md:space-y-4 md:border-t md:bg-transparent md:px-6 md:py-6 md:backdrop-blur-0">
+                <div className="sticky bottom-0 border-t border-border bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/92 md:static md:space-y-4 md:border-t md:bg-transparent md:px-6 md:py-6 md:backdrop-blur-0">
                   <div className="hidden rounded-[22px] border border-primary/15 bg-secondary/10 p-4 md:block">
                     <div className="mb-4 flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-primary" />
