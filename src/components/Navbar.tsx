@@ -84,7 +84,10 @@ const Navbar = () => {
             </Link>
           )}
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              setIsOpen(false);
+              navigate("/cart");
+            }}
             className="relative p-2 text-foreground hover:text-primary transition-colors"
             aria-label="Open cart"
           >

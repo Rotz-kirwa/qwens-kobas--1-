@@ -14,8 +14,8 @@ import ShopNowFloat from "@/components/ShopNowFloat";
 import Home from "./pages/Home";
 import { setAuthRedirect } from "@/lib/authRedirect";
 
-const CartDrawer = lazy(() => import("@/components/CartDrawer"));
 const PromoPopup = lazy(() => import("@/components/PromoPopup"));
+const Cart = lazy(() => import("./pages/Cart"));
 const Index = lazy(() => import("./pages/Index"));
 const Story = lazy(() => import("./pages/Story"));
 const Results = lazy(() => import("./pages/Results"));
@@ -79,9 +79,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Navbar />
-          <Suspense fallback={null}>
-            <CartDrawer />
-          </Suspense>
           <WhatsAppFloat />
           <ShopNowFloat />
           <Suspense fallback={null}>
@@ -91,6 +88,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/all" element={<Index />} />
+              <Route path="/cart" element={<Cart />} />
               <Route path="/story" element={<Story />} />
               <Route path="/results" element={<Results />} />
               <Route path="/ingredients" element={<Ingredients />} />

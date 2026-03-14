@@ -8,7 +8,7 @@ const WhatsAppFloat = () => {
   const message = "Hi Queen Koba! I'm interested in your products.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-  if (isOpen || pathname === "/checkout") {
+  if (isOpen || pathname === "/checkout" || pathname === "/cart") {
     return null;
   }
 

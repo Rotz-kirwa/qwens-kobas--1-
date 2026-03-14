@@ -106,7 +106,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return [...prev, { product, quantity: qty }];
     });
-    setIsOpen(true);
+    setIsOpen(false);
   }, []);
 
   const removeFromCart = useCallback((productId: string) => {
