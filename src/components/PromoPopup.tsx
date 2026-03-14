@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, ShoppingBag, Star } from "lucide-react";
+import { X, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -51,7 +51,7 @@ export default function PromoPopup() {
               ease: "easeOut",
             }}
             onClick={(e) => e.stopPropagation()}
-            className="group luxury-card relative w-full max-w-[24rem] overflow-hidden border-border/80 bg-card p-0 shadow-[0_24px_60px_rgba(24,17,8,0.24)]"
+            className="group luxury-card relative w-full max-w-[20rem] overflow-hidden border-border/80 bg-card p-0 shadow-[0_24px_60px_rgba(24,17,8,0.24)] sm:max-w-[21.5rem]"
           >
             <button
               onClick={handleClose}
@@ -61,12 +61,9 @@ export default function PromoPopup() {
               <X className="h-4 w-4" />
             </button>
 
-            <div className="absolute left-4 right-14 top-4 z-10 flex flex-wrap gap-2">
+            <div className="absolute left-3 right-12 top-3 z-10 flex flex-wrap gap-2">
               <div className="rounded-full bg-background/92 px-3 py-1 text-[10px] font-body font-bold uppercase tracking-[0.2em] text-primary shadow-md backdrop-blur">
                 Limited Kit
-              </div>
-              <div className="rounded-full bg-black/75 px-3 py-1 text-[10px] font-body font-bold uppercase tracking-[0.2em] text-white">
-                Only 4 left
               </div>
             </div>
 
@@ -74,45 +71,30 @@ export default function PromoPopup() {
               <img
                 src={FULL_KIT_IMAGE}
                 alt="Queen Koba Full Product Kit"
-                className="aspect-[4/4.1] w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
+                className="aspect-[4/3.15] w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02] sm:aspect-[4/3.35]"
               />
             </div>
 
-            <div className="flex flex-1 flex-col p-5 sm:p-6">
-              <p className="mb-2 text-[11px] font-body uppercase tracking-[0.24em] text-primary">
-                Limited Offer This Month
-              </p>
-              <h3 className="mb-2 font-display text-[1.7rem] font-semibold leading-tight text-foreground sm:text-[1.95rem]">
+            <div className="flex flex-1 flex-col p-4">
+              <h3 className="mb-1.5 font-display text-[1.35rem] font-semibold leading-tight text-foreground sm:text-[1.55rem]">
                 Full Product Kit
               </h3>
-              <p className="text-sm font-body leading-relaxed text-muted-foreground">
-                Mask, toner, serum, cream, and cleanser together in one complete routine for brighter, smoother, radiant skin.
-              </p>
-              <p className="mt-4 text-xs font-body font-bold uppercase tracking-[0.24em] text-primary">
-                Grab the Bundle & Save
+              <p className="text-sm font-body leading-6 text-muted-foreground">
+                Complete glow routine in one bundle.
               </p>
 
-              <div className="mt-4 flex items-center gap-2">
-                <div className="flex gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                  ))}
-                </div>
-                <span className="text-xs font-body text-muted-foreground">5/5 (200 reviews)</span>
-              </div>
-
-              <div className="mt-auto border-t border-border/50 pt-4">
+              <div className="mt-3 border-t border-border/50 pt-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-display text-2xl font-semibold text-primary">KSh 9,999</p>
-                    <p className="mt-1 text-[11px] font-body uppercase tracking-[0.2em] text-muted-foreground">
-                      Full routine bundle
+                    <p className="mt-1 text-[10px] font-body uppercase tracking-[0.18em] text-muted-foreground">
+                      Limited offer
                     </p>
                   </div>
 
                   <button
                     onClick={handleShopNow}
-                    className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gold-gradient px-4 py-3 text-[11px] font-body font-bold uppercase tracking-[0.2em] text-primary-foreground transition-opacity hover:opacity-90"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gold-gradient px-3 py-2.5 text-[10px] font-body font-bold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90"
                   >
                     <ShoppingBag className="h-4 w-4" />
                     Shop Now
