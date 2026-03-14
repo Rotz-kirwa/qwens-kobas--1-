@@ -45,7 +45,7 @@ const BrandStory = () => {
               <img
                 src={STORY_PROBLEM_IMAGE}
                 alt="Women represented in Queen Koba's story"
-                className="block h-full w-full object-cover"
+                className="block aspect-[4/3] w-full object-cover object-center sm:aspect-[16/11]"
                 loading="lazy"
               />
             </div>

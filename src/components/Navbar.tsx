@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShoppingBag, Menu, X, User, LogOut } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 
 const BRAND_LOGO_URL = "/images/local/logo-kbl.jpg";
@@ -13,6 +13,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const links = [
     { label: "Home", href: "/" },
@@ -24,8 +25,17 @@ const Navbar = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const handleNavClick = (href: string) => {
+    setMobileOpen(false);
+    navigate(href);
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/75">
+    <nav className="fixed top-0 left-0 right-0 z-[80] border-b border-[#e8dfd2] bg-[#faf8f5] shadow-[0_8px_24px_rgba(43,34,18,0.05)]">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="group flex min-w-0 items-center gap-3 md:gap-3.5">
           <img
@@ -43,6 +53,7 @@ const Navbar = () => {
             <NavLink
               key={l.href}
               to={l.href}
+              onClick={() => handleNavClick(l.href)}
               className="text-[12px] font-body font-semibold uppercase tracking-[0.18em] text-foreground/90 transition-colors duration-300 hover:text-primary"
               activeClassName="text-primary"
             >
@@ -102,14 +113,14 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[90] md:hidden"
             />
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 bottom-0 z-50 w-64 border-l border-gray-200 bg-[#FAF8F5] shadow-2xl md:hidden"
+              className="fixed right-0 top-0 bottom-0 z-[100] w-64 border-l border-gray-200 bg-[#FAF8F5] shadow-2xl md:hidden"
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4">
@@ -124,16 +135,16 @@ const Navbar = () => {
                 </div>
                 <div className="flex flex-col gap-4 bg-[#FAF8F5] px-4 py-6">
                   {links.map((l) => (
-                    <Link
+                    <button
                       key={l.href}
-                      to={l.href}
-                      onClick={() => setMobileOpen(false)}
+                      type="button"
+                      onClick={() => handleNavClick(l.href)}
                       className={`border-b border-gray-200 py-3 text-base font-bold uppercase tracking-widest transition-colors hover:text-[#8B6F47] ${
                         isActive(l.href) ? "text-[#8B6F47]" : "text-gray-800"
                       }`}
                     >
                       {l.label}
-                    </Link>
+                    </button>
                   ))}
                   {user ? (
                     <>

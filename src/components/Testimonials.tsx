@@ -72,7 +72,7 @@ const Testimonials = () => {
               <img
                 src={item.image}
                 alt={`${item.name} review portrait`}
-                className="mb-4 h-56 w-full rounded-[18px] object-cover"
+                className="mb-4 aspect-[4/4.2] w-full rounded-[18px] object-cover object-center sm:aspect-[4/4.8]"
                 loading="lazy"
               />
               <div className="mb-4 flex gap-1">

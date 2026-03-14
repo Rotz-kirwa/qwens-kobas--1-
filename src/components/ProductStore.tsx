@@ -277,7 +277,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
           <img 
             src={product.image_url} 
             alt={product.name}
-            className="h-96 w-full object-cover lg:h-[26rem]"
+            className="aspect-[4/4.1] w-full object-cover object-center sm:aspect-[4/4.35] lg:h-[26rem] lg:aspect-auto"
             loading="lazy"
           />
         </div>

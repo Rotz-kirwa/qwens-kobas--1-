@@ -92,15 +92,9 @@ const Results = () => {
                 <img
                   src={RESULTS_SUPPORT_IMAGE}
                   alt="Queen Koba additional results"
-                  className="block w-full h-auto"
+                  className="block aspect-[4/5] w-full object-cover object-center sm:aspect-auto sm:h-auto"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-5 py-6 md:px-7 md:py-8">
-                  <p className="max-w-3xl font-body text-sm leading-6 text-white md:text-base">
-                    Discover how Queen Koba is transforming melanin-rich skin worldwide:
-                    Faded dark spots, even tone, luminous radiance - all toxin-free.
-                    These are real queens like you, seeing results in weeks. Your glow-up awaits.
-                  </p>
-                </div>
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 via-black/45 to-transparent md:h-28" />
               </motion.article>
 
               <motion.article
@@ -113,15 +107,9 @@ const Results = () => {
                 <img
                   src={RESULTS_SUPPORT_IMAGE_2}
                   alt="Queen Koba additional skincare result"
-                  className="block w-full h-auto"
+                  className="block aspect-[4/5] w-full object-cover object-center sm:aspect-auto sm:h-auto"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent px-5 py-6 md:px-7 md:py-7">
-                  <p className="max-w-2xl font-body text-sm leading-6 text-white md:text-base">
-                    Real women. Real transformation. Queen Koba rituals are designed to help
-                    melanin-rich skin look clearer, smoother, and naturally radiant with every week
-                    of consistent care.
-                  </p>
-                </div>
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/35 to-transparent md:h-28" />
               </motion.article>
             </div>
 
@@ -171,7 +159,7 @@ const Results = () => {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="mb-4 h-52 w-full rounded-[18px] object-cover"
+                    className="mb-4 aspect-[4/4.1] w-full rounded-[18px] object-cover object-center sm:aspect-[4/4.8]"
                   />
                 )}
                 <div className="mb-4 flex gap-1">

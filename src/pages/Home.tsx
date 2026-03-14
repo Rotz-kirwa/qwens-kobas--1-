@@ -32,7 +32,7 @@ const Home = () => {
               <img
                 src={HERO_FOLLOWUP_IMAGE}
                 alt="Queen Koba Eternal Radiance"
-                className="w-full max-w-sm rounded-sm object-cover"
+                className="h-auto w-full rounded-sm object-cover sm:max-w-sm"
                 loading="lazy"
                 decoding="async"
               />

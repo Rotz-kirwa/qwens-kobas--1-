@@ -5,7 +5,7 @@ const HERO_IMAGE =
 
 const Hero = () => {
   return (
-    <section className="relative min-h-[92vh] md:min-h-[108vh] lg:min-h-[120vh] flex items-center overflow-hidden">
+    <section className="relative flex min-h-[82svh] items-center overflow-hidden sm:min-h-[88svh] md:min-h-[108vh] lg:min-h-[120vh]">
       <div className="absolute inset-0 overflow-hidden">
         <picture className="w-full h-full">
           <source
@@ -21,13 +21,12 @@ const Hero = () => {
           <motion.img
             src={HERO_IMAGE}
             alt="Queen Koba - radiant melanin-rich skin"
-            className="w-full h-full object-cover saturate-[1.04] contrast-[1.02] brightness-[0.82]"
+            className="h-full w-full object-cover object-[58%_top] saturate-[1.04] contrast-[1.02] brightness-[0.82] sm:object-[center_top]"
             style={{ 
               maxWidth: '100%', 
               maxHeight: '100%', 
               objectFit: 'cover', 
-              display: 'block',
-              objectPosition: "center top"
+              display: 'block'
             }}
             initial={{ scale: 1 }}
             animate={{ scale: 1.03 }}
@@ -42,7 +41,7 @@ const Hero = () => {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-24 md:py-0">
+      <div className="relative container mx-auto px-4 py-20 sm:py-24 md:py-0">
         <div className="max-w-xl">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
