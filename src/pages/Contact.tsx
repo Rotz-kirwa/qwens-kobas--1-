@@ -3,11 +3,19 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
+import {
+  formatInstagramHandle,
+  getInstagramHref,
+  getTelHref,
+  getWhatsAppHref,
+  useSiteContent,
+} from "@/hooks/use-site-content";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Contact = () => {
   const { toast } = useToast();
+  const { content } = useSiteContent();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -46,12 +54,13 @@ const Contact = () => {
         });
         setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
-        throw new Error('Failed to send message');
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || payload?.message || 'Failed to send message');
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -99,10 +108,10 @@ const Contact = () => {
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2">Email Us</h3>
                   <a
-                    href="mailto:info@queenkoba.com"
+                    href={`mailto:${content.contact_email}`}
                     className="text-muted-foreground hover:text-primary transition-colors font-body"
                   >
-                    info@queenkoba.com
+                    {content.contact_email}
                   </a>
                 </div>
               </div>
@@ -114,10 +123,10 @@ const Contact = () => {
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2">Call Us</h3>
                   <a
-                    href="tel:+254119559180"
+                    href={getTelHref(content.contact_phone)}
                     className="text-muted-foreground hover:text-primary transition-colors font-body"
                   >
-                    0119 559 180
+                    {content.contact_phone}
                   </a>
                 </div>
               </div>
@@ -129,12 +138,12 @@ const Contact = () => {
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2">WhatsApp</h3>
                   <a
-                    href="https://wa.me/254119559180"
+                    href={getWhatsAppHref(content.contact_whatsapp)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors font-body"
                   >
-                    0119 559 180
+                    {content.contact_whatsapp}
                   </a>
                 </div>
               </div>
@@ -160,12 +169,12 @@ const Contact = () => {
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2">Instagram</h3>
                   <a
-                    href="https://www.instagram.com/queenkoba?igsh=enA5MmtlbzUwMThl"
+                    href={getInstagramHref(content.instagram_handle)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors font-body"
                   >
-                    @queenkoba
+                    {formatInstagramHandle(content.instagram_handle)}
                   </a>
                 </div>
               </div>

@@ -146,10 +146,15 @@ export const paymentAPI = {
   getMpesaStatus: (orderId: string) => apiClient(`/payments/mpesa/status/${orderId}`, { quietError: true }),
 };
 
+export const contentAPI = {
+  getPublic: () => apiClient('/content', { quietError: true }),
+};
+
 export default {
   auth: authAPI,
   products: productsAPI,
   cart: cartAPI,
   orders: ordersAPI,
   payment: paymentAPI,
+  content: contentAPI,
 };

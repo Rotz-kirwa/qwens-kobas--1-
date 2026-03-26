@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
+import { useSiteContent } from "@/hooks/use-site-content";
 
 const HERO_IMAGE =
   "https://www.dropbox.com/scl/fi/dlm8mxurz33lyfahdig88/bg.png?rlkey=uazruv0hawvwkwjxtsmacpmo1&st=4qjh0r3d&raw=1";
 
 const Hero = () => {
+  const { content } = useSiteContent();
+
   return (
     <section className="relative flex min-h-[82svh] items-center overflow-hidden sm:min-h-[88svh] md:min-h-[108vh] lg:min-h-[120vh]">
       <div className="absolute inset-0 overflow-hidden">
@@ -58,7 +61,7 @@ const Hero = () => {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="font-display text-4xl md:text-6xl lg:text-7xl font-light leading-[0.95] mb-5 text-[#F5F5F5]"
           >
-            Dark Spots &amp; Uneven Tone Stealing Your <span className="font-semibold italic text-[#D4AF37]">Glow?</span>
+            {content.hero_title}
           </motion.h1>
 
           <motion.p
@@ -67,7 +70,7 @@ const Hero = () => {
             transition={{ delay: 0.7, duration: 0.6 }}
             className="text-sm md:text-base text-[#F5F5F5] font-semibold leading-relaxed mb-8 max-w-md font-body drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
           >
-            <span className="text-[#E8D3C0]">Naturally</span> Brighten Up to 2 Shades - Toxin-Free, Melanin-Safe Luxury
+            {content.hero_subtitle}
           </motion.p>
 
           <motion.p

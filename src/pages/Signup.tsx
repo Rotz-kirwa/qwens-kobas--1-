@@ -21,6 +21,7 @@ const Signup = () => {
   const [redirectPath] = useState(
     () => (location.state as { from?: string } | null)?.from || consumeAuthRedirect() || '/shop'
   );
+  const passwordMeetsRequirements = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
   useEffect(() => {
     let cancelled = false;
@@ -88,10 +89,10 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!/^\d{4}$/.test(formData.password)) {
+    if (!passwordMeetsRequirements.test(formData.password)) {
       toast({
         title: "Invalid Password",
-        description: "Password must be exactly 4 digits.",
+        description: "Password must be at least 8 characters and include both letters and numbers.",
         variant: "destructive",
       });
       return;
@@ -185,21 +186,17 @@ const Signup = () => {
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      password: e.target.value.replace(/\D/g, "").slice(0, 4),
-                    })
-                  }
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary transition-colors"
-                  placeholder="1234"
+                  placeholder="At least 8 characters"
                   required
-                  inputMode="numeric"
-                  maxLength={4}
-                  pattern="\d{4}"
+                  minLength={8}
+                  autoComplete="new-password"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Use exactly 4 digits</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Use at least 8 characters with both letters and numbers.
+              </p>
             </div>
 
             <button

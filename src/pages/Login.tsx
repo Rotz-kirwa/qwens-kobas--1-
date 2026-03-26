@@ -88,15 +88,6 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!/^\d{4}$/.test(formData.password)) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be exactly 4 digits.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -155,21 +146,16 @@ const Login = () => {
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      password: e.target.value.replace(/\D/g, "").slice(0, 4),
-                    })
-                  }
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary transition-colors"
-                  placeholder="1234"
+                  placeholder="Enter your password"
                   required
-                  inputMode="numeric"
-                  maxLength={4}
-                  pattern="\d{4}"
+                  autoComplete="current-password"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Use your 4-digit password</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Use the password you created for your Queen Koba account.
+              </p>
             </div>
 
             <button

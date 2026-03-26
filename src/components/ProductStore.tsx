@@ -2,21 +2,17 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Star, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { products as initialProducts } from "@/data/products";
 import { productsAPI } from "@/lib/api";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { setAuthRedirect } from "@/lib/authRedirect";
 
 interface ApiProduct {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  prices: {
-    KES: { amount: number; symbol: string; country: string };
-  };
+  _id?: string | number;
+  id?: string | number;
+  name?: string;
+  description?: string;
+  category?: string;
+  prices?: Record<string, { amount?: number; symbol?: string; country?: string }>;
   in_stock: boolean;
   image_url?: string;
   rating?: number;
@@ -43,6 +39,7 @@ interface StoreProduct {
   cta_label?: string;
   footer_note?: string;
   bundle_message?: string;
+  isBundle?: boolean;
 }
 
 const productMarketing: Record<string, Partial<StoreProduct>> = {
@@ -131,8 +128,16 @@ const canonicalProductsByKey = Object.fromEntries(
   fallbackStoreProducts.map((product) => [product.catalogKey, product])
 ) as Record<string, StoreProduct>;
 
-const getProductMarketingKey = (name: string) => {
-  const normalizedName = name.toLowerCase();
+const getProductMarketingKey = (category?: string, name?: string) => {
+  const normalizedCategory = (category || "").toLowerCase();
+  const normalizedName = (name || "").toLowerCase();
+
+  if (normalizedCategory.includes("cleanser")) return "new-cleanser";
+  if (normalizedCategory.includes("toner")) return "new-toner";
+  if (normalizedCategory.includes("serum")) return "new-serum";
+  if (normalizedCategory.includes("cream")) return "new-cream";
+  if (normalizedCategory.includes("mask")) return "new-mask";
+  if (normalizedCategory.includes("bundle")) return "new-bundle";
 
   if (normalizedName.includes("cleanser")) return "new-cleanser";
   if (normalizedName.includes("toner")) return "new-toner";
@@ -147,32 +152,33 @@ const getProductMarketingKey = (name: string) => {
 };
 
 const mapApiProduct = (product: ApiProduct): StoreProduct | null => {
-  const marketingKey = getProductMarketingKey(product.name);
-
-  if (!marketingKey) {
+  const productId = product._id ?? product.id;
+  if (productId === undefined || productId === null) {
     return null;
   }
 
-  const canonicalProduct = canonicalProductsByKey[marketingKey];
-
-  if (!canonicalProduct) {
-    return null;
-  }
+  const marketingKey = getProductMarketingKey(product.category, product.name);
+  const canonicalProduct = marketingKey ? canonicalProductsByKey[marketingKey] : undefined;
+  const kesPrice = Number(product.prices?.KES?.amount ?? canonicalProduct?.price ?? 0);
+  const discountPercentage = Number(
+    product.discount_percentage ?? canonicalProduct?.discount_percentage ?? 0
+  );
+  const overlay = marketingKey ? productMarketing[marketingKey] ?? {} : {};
 
   return {
-    id: product._id,
-    catalogKey: marketingKey,
-    name: canonicalProduct.name,
-    description: canonicalProduct.description,
-    price: canonicalProduct.price,
+    id: String(productId),
+    catalogKey: marketingKey || `product-${productId}`,
+    name: product.name || canonicalProduct?.name || "Queen Koba Product",
+    description: product.description || canonicalProduct?.description || "",
+    price: kesPrice,
     in_stock: product.in_stock ?? true,
-    image_url: canonicalProduct.image_url,
-    rating: canonicalProduct.rating,
-    reviews: canonicalProduct.reviews,
-    discount_percentage: canonicalProduct.discount_percentage,
-    on_sale: canonicalProduct.on_sale,
+    image_url: product.image_url || canonicalProduct?.image_url,
+    rating: product.rating ?? canonicalProduct?.rating ?? 4.8,
+    reviews: product.reviews ?? canonicalProduct?.reviews ?? 0,
+    discount_percentage: discountPercentage,
+    on_sale: product.on_sale ?? discountPercentage > 0,
     isBundle: marketingKey === "new-bundle",
-    ...(productMarketing[marketingKey] ?? {}),
+    ...overlay,
   };
 };
 
@@ -205,8 +211,6 @@ const BundleCountdown = () => {
 const ProductCard = ({ product, index }: { product: StoreProduct; index: number }) => {
   const [qty, setQty] = useState(1);
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
@@ -218,17 +222,6 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
   const reviews = product.reviews || 0;
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      setAuthRedirect("/checkout");
-      toast({
-        title: "Sign In Required",
-        description: "Create an account or sign in before adding products to your cart.",
-        variant: "destructive",
-      });
-      navigate("/login", { state: { from: "/checkout" } });
-      return;
-    }
-
     addToCart(
       {
         id: product.id,
@@ -242,6 +235,10 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
       qty
     );
     setQty(1);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
   };
 
   return (
@@ -381,12 +378,20 @@ const ProductStore = () => {
               .filter((product): product is StoreProduct => product !== null)
           : [];
 
-        const mergedCatalog = catalogOrder.map((key) => {
-          const apiProduct = apiProducts.find((product) => product.catalogKey === key);
-          return apiProduct ?? canonicalProductsByKey[key];
-        }).filter((product): product is StoreProduct => Boolean(product));
+        if (apiProducts.length === 0) {
+          setProducts(fallbackStoreProducts);
+          setLoading(false);
+          return;
+        }
 
-        setProducts(mergedCatalog);
+        const orderedCatalog = catalogOrder
+          .map((key) => apiProducts.find((product) => product.catalogKey === key) ?? canonicalProductsByKey[key])
+          .filter((product): product is StoreProduct => Boolean(product));
+        const extraProducts = apiProducts.filter(
+          (product) => !catalogOrder.includes(product.catalogKey as (typeof catalogOrder)[number]),
+        );
+
+        setProducts([...orderedCatalog, ...extraProducts]);
         setLoading(false);
       })
       .catch(() => {

@@ -56,8 +56,12 @@ const ScrollToTop = () => {
 };
 
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+  if (loading) {
+    return <div className="min-h-[40vh]" />;
+  }
+
 
   if (!isAuthenticated) {
     const redirectPath = `${location.pathname}${location.search}${location.hash}`;

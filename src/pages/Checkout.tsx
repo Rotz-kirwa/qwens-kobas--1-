@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CreditCard, Smartphone, Building2, CheckCircle2, ArrowLeft } from "lucide-react";
@@ -41,6 +42,7 @@ const currencyConfig: Record<string, { code: string; symbol: string; rate: numbe
   Burundi: { code: "BIF", symbol: "FBu", rate: 285 },
   Congo: { code: "CDF", symbol: "FC", rate: 280 },
 };
+const supportedCheckoutCountries = ["Kenya"] as const;
 
 const formatCurrency = (amount: number, country: string) => {
   const config = currencyConfig[country];
@@ -120,6 +122,7 @@ const Checkout = () => {
     applyPromoCode,
     removePromoCode,
   } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -148,6 +151,20 @@ const Checkout = () => {
   useEffect(() => {
     setPromoCode(promoSummary?.code || "");
   }, [promoSummary?.code]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      fullName: prev.fullName || user?.name || "",
+      email: prev.email || user?.email || "",
+      phone: prev.phone || user?.phone || "",
+      city: prev.city || deliverySelection.county,
+    }));
+    setPaymentDetails((prev) => ({
+      ...prev,
+      phoneNumber: prev.phoneNumber || user?.phone || "",
+    }));
+  }, [deliverySelection.county, user?.email, user?.name, user?.phone]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -522,11 +539,15 @@ const Checkout = () => {
                         onChange={(e) => setCountry(e.target.value)}
                         className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
                       >
-                        <option value="Kenya">Kenya</option>
-                        <option value="Uganda">Uganda</option>
-                        <option value="Burundi">Burundi</option>
-                        <option value="Congo">DR Congo</option>
+                        {supportedCheckoutCountries.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </select>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Delivery pricing is currently configured for Kenya orders.
+                      </p>
                     </div>
                   </div>
                   <div>

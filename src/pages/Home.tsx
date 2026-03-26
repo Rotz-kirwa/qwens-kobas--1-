@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import Hero from "@/components/Hero";
 import SEO from "@/components/SEO";
+import { useSiteContent } from "@/hooks/use-site-content";
 
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const IngredientsSpotlight = lazy(() => import("@/components/IngredientsSpotlight"));
@@ -8,6 +9,8 @@ const HERO_FOLLOWUP_IMAGE =
   "https://www.dropbox.com/scl/fi/xbfgwzkqvfqe2hhybwwhp/er.png?rlkey=jovtvo8ux3daj3m7h2pkkie3c&st=1jb5ihyj&raw=1";
 
 const Home = () => {
+  const { content } = useSiteContent();
+
   return (
     <main>
       <SEO
@@ -42,12 +45,13 @@ const Home = () => {
                 100% toxin-free · Handcrafted African Botanicals
               </p>
               <h2 className="mt-3 font-display text-3xl font-light leading-tight text-foreground md:text-5xl">
-                Explore The <span className="italic text-gold-gradient">Full Ritual</span>
+                {content.about_title.split(" ").slice(0, -1).join(" ") || "Explore The"}{" "}
+                <span className="italic text-gold-gradient">
+                  {content.about_title.split(" ").slice(-1).join(" ") || "Full Ritual"}
+                </span>
               </h2>
               <p className="mt-4 font-body text-base leading-7 text-foreground md:text-lg">
-                Explore our complete skincare lineup, mask, toner, serum, cream, and cleanser,
-                carefully curated to work together for healthier, glowing skin. Get them
-                individually or choose the full product kit for the best experience.
+                {content.about_description}
               </p>
               <p className="mt-4 font-body text-sm uppercase tracking-[0.24em] text-primary">
                 No risks. No compromises.
