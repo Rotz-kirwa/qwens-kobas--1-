@@ -120,6 +120,15 @@ export const cartAPI = {
     code: string;
     items: Array<{ product_id: string; quantity: number }>;
     shipping_kes?: number;
+    delivery?: {
+      delivery_zone: string;
+      county: string;
+      area: string;
+      delivery_point: string;
+      method: string;
+      shipping_fee: number;
+      eta: string;
+    };
   }) =>
     apiClient('/cart/apply-promocode', {
       method: 'POST',

@@ -1,9 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
-  defaultKenyaDelivery,
-  getCountyDelivery,
+  defaultKenyaDeliveryZone,
+  getDeliveryZone,
+  normalizeDeliveryZone,
   type DeliveryMethod,
+  type DeliveryZone,
 } from "@/data/kenyaDelivery";
 import { cartAPI } from "@/lib/api";
 
@@ -25,7 +27,9 @@ export interface CartItem {
 }
 
 export interface DeliverySelection {
+  zone: DeliveryZone;
   county: string;
+  area: string;
   point: string;
   method: DeliveryMethod;
   pickupFee: number;
@@ -62,7 +66,9 @@ interface CartContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   deliverySelection: DeliverySelection;
-  setCounty: (county: string) => void;
+  setDeliveryZone: (zone: string) => void;
+  setDeliveryCounty: (county: string) => void;
+  setDeliveryArea: (area: string) => void;
   setDeliveryPoint: (point: string) => void;
   setDeliveryMethod: (method: DeliveryMethod) => void;
   shippingFee: number;
@@ -91,21 +97,63 @@ const CART_STORAGE_KEY = "queenkoba-cart";
 const DELIVERY_STORAGE_KEY = "queenkoba-delivery";
 const PROMO_STORAGE_KEY = "queenkoba-promo";
 
+interface DeliverySelectionDraft {
+  county?: string;
+  area?: string;
+  point?: string;
+}
+
 const buildDeliverySelection = (
-  county: string,
+  zone: string,
   method: DeliveryMethod,
-  point?: string,
+  fields: DeliverySelectionDraft = {},
 ): DeliverySelection => {
-  const config = getCountyDelivery(county);
+  const config = getDeliveryZone(zone);
+  const countyValue = fields.county?.trim() || (config.zone === "nairobi" ? "Nairobi" : "");
 
   return {
-    county: config.county,
-    point: point && config.points.includes(point) ? point : config.points[0],
+    zone: config.zone,
+    county: countyValue,
+    area: fields.area?.trim() || "",
+    point: fields.point?.trim() || "",
     method,
     pickupFee: config.pickupFee,
     doorFee: config.doorFee,
     eta: config.eta,
   };
+};
+
+const readStoredDeliverySelection = (): DeliverySelection => {
+  const saved = localStorage.getItem(DELIVERY_STORAGE_KEY);
+  if (!saved) {
+    return buildDeliverySelection(defaultKenyaDeliveryZone.zone, "pickup");
+  }
+
+  const parsed = JSON.parse(saved) as Partial<DeliverySelection> & {
+    delivery_zone?: string;
+  };
+
+  const hasExplicitZone = Boolean(parsed.zone || parsed.delivery_zone);
+  const resolvedZone = normalizeDeliveryZone(parsed.zone || parsed.delivery_zone || parsed.county);
+  const storedCounty = parsed.county?.trim() || "";
+  const normalizedCounty =
+    hasExplicitZone
+      ? storedCounty
+      : storedCounty && storedCounty !== "Nairobi" && storedCounty !== "Outside Nairobi"
+        ? storedCounty
+        : resolvedZone === "nairobi"
+          ? "Nairobi"
+          : "";
+
+  return buildDeliverySelection(
+    resolvedZone,
+    parsed.method === "door" ? "door" : "pickup",
+    {
+      county: normalizedCounty,
+      area: parsed.area,
+      point: parsed.point,
+    },
+  );
 };
 
 const readStoredCartItems = (): CartItem[] => {
@@ -147,6 +195,19 @@ const buildPromoRequestItems = (items: CartItem[]) =>
     quantity: item.quantity,
   }));
 
+const buildPromoRequestDelivery = (deliverySelection: DeliverySelection) => ({
+  delivery_zone: deliverySelection.zone,
+  county: deliverySelection.county,
+  area: deliverySelection.area,
+  delivery_point: deliverySelection.point,
+  method: deliverySelection.method,
+  shipping_fee:
+    deliverySelection.method === "door"
+      ? deliverySelection.doorFee
+      : deliverySelection.pickupFee,
+  eta: deliverySelection.eta,
+});
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const [items, setItems] = useState<CartItem[]>(() => readStoredCartItems());
@@ -154,19 +215,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [promoSummary, setPromoSummary] = useState<PromoSummary | null>(() => readStoredPromoSummary());
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoError, setPromoError] = useState<string | null>(null);
-  const [deliverySelection, setDeliverySelection] = useState<DeliverySelection>(() => {
-    const saved = localStorage.getItem(DELIVERY_STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved) as Partial<DeliverySelection>;
-      return buildDeliverySelection(
-        parsed.county || defaultKenyaDelivery.county,
-        parsed.method === "door" ? "door" : "pickup",
-        parsed.point,
-      );
-    }
-
-    return buildDeliverySelection(defaultKenyaDelivery.county, "pickup");
-  });
+  const [deliverySelection, setDeliverySelection] = useState<DeliverySelection>(() =>
+    readStoredDeliverySelection(),
+  );
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
@@ -245,6 +296,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           code: normalizedCode,
           items: buildPromoRequestItems(items),
           shipping_kes: shippingFee,
+          delivery: buildPromoRequestDelivery(deliverySelection),
         });
 
         const nextPromo = response?.promo as PromoSummary | undefined;
@@ -264,7 +316,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPromoLoading(false);
       }
     },
-    [items, shippingFee],
+    [deliverySelection, items, shippingFee],
   );
 
   useEffect(() => {
@@ -322,6 +374,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           code: promoSummary.code,
           items: buildPromoRequestItems(items),
           shipping_kes: shippingFee,
+          delivery: buildPromoRequestDelivery(deliverySelection),
         });
 
         if (!cancelled && response?.promo) {
@@ -343,7 +396,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       cancelled = true;
     };
-  }, [items, promoSummary?.code, removePromoCode, shippingFee]);
+  }, [deliverySelection, items, promoSummary?.code, removePromoCode, shippingFee]);
 
   const addToCart = useCallback(
     (product: Product, qty = 1) => {
@@ -393,8 +446,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     syncBackendCartAction(() => cartAPI.clear());
   }, [syncBackendCartAction]);
 
-  const setCounty = useCallback((county: string) => {
-    setDeliverySelection((prev) => buildDeliverySelection(county, prev.method));
+  const setDeliveryZone = useCallback((zone: string) => {
+    setDeliverySelection((prev) => {
+      const nextZone = normalizeDeliveryZone(zone);
+      const nextCounty =
+        nextZone === "nairobi"
+          ? "Nairobi"
+          : prev.county.trim().toLowerCase() === "nairobi"
+            ? ""
+            : prev.county;
+
+      return buildDeliverySelection(nextZone, prev.method, {
+        county: nextCounty,
+        area: prev.area,
+        point: prev.point,
+      });
+    });
+  }, []);
+
+  const setDeliveryCounty = useCallback((county: string) => {
+    setDeliverySelection((prev) => ({ ...prev, county }));
+  }, []);
+
+  const setDeliveryArea = useCallback((area: string) => {
+    setDeliverySelection((prev) => ({ ...prev, area }));
   }, []);
 
   const setDeliveryPoint = useCallback((point: string) => {
@@ -418,7 +493,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isOpen,
         setIsOpen,
         deliverySelection,
-        setCounty,
+        setDeliveryZone,
+        setDeliveryCounty,
+        setDeliveryArea,
         setDeliveryPoint,
         setDeliveryMethod,
         shippingFee,

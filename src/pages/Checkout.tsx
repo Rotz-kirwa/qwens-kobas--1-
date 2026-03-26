@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import DeliveryDetailsSection from "@/components/DeliveryDetailsSection";
 import { motion } from "framer-motion";
 import { CreditCard, Smartphone, Building2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getDeliveryZone } from "@/data/kenyaDelivery";
 import { paymentAPI, ordersAPI, isApiOfflineError } from "@/lib/api";
+import { getDeliveryFieldErrors, getFirstDeliveryError } from "@/lib/delivery";
 import { getPromoBenefitLabel, getPromoCampaignLabel, sanitizePromoCodeInput } from "@/lib/promo";
 import SEO from "@/components/SEO";
 
@@ -106,12 +109,19 @@ const getFriendlyMpesaFailureMessage = (description?: string) => {
   return description;
 };
 
+const getDefaultCheckoutCity = (deliveryCounty: string) => deliveryCounty.trim();
+
 const Checkout = () => {
   const {
     items,
     total,
     clearCart,
     deliverySelection,
+    setDeliveryZone,
+    setDeliveryCounty,
+    setDeliveryArea,
+    setDeliveryPoint,
+    setDeliveryMethod,
     shippingFee,
     grandTotal,
     promoSummary,
@@ -125,6 +135,7 @@ const Checkout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const activeDeliveryZone = getDeliveryZone(deliverySelection.zone);
   
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState("Kenya");
@@ -137,16 +148,18 @@ const Checkout = () => {
     bankName: "",
   });
   const [paymentMessage, setPaymentMessage] = useState("");
+  const [showDeliveryErrors, setShowDeliveryErrors] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     address: "",
-    city: deliverySelection.county,
+    city: getDefaultCheckoutCity(deliverySelection.county),
     postalCode: "",
   });
   const promoCampaignLabel = getPromoCampaignLabel(promoSummary);
   const promoBenefitLabel = getPromoBenefitLabel(promoSummary);
+  const deliveryErrors = showDeliveryErrors ? getDeliveryFieldErrors(deliverySelection) : {};
 
   useEffect(() => {
     setPromoCode(promoSummary?.code || "");
@@ -158,7 +171,7 @@ const Checkout = () => {
       fullName: prev.fullName || user?.name || "",
       email: prev.email || user?.email || "",
       phone: prev.phone || user?.phone || "",
-      city: prev.city || deliverySelection.county,
+      city: prev.city || getDefaultCheckoutCity(deliverySelection.county),
     }));
     setPaymentDetails((prev) => ({
       ...prev,
@@ -213,6 +226,17 @@ const Checkout = () => {
   };
 
   const validateStepOne = () => {
+    const deliveryError = getFirstDeliveryError(deliverySelection);
+    if (deliveryError) {
+      setShowDeliveryErrors(true);
+      toast({
+        title: "Delivery details needed",
+        description: deliveryError,
+        variant: "destructive",
+      });
+      return false;
+    }
+
     const requiredFields = [
       ["Full name", formData.fullName],
       ["Email", formData.email],
@@ -333,6 +357,9 @@ const Checkout = () => {
           postal_code: formData.postalCode,
           country,
           county: deliverySelection.county,
+          area: deliverySelection.area,
+          delivery_zone: activeDeliveryZone.label,
+          delivery_zone_code: deliverySelection.zone,
           delivery_point: deliverySelection.point,
           delivery_method: deliverySelection.method,
           delivery_eta: deliverySelection.eta,
@@ -346,7 +373,11 @@ const Checkout = () => {
         },
         delivery: {
           county: deliverySelection.county,
+          area: deliverySelection.area,
           point: deliverySelection.point,
+          delivery_point: deliverySelection.point,
+          delivery_zone: activeDeliveryZone.label,
+          delivery_zone_code: deliverySelection.zone,
           method: deliverySelection.method,
           shipping_fee: shippingFee,
           eta: deliverySelection.eta,
@@ -584,6 +615,15 @@ const Checkout = () => {
                       />
                     </div>
                   </div>
+                  <DeliveryDetailsSection
+                    deliverySelection={deliverySelection}
+                    setDeliveryZone={setDeliveryZone}
+                    setDeliveryCounty={setDeliveryCounty}
+                    setDeliveryArea={setDeliveryArea}
+                    setDeliveryPoint={setDeliveryPoint}
+                    setDeliveryMethod={setDeliveryMethod}
+                    errors={deliveryErrors}
+                  />
                   <button
                     onClick={() => {
                       if (validateStepOne()) {
@@ -783,6 +823,9 @@ const Checkout = () => {
                       <p>{formData.phone}</p>
                       <p>{formData.address}</p>
                       <p>{formData.city}, {country}</p>
+                      <p>{activeDeliveryZone.label}</p>
+                      <p>{deliverySelection.county} · {deliverySelection.area}</p>
+                      <p>{deliverySelection.point || "Area not set yet"}</p>
                     </div>
                   </div>
                   <div>
@@ -872,7 +915,13 @@ const Checkout = () => {
                     Delivery Selection
                   </p>
                   <p className="mt-2 text-muted-foreground">
-                    {deliverySelection.county} · {deliverySelection.point}
+                    {activeDeliveryZone.label}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {deliverySelection.county} · {deliverySelection.area}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {deliverySelection.point || "Area not set yet"}
                   </p>
                   <p className="text-muted-foreground capitalize">
                     {deliverySelection.method === "door" ? "Door delivery" : "Pickup station"} · {deliverySelection.eta}

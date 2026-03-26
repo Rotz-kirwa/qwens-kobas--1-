@@ -1,12 +1,17 @@
-import { useEffect } from "react";
-import { X, Plus, Minus, Trash2, ShoppingBag, MapPin, Truck, Store } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { getCountyDelivery, kenyaDeliveryLocations } from "@/data/kenyaDelivery";
+import DeliveryDetailsSection from "@/components/DeliveryDetailsSection";
 import { useToast } from "@/hooks/use-toast";
 import { setAuthRedirect } from "@/lib/authRedirect";
+import {
+  getDeliveryFieldErrors,
+  getDeliverySummaryLabel,
+  getFirstDeliveryError,
+} from "@/lib/delivery";
 
 const CartDrawer = () => {
   const {
@@ -18,7 +23,9 @@ const CartDrawer = () => {
     total,
     clearCart,
     deliverySelection,
-    setCounty,
+    setDeliveryZone,
+    setDeliveryCounty,
+    setDeliveryArea,
     setDeliveryPoint,
     setDeliveryMethod,
     shippingFee,
@@ -27,7 +34,9 @@ const CartDrawer = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const activeCounty = getCountyDelivery(deliverySelection.county);
+  const [showDeliveryErrors, setShowDeliveryErrors] = useState(false);
+  const deliveryErrors = showDeliveryErrors ? getDeliveryFieldErrors(deliverySelection) : {};
+  const deliverySummaryLabel = getDeliverySummaryLabel(deliverySelection);
 
   useEffect(() => {
     if (!isOpen) {
@@ -43,7 +52,19 @@ const CartDrawer = () => {
   }, [isOpen]);
 
   const handleCheckout = () => {
+    const deliveryError = getFirstDeliveryError(deliverySelection);
+    if (deliveryError) {
+      setShowDeliveryErrors(true);
+      toast({
+        title: "Delivery details needed",
+        description: deliveryError,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsOpen(false);
+
     if (!isAuthenticated) {
       setAuthRedirect("/checkout");
       toast({
@@ -140,214 +161,36 @@ const CartDrawer = () => {
                       </p>
                     </div>
                   ))}
-                  <div className="rounded-[20px] border border-primary/15 bg-secondary/10 p-3.5 md:hidden">
-                    <div className="mb-3 flex items-center gap-2 md:mb-4">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <p className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/80 md:text-sm">
-                        Delivery Across Kenya
-                      </p>
-                    </div>
-
-                    <div className="space-y-2.5 md:space-y-3">
-                      <div>
-                        <label className="mb-1 block text-[10px] font-body uppercase tracking-[0.16em] text-muted-foreground md:text-xs">
-                          Choose your county
-                        </label>
-                        <select
-                          value={deliverySelection.county}
-                          onChange={(event) => setCounty(event.target.value)}
-                          className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary md:px-4 md:py-3"
-                        >
-                          {kenyaDeliveryLocations.map((location) => (
-                            <option key={location.county} value={location.county}>
-                              {location.county}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="mb-1 block text-[10px] font-body uppercase tracking-[0.16em] text-muted-foreground md:text-xs">
-                          Major delivery point
-                        </label>
-                        <select
-                          value={deliverySelection.point}
-                          onChange={(event) => setDeliveryPoint(event.target.value)}
-                          className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary md:px-4 md:py-3"
-                        >
-                          {activeCounty.points.map((point) => (
-                            <option key={point} value={point}>
-                              {point}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setDeliveryMethod("pickup")}
-                          className={`rounded-[18px] border p-3 text-left transition-all md:rounded-[20px] md:p-4 ${
-                            deliverySelection.method === "pickup"
-                              ? "border-primary bg-primary/5 shadow-[0_12px_24px_rgba(0,0,0,0.08)]"
-                              : "border-border bg-background"
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5 md:gap-3">
-                            <div className="rounded-xl bg-secondary/40 p-2">
-                              <Store className="h-4 w-4 text-primary md:h-5 md:w-5" />
-                            </div>
-                            <div>
-                              <p className="font-body text-xs font-semibold uppercase tracking-[0.16em] text-foreground/85 md:text-sm">
-                                Pickup Station
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground md:text-sm">
-                                Delivery fee KSh {activeCounty.pickupFee.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                Ready for pickup in {activeCounty.eta}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setDeliveryMethod("door")}
-                          className={`rounded-[18px] border p-3 text-left transition-all md:rounded-[20px] md:p-4 ${
-                            deliverySelection.method === "door"
-                              ? "border-primary bg-primary/5 shadow-[0_12px_24px_rgba(0,0,0,0.08)]"
-                              : "border-border bg-background"
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5 md:gap-3">
-                            <div className="rounded-xl bg-secondary/40 p-2">
-                              <Truck className="h-4 w-4 text-primary md:h-5 md:w-5" />
-                            </div>
-                            <div>
-                              <p className="font-body text-xs font-semibold uppercase tracking-[0.16em] text-foreground/85 md:text-sm">
-                                Door Delivery
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground md:text-sm">
-                                Delivery fee KSh {activeCounty.doorFee.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                Estimated arrival in {activeCounty.eta}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <DeliveryDetailsSection
+                    deliverySelection={deliverySelection}
+                    setDeliveryZone={setDeliveryZone}
+                    setDeliveryCounty={setDeliveryCounty}
+                    setDeliveryArea={setDeliveryArea}
+                    setDeliveryPoint={setDeliveryPoint}
+                    setDeliveryMethod={setDeliveryMethod}
+                    errors={deliveryErrors}
+                    className="md:hidden"
+                  />
                 </div>
 
                 <div className="sticky bottom-0 border-t border-border bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/92 md:static md:space-y-4 md:border-t md:bg-transparent md:px-6 md:py-6 md:backdrop-blur-0">
-                  <div className="hidden rounded-[22px] border border-primary/15 bg-secondary/10 p-4 md:block">
-                    <div className="mb-4 flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <p className="font-body text-sm font-semibold uppercase tracking-[0.18em] text-foreground/80">
-                        Delivery Across Kenya
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="mb-1 block text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
-                          Choose your county
-                        </label>
-                        <select
-                          value={deliverySelection.county}
-                          onChange={(event) => setCounty(event.target.value)}
-                          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
-                        >
-                          {kenyaDeliveryLocations.map((location) => (
-                            <option key={location.county} value={location.county}>
-                              {location.county}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="mb-1 block text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
-                          Major delivery point
-                        </label>
-                        <select
-                          value={deliverySelection.point}
-                          onChange={(event) => setDeliveryPoint(event.target.value)}
-                          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
-                        >
-                          {activeCounty.points.map((point) => (
-                            <option key={point} value={point}>
-                              {point}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setDeliveryMethod("pickup")}
-                          className={`rounded-[20px] border p-4 text-left transition-all ${
-                            deliverySelection.method === "pickup"
-                              ? "border-primary bg-primary/5 shadow-[0_12px_24px_rgba(0,0,0,0.08)]"
-                              : "border-border bg-background"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="rounded-xl bg-secondary/40 p-2">
-                              <Store className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-body text-sm font-semibold uppercase tracking-[0.16em] text-foreground/85">
-                                Pickup Station
-                              </p>
-                              <p className="mt-1 text-sm text-muted-foreground">
-                                Delivery fee KSh {activeCounty.pickupFee.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                Ready for pickup in {activeCounty.eta}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setDeliveryMethod("door")}
-                          className={`rounded-[20px] border p-4 text-left transition-all ${
-                            deliverySelection.method === "door"
-                              ? "border-primary bg-primary/5 shadow-[0_12px_24px_rgba(0,0,0,0.08)]"
-                              : "border-border bg-background"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="rounded-xl bg-secondary/40 p-2">
-                              <Truck className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-body text-sm font-semibold uppercase tracking-[0.16em] text-foreground/85">
-                                Door Delivery
-                              </p>
-                              <p className="mt-1 text-sm text-muted-foreground">
-                                Delivery fee KSh {activeCounty.doorFee.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                Estimated arrival in {activeCounty.eta}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <DeliveryDetailsSection
+                    deliverySelection={deliverySelection}
+                    setDeliveryZone={setDeliveryZone}
+                    setDeliveryCounty={setDeliveryCounty}
+                    setDeliveryArea={setDeliveryArea}
+                    setDeliveryPoint={setDeliveryPoint}
+                    setDeliveryMethod={setDeliveryMethod}
+                    errors={deliveryErrors}
+                    className="hidden md:block"
+                  />
 
                   <div className="mb-2 rounded-2xl border border-primary/10 bg-secondary/10 px-3 py-2 text-[11px] text-muted-foreground md:hidden">
                     <span className="font-semibold text-foreground">{deliverySelection.method === "pickup" ? "Pickup" : "Door Delivery"}</span>
                     {" · "}
-                    {deliverySelection.point}
+                    {[deliverySelection.county, deliverySelection.area, deliverySelection.point]
+                      .filter(Boolean)
+                      .join(" · ") || "Delivery details not set yet"}
                     {" · "}
                     KSh {shippingFee.toLocaleString()}
                   </div>
@@ -377,7 +220,7 @@ const CartDrawer = () => {
                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground font-body md:gap-3 md:text-xs">
                     <span>🔒 Secure Checkout</span>
                     <span>·</span>
-                    <span>{deliverySelection.county} delivery ready</span>
+                    <span>{deliverySummaryLabel} delivery ready</span>
                   </div>
                   <button 
                     onClick={handleCheckout}
