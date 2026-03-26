@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { NetworkQualityProvider } from "@/context/NetworkQualityContext";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -26,7 +27,6 @@ const Checkout = lazy(() => import("./pages/Checkout"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
-const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -58,10 +58,10 @@ const ScrollToTop = () => {
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+
   if (loading) {
     return <div className="min-h-[40vh]" />;
   }
-
 
   if (!isAuthenticated) {
     const redirectPath = `${location.pathname}${location.search}${location.hash}`;
@@ -76,47 +76,48 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <CartProvider>
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <ScrollToTop />
-          <Toaster />
-          <Sonner />
-          <Navbar />
-          <WhatsAppFloat />
-          <ShopNowFloat />
-          <Suspense fallback={null}>
-            <PromoPopup />
-          </Suspense>
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/all" element={<Index />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/story" element={<Story />} />
-              <Route path="/results" element={<Results />} />
-              <Route path="/ingredients" element={<Ingredients />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route
-                path="/checkout"
-                element={
-                  <RequireAuth>
-                    <Checkout />
-                  </RequireAuth>
-                }
-              />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          <Footer />
-          </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
+      <NetworkQualityProvider>
+        <AuthProvider>
+          <CartProvider>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <ScrollToTop />
+              <Toaster />
+              <Sonner />
+              <Navbar />
+              <WhatsAppFloat />
+              <ShopNowFloat />
+              <Suspense fallback={null}>
+                <PromoPopup />
+              </Suspense>
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/all" element={<Index />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/story" element={<Story />} />
+                  <Route path="/results" element={<Results />} />
+                  <Route path="/ingredients" element={<Ingredients />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/reviews" element={<Reviews />} />
+                  <Route
+                    path="/checkout"
+                    element={
+                      <RequireAuth>
+                        <Checkout />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <Footer />
+            </BrowserRouter>
+          </CartProvider>
+        </AuthProvider>
+      </NetworkQualityProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

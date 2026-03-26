@@ -111,6 +111,15 @@ interface DeliverySelectionDraft {
   point?: string;
 }
 
+const inferDeliveryZoneFromCounty = (county?: string | null): DeliveryZone | null => {
+  const normalizedCounty = county?.trim().toLowerCase();
+  if (!normalizedCounty) {
+    return null;
+  }
+
+  return normalizedCounty.includes("nairobi") ? "nairobi" : "outside_nairobi";
+};
+
 const buildDeliverySelection = (
   zone: string,
   method: DeliveryMethod,
@@ -141,17 +150,12 @@ const readStoredDeliverySelection = (): DeliverySelection => {
     delivery_zone?: string;
   };
 
-  const hasExplicitZone = Boolean(parsed.zone || parsed.delivery_zone);
-  const resolvedZone = normalizeDeliveryZone(parsed.zone || parsed.delivery_zone || parsed.county);
   const storedCounty = parsed.county?.trim() || "";
-  const normalizedCounty =
-    hasExplicitZone
-      ? storedCounty
-      : storedCounty && storedCounty !== "Nairobi" && storedCounty !== "Outside Nairobi"
-        ? storedCounty
-        : resolvedZone === "nairobi"
-          ? "Nairobi"
-          : "";
+  const inferredZoneFromCounty = inferDeliveryZoneFromCounty(storedCounty);
+  const resolvedZone = normalizeDeliveryZone(
+    inferredZoneFromCounty || parsed.zone || parsed.delivery_zone || parsed.county,
+  );
+  const normalizedCounty = storedCounty || (resolvedZone === "nairobi" ? "Nairobi" : "");
 
   return buildDeliverySelection(
     resolvedZone,
@@ -481,7 +485,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setDeliveryCounty = useCallback((county: string) => {
-    setDeliverySelection((prev) => ({ ...prev, county }));
+    setDeliverySelection((prev) => {
+      const inferredZone = inferDeliveryZoneFromCounty(county);
+
+      return buildDeliverySelection(inferredZone || prev.zone, prev.method, {
+        county,
+        area: prev.area,
+        point: prev.point,
+      });
+    });
   }, []);
 
   const setDeliveryArea = useCallback((area: string) => {

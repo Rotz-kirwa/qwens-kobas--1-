@@ -1,6 +1,8 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Star } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
 const testimonials = [
   {
@@ -39,14 +41,16 @@ const testimonials = [
 
 const Testimonials = () => {
   const ref = useRef(null);
+  const network = useNetworkQuality();
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const visibleTestimonials = network.isSlow ? testimonials.slice(0, 2) : testimonials;
 
   return (
     <section id="reviews" className="bg-background py-12 md:py-14 lg:py-16">
       <div className="container mx-auto px-4" ref={ref}>
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          initial={network.animationEnabled ? { opacity: 0, y: 24 } : false}
+          animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="mb-8 text-center md:mb-10"
         >
@@ -61,19 +65,19 @@ const Testimonials = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {testimonials.map((item, index) => (
+          {visibleTestimonials.map((item, index) => (
             <motion.article
               key={item.name}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              initial={network.animationEnabled ? { opacity: 0, y: 24 } : false}
+              animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: index * 0.08, duration: 0.55 }}
               className="rounded-[24px] border border-border/70 bg-card p-5 shadow-[0_16px_36px_rgba(23,16,8,0.1)]"
             >
-              <img
+              <AdaptiveImage
                 src={item.image}
                 alt={`${item.name} review portrait`}
                 className="mb-4 aspect-[4/4.2] w-full rounded-[18px] object-cover object-center sm:aspect-[4/4.8]"
-                loading="lazy"
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
               />
               <div className="mb-4 flex gap-1">
                 {Array.from({ length: item.rating }).map((_, starIndex) => (

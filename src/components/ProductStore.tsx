@@ -1,7 +1,9 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Star, Plus, Minus, ShoppingBag } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
 import { useCart } from "@/context/CartContext";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 import { products as initialProducts } from "@/data/products";
 import { productsAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -211,6 +213,7 @@ const BundleCountdown = () => {
 const ProductCard = ({ product, index }: { product: StoreProduct; index: number }) => {
   const [qty, setQty] = useState(1);
   const { addToCart } = useCart();
+  const network = useNetworkQuality();
   const { toast } = useToast();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
@@ -244,8 +247,8 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      initial={network.animationEnabled ? { opacity: 0, y: 40 } : false}
+      animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.1, duration: 0.6 }}
       className="luxury-card flex flex-col overflow-hidden p-0 relative"
     >
@@ -271,11 +274,11 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
       </div>
       {product.image_url && (
         <div className="w-full overflow-hidden">
-          <img 
+          <AdaptiveImage
             src={product.image_url} 
             alt={product.name}
             className="aspect-[4/4.1] w-full object-cover object-center sm:aspect-[4/4.35] lg:h-[26rem] lg:aspect-auto"
-            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
       )}
@@ -309,7 +312,7 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
           </p>
         )}
 
-        {product.isBundle && <BundleCountdown />}
+        {product.isBundle && !network.isSlow && <BundleCountdown />}
 
         <div className="mt-auto flex items-end justify-between gap-3 border-t border-border/50 pt-4">
         <div>
@@ -365,12 +368,21 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
 
 const ProductStore = () => {
   const ref = useRef(null);
+  const network = useNetworkQuality();
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const [products, setProducts] = useState<StoreProduct[]>(fallbackStoreProducts);
   const [loading, setLoading] = useState(true);
+  const [loadingAllProducts, setLoadingAllProducts] = useState(false);
+  const [loadedFullCatalog, setLoadedFullCatalog] = useState(false);
 
   useEffect(() => {
-    productsAPI.getAll()
+    let cancelled = false;
+
+    productsAPI.getAll({
+      lite: network.liteMode,
+      limit: network.isSlow ? 4 : undefined,
+      cacheTtlMs: network.isSlow ? 1000 * 60 * 15 : 1000 * 60 * 5,
+    })
       .then(data => {
         const apiProducts = Array.isArray(data.products)
           ? data.products
@@ -379,8 +391,11 @@ const ProductStore = () => {
           : [];
 
         if (apiProducts.length === 0) {
-          setProducts(fallbackStoreProducts);
-          setLoading(false);
+          if (!cancelled) {
+            setProducts(fallbackStoreProducts);
+            setLoadedFullCatalog(!network.isSlow);
+            setLoading(false);
+          }
           return;
         }
 
@@ -391,14 +406,59 @@ const ProductStore = () => {
           (product) => !catalogOrder.includes(product.catalogKey as (typeof catalogOrder)[number]),
         );
 
-        setProducts([...orderedCatalog, ...extraProducts]);
-        setLoading(false);
+        if (!cancelled) {
+          setProducts([...orderedCatalog, ...extraProducts]);
+          setLoadedFullCatalog(!network.isSlow || !data?.lite);
+          setLoading(false);
+        }
       })
       .catch(() => {
-        setProducts(fallbackStoreProducts);
-        setLoading(false);
+        if (!cancelled) {
+          setProducts(fallbackStoreProducts);
+          setLoadedFullCatalog(true);
+          setLoading(false);
+        }
       });
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [network.isSlow, network.liteMode]);
+
+  const handleLoadFullCatalog = async () => {
+    setLoadingAllProducts(true);
+
+    try {
+      const data = await productsAPI.getAll({
+        lite: false,
+        cacheTtlMs: 1000 * 60 * 5,
+      });
+      const apiProducts = Array.isArray(data.products)
+        ? data.products
+            .map(mapApiProduct)
+            .filter((product): product is StoreProduct => product !== null)
+        : [];
+
+      if (apiProducts.length > 0) {
+        const orderedCatalog = catalogOrder
+          .map((key) => apiProducts.find((product) => product.catalogKey === key) ?? canonicalProductsByKey[key])
+          .filter((product): product is StoreProduct => Boolean(product));
+        const extraProducts = apiProducts.filter(
+          (product) => !catalogOrder.includes(product.catalogKey as (typeof catalogOrder)[number]),
+        );
+
+        setProducts([...orderedCatalog, ...extraProducts]);
+      }
+
+      setLoadedFullCatalog(true);
+    } finally {
+      setLoadingAllProducts(false);
+    }
+  };
+
+  const visibleProducts =
+    network.isSlow && !loadedFullCatalog
+      ? products.slice(0, network.initialProductCount)
+      : products;
 
   return (
     <section id="shop" className="py-12 md:py-14 lg:py-16">
@@ -416,18 +476,47 @@ const ProductStore = () => {
         </motion.div>
 
         {loading ? (
-          <div className="text-center py-12">Loading products...</div>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: network.initialProductCount }).map((_, index) => (
+              <div
+                key={index}
+                className="luxury-card overflow-hidden p-0"
+              >
+                <div className="aspect-[4/4.1] w-full bg-secondary/35 sm:aspect-[4/4.35] lg:h-[26rem]" />
+                <div className="space-y-3 p-6 md:p-7">
+                  <div className="h-4 w-28 rounded-full bg-secondary/30" />
+                  <div className="h-7 w-4/5 rounded-full bg-secondary/40" />
+                  <div className="h-4 w-full rounded-full bg-secondary/30" />
+                  <div className="h-4 w-5/6 rounded-full bg-secondary/30" />
+                  <div className="h-10 w-36 rounded-sm bg-secondary/35" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {products.filter(Boolean).map((product, i) => (
+              {visibleProducts.filter(Boolean).map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
             </div>
 
+            {network.isSlow && !loadedFullCatalog && products.length > network.initialProductCount && (
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => void handleLoadFullCatalog()}
+                  disabled={loadingAllProducts}
+                  className="rounded-sm border border-primary/20 px-6 py-3 text-xs font-body font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary/5 disabled:opacity-60"
+                >
+                  {loadingAllProducts ? "Loading More..." : "Load Full Collection"}
+                </button>
+              </div>
+            )}
+
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              initial={network.animationEnabled ? { opacity: 0, y: 24 } : false}
+              animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.35, duration: 0.6 }}
               className="mt-8 rounded-sm border border-primary/20 bg-background px-6 py-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.06)] md:mt-10"
             >

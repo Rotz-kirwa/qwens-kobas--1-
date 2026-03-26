@@ -1,4 +1,6 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 import Hero from "@/components/Hero";
 import SEO from "@/components/SEO";
 import { useSiteContent } from "@/hooks/use-site-content";
@@ -10,6 +12,22 @@ const HERO_FOLLOWUP_IMAGE =
 
 const Home = () => {
   const { content } = useSiteContent();
+  const network = useNetworkQuality();
+  const [showSecondarySections, setShowSecondarySections] = useState(network.isFast);
+
+  useEffect(() => {
+    if (network.deferNonCriticalMs === 0) {
+      setShowSecondarySections(true);
+      return;
+    }
+
+    setShowSecondarySections(false);
+    const timer = window.setTimeout(() => {
+      setShowSecondarySections(true);
+    }, network.deferNonCriticalMs);
+
+    return () => window.clearTimeout(timer);
+  }, [network.deferNonCriticalMs, network.isFast]);
 
   return (
     <main>
@@ -32,12 +50,11 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid max-w-5xl items-center gap-4 overflow-hidden rounded-sm border border-primary/15 bg-secondary/20 shadow-[0_24px_60px_rgba(0,0,0,0.06)] md:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
             <div className="flex justify-start bg-background/70 p-3 md:p-5">
-              <img
+              <AdaptiveImage
                 src={HERO_FOLLOWUP_IMAGE}
                 alt="Queen Koba Eternal Radiance"
                 className="h-auto w-full rounded-sm object-cover sm:max-w-sm"
-                loading="lazy"
-                decoding="async"
+                sizes="(max-width: 768px) 100vw, 24rem"
               />
             </div>
             <div className="max-w-2xl p-5 text-left md:p-8">
@@ -60,10 +77,33 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <Suspense fallback={null}>
-        <Testimonials />
-        <IngredientsSpotlight />
-      </Suspense>
+      {showSecondarySections ? (
+        <Suspense fallback={null}>
+          <Testimonials />
+          {!network.isSlow && <IngredientsSpotlight />}
+        </Suspense>
+      ) : (
+        <section className="bg-background py-12 md:py-14 lg:py-16">
+          <div className="container mx-auto space-y-4 px-4">
+            <div className="h-6 w-40 rounded-full bg-secondary/50" />
+            <div className="h-12 w-full max-w-2xl rounded-sm bg-secondary/40" />
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: network.initialProductCount }).map((_, index) => (
+                <div
+                  key={index}
+                  className="rounded-[24px] border border-border/70 bg-card p-5 shadow-[0_16px_36px_rgba(23,16,8,0.06)]"
+                >
+                  <div className="aspect-[4/4.2] w-full rounded-[18px] bg-secondary/35" />
+                  <div className="mt-4 h-4 w-20 rounded-full bg-secondary/30" />
+                  <div className="mt-4 h-5 w-3/4 rounded-full bg-secondary/40" />
+                  <div className="mt-3 h-4 w-full rounded-full bg-secondary/30" />
+                  <div className="mt-2 h-4 w-5/6 rounded-full bg-secondary/30" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 };

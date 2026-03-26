@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 import { contentAPI } from "@/lib/api";
 
 export interface SiteContent {
@@ -72,17 +73,22 @@ export const getInstagramHref = (handle: string) =>
   `https://www.instagram.com/${formatInstagramHandle(handle).replace(/^@/, "")}/`;
 
 export const useSiteContent = () => {
+  const network = useNetworkQuality();
+
   const query = useQuery({
-    queryKey: ["site-content"],
+    queryKey: ["site-content", network.liteMode ? "lite" : "full"],
     queryFn: async () => {
       try {
-        const response = await contentAPI.getPublic();
+        const response = await contentAPI.getPublic({
+          lite: network.liteMode,
+          cacheTtlMs: network.isSlow ? 1000 * 60 * 15 : 1000 * 60 * 10,
+        });
         return mergeSiteContent(response?.content);
       } catch {
         return defaultSiteContent;
       }
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: network.isSlow ? 1000 * 60 * 15 : 1000 * 60 * 5,
   });
 
   return {

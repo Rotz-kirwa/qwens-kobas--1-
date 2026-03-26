@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 import { useSiteContent } from "@/hooks/use-site-content";
 
 const HERO_IMAGE =
@@ -6,6 +8,7 @@ const HERO_IMAGE =
 
 const Hero = () => {
   const { content } = useSiteContent();
+  const network = useNetworkQuality();
 
   return (
     <section className="relative flex min-h-[82svh] items-center overflow-hidden sm:min-h-[88svh] md:min-h-[108vh] lg:min-h-[120vh]">
@@ -21,7 +24,7 @@ const Hero = () => {
             srcSet={HERO_IMAGE}
             type="image/png"
           />
-          <motion.img
+          <AdaptiveImage
             src={HERO_IMAGE}
             alt="Queen Koba - radiant melanin-rich skin"
             className="h-full w-full object-cover object-[58%_top] saturate-[1.04] contrast-[1.02] brightness-[0.82] sm:object-[center_top]"
@@ -31,12 +34,8 @@ const Hero = () => {
               objectFit: 'cover', 
               display: 'block'
             }}
-            initial={{ scale: 1 }}
-            animate={{ scale: 1.03 }}
-            transition={{ duration: 2.8, ease: "easeOut" }}
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
+            highPriority
+            sizes="100vw"
           />
         </picture>
         <div className="absolute inset-0 bg-gradient-to-r from-black/68 via-black/28 to-black/44" />
@@ -47,8 +46,8 @@ const Hero = () => {
       <div className="relative container mx-auto px-4 py-20 sm:py-24 md:py-0">
         <div className="max-w-xl">
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={network.animationEnabled ? { opacity: 0, y: 20 } : false}
+            animate={network.animationEnabled ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-xs md:text-sm tracking-[0.3em] uppercase font-body mb-5 text-[#E8D3C0]"
           >
@@ -56,8 +55,8 @@ const Hero = () => {
           </motion.p>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={network.animationEnabled ? { opacity: 0, y: 30 } : false}
+            animate={network.animationEnabled ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8 }}
             className="font-display text-4xl md:text-6xl lg:text-7xl font-light leading-[0.95] mb-5 text-[#F5F5F5]"
           >
@@ -65,8 +64,8 @@ const Hero = () => {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={network.animationEnabled ? { opacity: 0, y: 20 } : false}
+            animate={network.animationEnabled ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.7, duration: 0.6 }}
             className="text-sm md:text-base text-[#F5F5F5] font-semibold leading-relaxed mb-8 max-w-md font-body drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
           >
@@ -74,8 +73,8 @@ const Hero = () => {
           </motion.p>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={network.animationEnabled ? { opacity: 0, y: 20 } : false}
+            animate={network.animationEnabled ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.85, duration: 0.6 }}
             className="font-display italic text-lg md:text-xl mb-8 text-[#D4AF37] drop-shadow-[0_1px_1px_rgba(0,0,0,0.28)]"
           >

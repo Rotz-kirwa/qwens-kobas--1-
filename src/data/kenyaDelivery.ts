@@ -42,7 +42,11 @@ export const normalizeDeliveryZone = (value?: string | null): DeliveryZone => {
     .replace(/-/g, "_")
     .replace(/\s+/g, "_");
 
-  if (normalized === "nairobi" || normalized === "within_nairobi") {
+  if (
+    normalized === "nairobi" ||
+    normalized === "within_nairobi" ||
+    (normalized.includes("nairobi") && !normalized.startsWith("outside"))
+  ) {
     return "nairobi";
   }
 

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { X, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
 const FULL_KIT_IMAGE =
   "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1";
@@ -9,6 +11,7 @@ const FULL_KIT_IMAGE =
 export default function PromoPopup() {
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
+  const network = useNetworkQuality();
 
   useEffect(() => {
     const hasSeenPopup = sessionStorage.getItem("fullKitPopupSeen");
@@ -16,10 +19,10 @@ export default function PromoPopup() {
 
     const timer = window.setTimeout(() => {
       setShowPopup(true);
-    }, 1800);
+    }, network.isSlow ? 5500 : network.isMedium ? 3000 : 1800);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [network.isMedium, network.isSlow]);
 
   const handleClose = () => {
     sessionStorage.setItem("fullKitPopupSeen", "true");
@@ -36,16 +39,16 @@ export default function PromoPopup() {
     <AnimatePresence>
       {showPopup && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={network.animationEnabled ? { opacity: 0 } : false}
+          animate={network.animationEnabled ? { opacity: 1 } : {}}
+          exit={network.animationEnabled ? { opacity: 0 } : {}}
           className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.18),transparent_32%),linear-gradient(180deg,rgba(7,10,8,0.46),rgba(7,10,8,0.74))] p-4 backdrop-blur-md"
           onClick={handleClose}
         >
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.97 }}
+            initial={network.animationEnabled ? { opacity: 0, y: 24, scale: 0.97 } : false}
+            animate={network.animationEnabled ? { opacity: 1, y: 0, scale: 1 } : {}}
+            exit={network.animationEnabled ? { opacity: 0, y: 18, scale: 0.97 } : {}}
             transition={{
               duration: 0.28,
               ease: "easeOut",
@@ -68,10 +71,11 @@ export default function PromoPopup() {
             </div>
 
             <div className="w-full overflow-hidden">
-              <img
+              <AdaptiveImage
                 src={FULL_KIT_IMAGE}
                 alt="Queen Koba Full Product Kit"
                 className="aspect-[4/3.15] w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02] sm:aspect-[4/3.35]"
+                sizes="(max-width: 640px) 100vw, 22rem"
               />
             </div>
 

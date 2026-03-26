@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock3, FlaskConical, Leaf, ShieldCheck, Star } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 import SEO from "@/components/SEO";
 
 const RESULTS_SUPPORT_IMAGE =
@@ -63,6 +65,9 @@ const testimonials = [
 ];
 
 const Results = () => {
+  const network = useNetworkQuality();
+  const visibleTestimonials = network.isSlow ? testimonials.slice(0, 2) : testimonials;
+
   return (
     <main>
       <SEO
@@ -83,31 +88,33 @@ const Results = () => {
           <div className="space-y-5">
             <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
               <motion.article
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={network.animationEnabled ? { opacity: 0, y: 24 } : false}
+                whileInView={network.animationEnabled ? { opacity: 1, y: 0 } : {}}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.5 }}
                 className="relative overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-[0_18px_45px_rgba(24,17,8,0.12)]"
               >
-                <img
+                <AdaptiveImage
                   src={RESULTS_SUPPORT_IMAGE}
                   alt="Queen Koba additional results"
                   className="block aspect-[4/5] w-full object-cover object-center sm:aspect-auto sm:h-auto"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 via-black/45 to-transparent md:h-28" />
               </motion.article>
 
               <motion.article
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={network.animationEnabled ? { opacity: 0, y: 24 } : false}
+                whileInView={network.animationEnabled ? { opacity: 1, y: 0 } : {}}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ delay: 0.08, duration: 0.5 }}
                 className="relative overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-[0_18px_45px_rgba(24,17,8,0.12)]"
               >
-                <img
+                <AdaptiveImage
                   src={RESULTS_SUPPORT_IMAGE_2}
                   alt="Queen Koba additional skincare result"
                   className="block aspect-[4/5] w-full object-cover object-center sm:aspect-auto sm:h-auto"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/35 to-transparent md:h-28" />
               </motion.article>
@@ -153,13 +160,14 @@ const Results = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {testimonials.map((item) => (
+            {visibleTestimonials.map((item) => (
               <article key={item.name} className="rounded-[24px] bg-card p-5 shadow-[0_16px_36px_rgba(23,16,8,0.1)]">
                 {item.image && (
-                  <img
+                  <AdaptiveImage
                     src={item.image}
                     alt={item.name}
                     className="mb-4 aspect-[4/4.1] w-full rounded-[18px] object-cover object-center sm:aspect-[4/4.8]"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
                   />
                 )}
                 <div className="mb-4 flex gap-1">

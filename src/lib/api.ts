@@ -1,21 +1,88 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const LOCAL_API_RETRY_COOLDOWN_MS = 30000;
+const CACHE_PREFIX = "qk-api-cache:";
 let localApiUnavailableUntil = 0;
 
 interface ApiRequestInit extends RequestInit {
   quietError?: boolean;
+  cacheKey?: string;
+  cacheTtlMs?: number;
+}
+
+interface CachedApiPayload {
+  expiresAt: number;
+  data: unknown;
 }
 
 export const isApiOfflineError = (error: unknown) =>
   error instanceof Error &&
   (error.message === "Local API unavailable" || error.message === "Failed to fetch");
 
+const buildEndpointWithQuery = (
+  endpoint: string,
+  params?: Record<string, string | number | boolean | undefined | null>,
+) => {
+  if (!params) {
+    return endpoint;
+  }
+
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") {
+      return;
+    }
+
+    query.set(key, String(value));
+  });
+
+  const queryString = query.toString();
+  return queryString ? `${endpoint}?${queryString}` : endpoint;
+};
+
+const readCachedResponse = (cacheKey?: string, cacheTtlMs?: number) => {
+  if (!cacheKey || !cacheTtlMs || typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = localStorage.getItem(`${CACHE_PREFIX}${cacheKey}`);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(raw) as CachedApiPayload;
+    if (payload.expiresAt < Date.now()) {
+      localStorage.removeItem(`${CACHE_PREFIX}${cacheKey}`);
+      return null;
+    }
+
+    return payload.data;
+  } catch {
+    localStorage.removeItem(`${CACHE_PREFIX}${cacheKey}`);
+    return null;
+  }
+};
+
+const writeCachedResponse = (cacheKey?: string, cacheTtlMs?: number, data?: unknown) => {
+  if (!cacheKey || !cacheTtlMs || typeof window === "undefined") {
+    return;
+  }
+
+  const payload: CachedApiPayload = {
+    expiresAt: Date.now() + cacheTtlMs,
+    data,
+  };
+
+  localStorage.setItem(`${CACHE_PREFIX}${cacheKey}`, JSON.stringify(payload));
+};
+
 // API client with error handling
 const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
   const token = localStorage.getItem('token');
-  const { quietError = false, ...requestOptions } = options;
+  const { quietError = false, cacheKey, cacheTtlMs, ...requestOptions } = options;
   const now = Date.now();
   const isLocalApi = API_BASE_URL.includes('localhost:5000') || API_BASE_URL.includes('127.0.0.1:5000');
+  const method = requestOptions.method?.toUpperCase() || "GET";
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -28,6 +95,13 @@ const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
 
   if (isLocalApi && localApiUnavailableUntil > now) {
     throw new Error('Local API unavailable');
+  }
+
+  if (method === "GET") {
+    const cached = readCachedResponse(cacheKey, cacheTtlMs);
+    if (cached !== null) {
+      return cached;
+    }
   }
 
   try {
@@ -57,6 +131,10 @@ const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
           : "";
       const combinedMessage = details ? `${message}: ${details}` : message;
       throw new Error(combinedMessage);
+    }
+
+    if (method === "GET") {
+      writeCachedResponse(cacheKey, cacheTtlMs, data);
     }
 
     return data;
@@ -95,7 +173,18 @@ export const authAPI = {
 
 // Products API
 export const productsAPI = {
-  getAll: () => apiClient('/products', { quietError: true }),
+  getAll: (options?: { lite?: boolean; limit?: number; cacheTtlMs?: number }) =>
+    apiClient(
+      buildEndpointWithQuery('/products', {
+        lite: options?.lite ? "true" : undefined,
+        limit: options?.limit,
+      }),
+      {
+        quietError: true,
+        cacheKey: `products:${options?.lite ? "lite" : "full"}:${options?.limit ?? "all"}`,
+        cacheTtlMs: options?.cacheTtlMs ?? 1000 * 60 * 5,
+      },
+    ),
   getById: (id: string) => apiClient(`/products/${id}`),
 };
 
@@ -156,7 +245,17 @@ export const paymentAPI = {
 };
 
 export const contentAPI = {
-  getPublic: () => apiClient('/content', { quietError: true }),
+  getPublic: (options?: { lite?: boolean; cacheTtlMs?: number }) =>
+    apiClient(
+      buildEndpointWithQuery('/content', {
+        lite: options?.lite ? "true" : undefined,
+      }),
+      {
+        quietError: true,
+        cacheKey: `content:${options?.lite ? "lite" : "full"}`,
+        cacheTtlMs: options?.cacheTtlMs ?? 1000 * 60 * 10,
+      },
+    ),
 };
 
 export default {

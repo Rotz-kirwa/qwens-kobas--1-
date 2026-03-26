@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 
-const hiddenRoutes = new Set(["/login", "/signup", "/auth/callback", "/checkout", "/cart"]);
+const hiddenRoutes = new Set(["/login", "/signup", "/checkout", "/cart"]);
 
 const ShopNowFloat = () => {
   const { pathname } = useLocation();

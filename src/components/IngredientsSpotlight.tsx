@@ -1,6 +1,8 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { ShieldCheck, ShieldOff, FlaskConical } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
 const transparencyImage =
   "https://www.dropbox.com/scl/fi/zxgwxymwoevlm0jezfq1t/qpr.jpeg?rlkey=t9n79yhhahzjm85ad98aacdr2&st=wy7fx6g4&raw=1";
@@ -22,14 +24,16 @@ const trustBadges = [
 
 const IngredientsSpotlight = () => {
   const ref = useRef(null);
+  const network = useNetworkQuality();
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const visibleIngredients = network.isSlow ? keyIngredients.slice(0, 3) : keyIngredients;
 
   return (
     <section id="ingredients" className="bg-secondary/30 py-12 md:py-14 lg:py-16">
       <div className="container mx-auto px-4" ref={ref}>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          initial={network.animationEnabled ? { opacity: 0, y: 30 } : false}
+          animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
           className="mb-10 text-center md:mb-12"
         >
@@ -43,17 +47,18 @@ const IngredientsSpotlight = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          initial={network.animationEnabled ? { opacity: 0, y: 30 } : false}
+          animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.05, duration: 0.7 }}
           className="mb-10 overflow-hidden rounded-sm border border-primary/15 bg-background shadow-[0_24px_60px_rgba(0,0,0,0.08)] md:mb-12"
         >
           <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="flex justify-center bg-secondary/20 p-3 md:p-5">
-              <img
+              <AdaptiveImage
                 src={transparencyImage}
                 alt="Queen Koba ingredient transparency"
                 className="max-h-[420px] w-auto max-w-full object-contain"
+                sizes="(max-width: 1024px) 100vw, 40vw"
               />
             </div>
 
@@ -74,11 +79,11 @@ const IngredientsSpotlight = () => {
         </motion.div>
 
         <div className="mb-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:mb-12">
-          {keyIngredients.map((ing, i) => (
+          {visibleIngredients.map((ing, i) => (
             <motion.div
               key={ing.name}
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              initial={network.animationEnabled ? { opacity: 0, y: 30 } : false}
+              animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.1 + i * 0.1, duration: 0.6 }}
               className="luxury-card p-6"
             >
@@ -93,8 +98,8 @@ const IngredientsSpotlight = () => {
 
         {/* Trust Badges */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
+          initial={network.animationEnabled ? { opacity: 0 } : false}
+          animate={network.animationEnabled && inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.6, duration: 0.6 }}
           className="grid grid-cols-2 justify-center gap-3 md:flex md:flex-wrap md:gap-5 lg:gap-8"
         >

@@ -63,7 +63,7 @@ const DeliveryDetailsSection = ({
             ))}
           </select>
           <p className="mt-2 text-xs text-muted-foreground">
-            {activeZone.label} shipping is KSh {activeZone.doorFee.toLocaleString()}.
+            Within Nairobi is KSh 300. Outside Nairobi is KSh 500.
           </p>
         </div>
 

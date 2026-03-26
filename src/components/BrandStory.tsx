@@ -2,13 +2,17 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { ShieldCheck, Leaf, FlaskConical } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
 const STORY_PROBLEM_IMAGE =
   "https://www.dropbox.com/scl/fi/gg49jldng153nu47ksstw/picofthegals-1.png?rlkey=3atcpufhut8ime40hxt7zvb3n&st=xf8iytyi&raw=1";
 
 const BrandStory = () => {
   const ref = useRef(null);
+  const network = useNetworkQuality();
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const visibleIssues = network.isSlow ? issues.slice(0, 2) : issues;
 
   const issues = [
     { title: "Hyperpigmentation", desc: "Excess melanin production causing dark patches and uneven complexion." },
@@ -21,8 +25,8 @@ const BrandStory = () => {
     <section id="story" className="section-spacing bg-secondary/30">
       <div className="container mx-auto px-4" ref={ref}>
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          initial={network.animationEnabled ? { opacity: 0, y: 40 } : false}
+          animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
           className="mb-16"
         >
@@ -42,22 +46,22 @@ const BrandStory = () => {
             </div>
 
             <div className="overflow-hidden rounded-[28px] border border-primary/15 bg-background shadow-[0_24px_60px_rgba(24,17,8,0.12)]">
-              <img
+              <AdaptiveImage
                 src={STORY_PROBLEM_IMAGE}
                 alt="Women represented in Queen Koba's story"
                 className="block aspect-[4/3] w-full object-cover object-center sm:aspect-[16/11]"
-                loading="lazy"
+                sizes="(max-width: 1024px) 100vw, 42vw"
               />
             </div>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {issues.map((issue, i) => (
+          {visibleIssues.map((issue, i) => (
             <motion.div
               key={issue.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              initial={network.animationEnabled ? { opacity: 0, y: 30 } : false}
+              animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.2 + i * 0.1, duration: 0.6 }}
               className="luxury-card text-center"
             >
@@ -68,8 +72,8 @@ const BrandStory = () => {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          initial={network.animationEnabled ? { opacity: 0, y: 30 } : false}
+          animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.6, duration: 0.8 }}
           className="flex flex-wrap justify-center gap-8 md:gap-16"
         >
