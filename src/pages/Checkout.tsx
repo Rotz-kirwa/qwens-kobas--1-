@@ -110,7 +110,10 @@ const getFriendlyMpesaFailureMessage = (description?: string) => {
   return description;
 };
 
-const getDefaultCheckoutCity = (deliveryCounty: string) => deliveryCounty.trim();
+const buildStructuredAddress = (deliveryArea: string, deliveryPoint: string) =>
+  [deliveryArea.trim(), deliveryPoint.trim()].filter(Boolean).join(", ");
+
+const buildStructuredCity = (deliveryCounty: string) => deliveryCounty.trim();
 
 const Checkout = () => {
   const {
@@ -154,11 +157,10 @@ const Checkout = () => {
     fullName: "",
     email: "",
     phone: "",
-    address: "",
-    city: getDefaultCheckoutCity(deliverySelection.county),
-    postalCode: "",
   });
   const deliveryErrors = showDeliveryErrors ? getDeliveryFieldErrors(deliverySelection) : {};
+  const structuredAddress = buildStructuredAddress(deliverySelection.area, deliverySelection.point);
+  const structuredCity = buildStructuredCity(deliverySelection.county);
 
   useEffect(() => {
     setPromoCode(promoSummary?.code || "");
@@ -170,13 +172,12 @@ const Checkout = () => {
       fullName: prev.fullName || user?.name || "",
       email: prev.email || user?.email || "",
       phone: prev.phone || user?.phone || "",
-      city: prev.city || getDefaultCheckoutCity(deliverySelection.county),
     }));
     setPaymentDetails((prev) => ({
       ...prev,
       phoneNumber: prev.phoneNumber || user?.phone || "",
     }));
-  }, [deliverySelection.county, user?.email, user?.name, user?.phone]);
+  }, [user?.email, user?.name, user?.phone]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -240,8 +241,6 @@ const Checkout = () => {
       ["Full name", formData.fullName],
       ["Email", formData.email],
       ["Phone number", formData.phone],
-      ["Address", formData.address],
-      ["City", formData.city],
     ];
 
     const missingField = requiredFields.find(([, value]) => !value.trim());
@@ -351,9 +350,9 @@ const Checkout = () => {
           name: formData.fullName,
           email: formData.email,
           phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          postal_code: formData.postalCode,
+          address: structuredAddress,
+          city: structuredCity,
+          postal_code: "",
           country,
           county: deliverySelection.county,
           area: deliverySelection.area,
@@ -524,7 +523,7 @@ const Checkout = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="luxury-card p-5 sm:p-8"
               >
-                <h2 className="font-display text-3xl font-semibold mb-6">Shipping Information</h2>
+                <h2 className="font-display text-3xl font-semibold mb-6">Contact & Delivery</h2>
                 <div className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
@@ -580,39 +579,14 @@ const Checkout = () => {
                       </p>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-body mb-2">Address *</label>
-                    <input
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <label className="block text-sm font-body mb-2">City *</label>
-                      <input
-                        type="text"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-body mb-2">Postal Code</label>
-                      <input
-                        type="text"
-                        name="postalCode"
-                        value={formData.postalCode}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-background border border-border rounded-sm focus:outline-none focus:border-primary"
-                      />
-                    </div>
+                  <div className="rounded-[20px] border border-primary/12 bg-secondary/10 px-4 py-4">
+                    <p className="font-body text-xs font-semibold uppercase tracking-[0.18em] text-foreground/80">
+                      Delivery Address
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Use the delivery details below to tell us exactly where the order should go.
+                      Your county, area, and exact delivery point will be saved with the order.
+                    </p>
                   </div>
                   <DeliveryDetailsSection
                     deliverySelection={deliverySelection}
@@ -820,11 +794,13 @@ const Checkout = () => {
                       <p>{formData.fullName}</p>
                       <p>{formData.email}</p>
                       <p>{formData.phone}</p>
-                      <p>{formData.address}</p>
-                      <p>{formData.city}, {country}</p>
+                      <p>{country}</p>
                       <p>{activeDeliveryZone.label}</p>
                       <p>{deliverySelection.county} · {deliverySelection.area}</p>
                       <p>{deliverySelection.point || "Area not set yet"}</p>
+                      <p className="capitalize">
+                        {deliverySelection.method === "door" ? "Door delivery" : "Pickup station"} · {deliverySelection.eta}
+                      </p>
                     </div>
                   </div>
                   <div>
