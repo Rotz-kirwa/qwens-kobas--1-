@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CreditCard, Smartphone, Building2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { paymentAPI, ordersAPI, isApiOfflineError } from "@/lib/api";
+import { getPromoBenefitLabel, getPromoCampaignLabel, sanitizePromoCodeInput } from "@/lib/promo";
 import SEO from "@/components/SEO";
 
 const getPaymentIcon = (type: string) => {
@@ -104,7 +105,21 @@ const getFriendlyMpesaFailureMessage = (description?: string) => {
 };
 
 const Checkout = () => {
-  const { items, total, clearCart, deliverySelection, shippingFee } = useCart();
+  const {
+    items,
+    total,
+    clearCart,
+    deliverySelection,
+    shippingFee,
+    grandTotal,
+    promoSummary,
+    promoLoading,
+    promoError,
+    discountAmount,
+    shippingDiscount,
+    applyPromoCode,
+    removePromoCode,
+  } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -113,9 +128,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoCode, setPromoCode] = useState(promoSummary?.code || "");
   const [paymentDetails, setPaymentDetails] = useState({
     phoneNumber: "",
     bankName: "",
@@ -129,6 +142,12 @@ const Checkout = () => {
     city: deliverySelection.county,
     postalCode: "",
   });
+  const promoCampaignLabel = getPromoCampaignLabel(promoSummary);
+  const promoBenefitLabel = getPromoBenefitLabel(promoSummary);
+
+  useEffect(() => {
+    setPromoCode(promoSummary?.code || "");
+  }, [promoSummary?.code]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -222,30 +241,32 @@ const Checkout = () => {
     return true;
   };
 
-  const applyPromoCode = async () => {
-    if (!promoCode.trim()) return;
-    
+  const handleApplyPromoCode = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/promotions/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: promoCode })
+      const applied = await applyPromoCode(promoCode);
+      toast({
+        title: "Promo applied",
+        description: applied.message || `${applied.code} has been added to your order.`,
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setDiscount(data.discount || 0);
-        setPromoApplied(true);
-        toast({ title: 'Promo Applied!', description: `${data.discount}% discount applied` });
-      } else {
-        toast({ title: 'Invalid Code', description: 'Promo code not found or expired', variant: 'destructive' });
-      }
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to apply promo code', variant: 'destructive' });
+      toast({
+        title: "Promo unavailable",
+        description: error instanceof Error ? error.message : "Failed to apply promo code",
+        variant: "destructive",
+      });
     }
   };
 
-  const finalTotal = total - (total * discount / 100) + shippingFee;
+  const handleRemovePromoCode = async () => {
+    await removePromoCode();
+    setPromoCode("");
+    toast({
+      title: "Promo removed",
+      description: "Your checkout totals have been refreshed.",
+    });
+  };
+
+  const finalTotal = grandTotal;
 
   const getPaymentMethodType = () => {
     const method = paymentMethods.find(m => m.id === paymentMethod);
@@ -283,9 +304,9 @@ const Checkout = () => {
           currency: "KES",
           subtotal_kes: total,
           shipping_kes: shippingFee,
-          discount_percent: discount,
           grand_total_kes: finalTotal,
         },
+        promo_code: promoSummary?.code || undefined,
         shipping_address: {
           name: formData.fullName,
           email: formData.email,
@@ -807,10 +828,18 @@ const Checkout = () => {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>{formatCurrency(total, country)}</span>
                 </div>
-                {discount > 0 && (
+                {discountAmount > 0 && (
                   <div className="flex justify-between font-body text-sm text-green-600">
-                    <span>Discount ({discount}%)</span>
-                    <span>-{formatCurrency(total * discount / 100, country)}</span>
+                    <span>
+                      Discount{promoSummary?.code ? ` (${promoSummary.code})` : ""}
+                    </span>
+                    <span>-{formatCurrency(discountAmount, country)}</span>
+                  </div>
+                )}
+                {shippingDiscount > 0 && (
+                  <div className="flex justify-between font-body text-sm text-green-600">
+                    <span>Shipping Discount</span>
+                    <span>-{formatCurrency(shippingDiscount, country)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-body text-sm">
@@ -838,19 +867,43 @@ const Checkout = () => {
                     <input
                       type="text"
                       value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      onChange={(e) => setPromoCode(sanitizePromoCodeInput(e.target.value))}
                       placeholder="Enter code"
-                      disabled={promoApplied}
                       className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-sm focus:outline-none focus:border-primary disabled:opacity-50"
                     />
-                    <button
-                      onClick={applyPromoCode}
-                      disabled={promoApplied || !promoCode}
-                      className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:opacity-90 disabled:opacity-50"
-                    >
-                      {promoApplied ? 'Applied' : 'Apply'}
-                    </button>
+                    {promoSummary ? (
+                      <button
+                        onClick={handleRemovePromoCode}
+                        className="px-4 py-2 text-sm border border-border rounded-sm hover:bg-secondary/10"
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleApplyPromoCode}
+                        disabled={promoLoading || !promoCode}
+                        className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:opacity-90 disabled:opacity-50"
+                      >
+                        {promoLoading ? "Applying..." : "Apply"}
+                      </button>
+                    )}
                   </div>
+                  {promoSummary && (
+                    <div className="mt-3 rounded-sm border border-green-200 bg-green-50 px-3 py-3 text-sm text-green-800">
+                      <p className="font-semibold">
+                        {promoSummary.code} applied. Total savings: {formatCurrency(discountAmount + shippingDiscount, country)}.
+                      </p>
+                      {promoCampaignLabel && (
+                        <p className="mt-1 text-green-700">{promoCampaignLabel}</p>
+                      )}
+                      {promoBenefitLabel && (
+                        <p className="mt-1 text-green-700">{promoBenefitLabel}</p>
+                      )}
+                    </div>
+                  )}
+                  {promoError && !promoSummary && (
+                    <p className="mt-2 text-sm text-destructive">{promoError}</p>
+                  )}
                 </div>
               </div>
             </div>

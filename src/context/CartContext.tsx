@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import {
   defaultKenyaDelivery,
   getCountyDelivery,
   type DeliveryMethod,
 } from "@/data/kenyaDelivery";
+import { cartAPI } from "@/lib/api";
 
 export interface Product {
   id: string;
@@ -31,6 +33,24 @@ export interface DeliverySelection {
   eta: string;
 }
 
+export interface PromoSummary {
+  code: string;
+  description?: string;
+  campaign_type?: string;
+  discount_type: "percentage" | "fixed" | "free_shipping";
+  discount_value: number;
+  discount_amount: number;
+  shipping_discount: number;
+  subtotal_kes: number;
+  eligible_subtotal_kes: number;
+  shipping_kes: number;
+  final_total_kes: number;
+  applies_to_type?: string;
+  customer_scope?: string;
+  first_order_only?: boolean;
+  message?: string;
+}
+
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: Product, qty?: number) => void;
@@ -47,9 +67,29 @@ interface CartContextType {
   setDeliveryMethod: (method: DeliveryMethod) => void;
   shippingFee: number;
   grandTotal: number;
+  promoSummary: PromoSummary | null;
+  promoLoading: boolean;
+  promoError: string | null;
+  discountAmount: number;
+  shippingDiscount: number;
+  applyPromoCode: (code: string) => Promise<PromoSummary>;
+  removePromoCode: () => Promise<void>;
+}
+
+interface BackendCartItem {
+  product_id: string;
+  product_name: string;
+  product_price_kes?: number;
+  price_per_item_kes?: number;
+  image_url?: string;
+  description?: string;
+  quantity: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+const CART_STORAGE_KEY = "queenkoba-cart";
+const DELIVERY_STORAGE_KEY = "queenkoba-delivery";
+const PROMO_STORAGE_KEY = "queenkoba-promo";
 
 const buildDeliverySelection = (
   county: string,
@@ -68,14 +108,54 @@ const buildDeliverySelection = (
   };
 };
 
+const readStoredCartItems = (): CartItem[] => {
+  const saved = localStorage.getItem(CART_STORAGE_KEY);
+  return saved ? JSON.parse(saved) : [];
+};
+
+const readStoredPromoSummary = (): PromoSummary | null => {
+  const saved = localStorage.getItem(PROMO_STORAGE_KEY);
+  return saved ? JSON.parse(saved) : null;
+};
+
+const mapBackendCartItem = (item: BackendCartItem): CartItem => ({
+  product: {
+    id: String(item.product_id),
+    name: item.product_name,
+    price: Number(item.price_per_item_kes ?? item.product_price_kes ?? 0),
+    image: item.image_url,
+    description: item.description || "",
+    rating: 0,
+    reviews: 0,
+  },
+  quantity: Number(item.quantity || 0),
+});
+
+const normalizeBackendCart = (payload: unknown): CartItem[] => {
+  if (!Array.isArray(payload)) {
+    return [];
+  }
+
+  return payload
+    .map((item) => mapBackendCartItem(item as BackendCartItem))
+    .filter((item) => item.quantity > 0);
+};
+
+const buildPromoRequestItems = (items: CartItem[]) =>
+  items.map((item) => ({
+    product_id: item.product.id,
+    quantity: item.quantity,
+  }));
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem("queenkoba-cart");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { isAuthenticated, user } = useAuth();
+  const [items, setItems] = useState<CartItem[]>(() => readStoredCartItems());
   const [isOpen, setIsOpen] = useState(false);
+  const [promoSummary, setPromoSummary] = useState<PromoSummary | null>(() => readStoredPromoSummary());
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
   const [deliverySelection, setDeliverySelection] = useState<DeliverySelection>(() => {
-    const saved = localStorage.getItem("queenkoba-delivery");
+    const saved = localStorage.getItem(DELIVERY_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved) as Partial<DeliverySelection>;
       return buildDeliverySelection(
@@ -89,41 +169,229 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   useEffect(() => {
-    localStorage.setItem("queenkoba-cart", JSON.stringify(items));
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
   useEffect(() => {
-    localStorage.setItem("queenkoba-delivery", JSON.stringify(deliverySelection));
+    localStorage.setItem(DELIVERY_STORAGE_KEY, JSON.stringify(deliverySelection));
   }, [deliverySelection]);
 
-  const addToCart = useCallback((product: Product, qty = 1) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + qty } : i
-        );
+  useEffect(() => {
+    if (promoSummary) {
+      localStorage.setItem(PROMO_STORAGE_KEY, JSON.stringify(promoSummary));
+    } else {
+      localStorage.removeItem(PROMO_STORAGE_KEY);
+    }
+  }, [promoSummary]);
+
+  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const shippingFee =
+    deliverySelection.method === "door"
+      ? deliverySelection.doorFee
+      : deliverySelection.pickupFee;
+  const discountAmount = promoSummary?.discount_amount || 0;
+  const shippingDiscount = promoSummary?.shipping_discount || 0;
+  const grandTotal = promoSummary?.final_total_kes ?? total + Math.max(shippingFee - shippingDiscount, 0);
+
+  const refreshCartFromBackend = useCallback(async () => {
+    const response = await cartAPI.get();
+    const backendItems = normalizeBackendCart(response?.cart);
+    setItems(backendItems);
+    return backendItems;
+  }, []);
+
+  const syncBackendCartAction = useCallback(
+    (action: () => Promise<unknown>) => {
+      if (!isAuthenticated) {
+        return;
       }
-      return [...prev, { product, quantity: qty }];
-    });
-    setIsOpen(false);
+
+      void action()
+        .then(() => refreshCartFromBackend())
+        .catch((error) => {
+          console.error("Failed to sync cart with backend:", error);
+        });
+    },
+    [isAuthenticated, refreshCartFromBackend],
+  );
+
+  const removePromoCode = useCallback(async () => {
+    setPromoSummary(null);
+    setPromoError(null);
+    try {
+      await cartAPI.removePromoCode();
+    } catch (error) {
+      console.error("Failed to remove promo code:", error);
+    }
   }, []);
 
-  const removeFromCart = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
-  }, []);
+  const applyPromoCode = useCallback(
+    async (code: string) => {
+      const normalizedCode = code.trim().toUpperCase();
+      if (!normalizedCode) {
+        throw new Error("Enter a promo code");
+      }
 
-  const updateQuantity = useCallback((productId: string, qty: number) => {
-    if (qty <= 0) {
-      setItems((prev) => prev.filter((i) => i.product.id !== productId));
+      if (items.length === 0) {
+        throw new Error("Add items to your cart before applying a promo code");
+      }
+
+      setPromoLoading(true);
+      setPromoError(null);
+
+      try {
+        const response = await cartAPI.applyPromoCode({
+          code: normalizedCode,
+          items: buildPromoRequestItems(items),
+          shipping_kes: shippingFee,
+        });
+
+        const nextPromo = response?.promo as PromoSummary | undefined;
+        if (!nextPromo) {
+          throw new Error("Promo validation returned an invalid response");
+        }
+
+        setPromoSummary(nextPromo);
+        return nextPromo;
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to apply promo code";
+        setPromoError(message);
+        setPromoSummary(null);
+        throw error;
+      } finally {
+        setPromoLoading(false);
+      }
+    },
+    [items, shippingFee],
+  );
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) {
       return;
     }
-    setItems((prev) =>
-      prev.map((i) => (i.product.id === productId ? { ...i, quantity: qty } : i))
-    );
-  }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+    let cancelled = false;
+
+    const hydrateCart = async () => {
+      try {
+        const localItems = readStoredCartItems();
+        const response = await cartAPI.get();
+        let backendItems = normalizeBackendCart(response?.cart);
+
+        if (backendItems.length === 0 && localItems.length > 0) {
+          for (const item of localItems) {
+            await cartAPI.add(item.product.id, item.quantity);
+          }
+
+          const synced = await cartAPI.get();
+          backendItems = normalizeBackendCart(synced?.cart);
+        }
+
+        if (!cancelled) {
+          setItems(backendItems);
+        }
+      } catch (error) {
+        console.error("Failed to hydrate cart from backend:", error);
+      }
+    };
+
+    void hydrateCart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, refreshCartFromBackend, user?.id]);
+
+  useEffect(() => {
+    if (!promoSummary?.code) {
+      return;
+    }
+
+    if (items.length === 0) {
+      void removePromoCode();
+      return;
+    }
+
+    let cancelled = false;
+
+    const refreshPromo = async () => {
+      try {
+        const response = await cartAPI.applyPromoCode({
+          code: promoSummary.code,
+          items: buildPromoRequestItems(items),
+          shipping_kes: shippingFee,
+        });
+
+        if (!cancelled && response?.promo) {
+          setPromoSummary(response.promo as PromoSummary);
+          setPromoError(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const message =
+            error instanceof Error ? error.message : "Failed to refresh promo code";
+          setPromoError(message);
+          setPromoSummary(null);
+        }
+      }
+    };
+
+    void refreshPromo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [items, promoSummary?.code, removePromoCode, shippingFee]);
+
+  const addToCart = useCallback(
+    (product: Product, qty = 1) => {
+      setItems((prev) => {
+        const existing = prev.find((item) => item.product.id === product.id);
+        if (existing) {
+          return prev.map((item) =>
+            item.product.id === product.id ? { ...item, quantity: item.quantity + qty } : item,
+          );
+        }
+        return [...prev, { product, quantity: qty }];
+      });
+
+      setIsOpen(false);
+      syncBackendCartAction(() => cartAPI.add(product.id, qty));
+    },
+    [syncBackendCartAction],
+  );
+
+  const removeFromCart = useCallback(
+    (productId: string) => {
+      setItems((prev) => prev.filter((item) => item.product.id !== productId));
+      syncBackendCartAction(() => cartAPI.remove(productId));
+    },
+    [syncBackendCartAction],
+  );
+
+  const updateQuantity = useCallback(
+    (productId: string, qty: number) => {
+      if (qty <= 0) {
+        setItems((prev) => prev.filter((item) => item.product.id !== productId));
+        syncBackendCartAction(() => cartAPI.remove(productId));
+        return;
+      }
+
+      setItems((prev) =>
+        prev.map((item) => (item.product.id === productId ? { ...item, quantity: qty } : item)),
+      );
+      syncBackendCartAction(() => cartAPI.update(productId, qty));
+    },
+    [syncBackendCartAction],
+  );
+
+  const clearCart = useCallback(() => {
+    setItems([]);
+    setPromoSummary(null);
+    syncBackendCartAction(() => cartAPI.clear());
+  }, [syncBackendCartAction]);
 
   const setCounty = useCallback((county: string) => {
     setDeliverySelection((prev) => buildDeliverySelection(county, prev.method));
@@ -136,14 +404,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setDeliveryMethod = useCallback((method: DeliveryMethod) => {
     setDeliverySelection((prev) => ({ ...prev, method }));
   }, []);
-
-  const total = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
-  const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
-  const shippingFee =
-    deliverySelection.method === "door"
-      ? deliverySelection.doorFee
-      : deliverySelection.pickupFee;
-  const grandTotal = total + shippingFee;
 
   return (
     <CartContext.Provider
@@ -163,6 +423,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setDeliveryMethod,
         shippingFee,
         grandTotal,
+        promoSummary,
+        promoLoading,
+        promoError,
+        discountAmount,
+        shippingDiscount,
+        applyPromoCode,
+        removePromoCode,
       }}
     >
       {children}

@@ -44,11 +44,13 @@ const apiClient = async (endpoint: string, options: ApiRequestInit = {}) => {
 
     if (!response.ok) {
       const message =
-        typeof data === "object" && data !== null && "message" in data
-          ? String(data.message)
+        typeof data === "object" && data !== null && "error" in data
+          ? String(data.error)
+          : typeof data === "object" && data !== null && "message" in data
+            ? String(data.message)
           : typeof data === "string" && data
-            ? data
-            : 'API request failed';
+              ? data
+              : 'API request failed';
       const details =
         typeof data === "object" && data !== null && "details" in data && data.details
           ? String(data.details)
@@ -105,8 +107,26 @@ export const cartAPI = {
       method: 'POST',
       body: JSON.stringify({ product_id: productId, quantity }),
     }),
+  update: (productId: string, quantity: number) =>
+    apiClient(`/cart/update/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ quantity }),
+    }),
   remove: (productId: string) =>
     apiClient(`/cart/remove/${productId}`, { method: 'DELETE' }),
+  clear: () =>
+    apiClient('/cart/clear', { method: 'DELETE' }),
+  applyPromoCode: (data: {
+    code: string;
+    items: Array<{ product_id: string; quantity: number }>;
+    shipping_kes?: number;
+  }) =>
+    apiClient('/cart/apply-promocode', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  removePromoCode: () =>
+    apiClient('/cart/remove-promocode', { method: 'DELETE' }),
 };
 
 // Orders API
