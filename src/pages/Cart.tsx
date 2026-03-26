@@ -2,6 +2,7 @@ import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeliveryDetailsSection from "@/components/DeliveryDetailsSection";
+import PromoCodePanel from "@/components/PromoCodePanel";
 import SEO from "@/components/SEO";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +13,7 @@ import {
   getDeliverySummaryLabel,
   getFirstDeliveryError,
 } from "@/lib/delivery";
-import { getPromoBenefitLabel, getPromoCampaignLabel, sanitizePromoCodeInput } from "@/lib/promo";
+import { sanitizePromoCodeInput } from "@/lib/promo";
 
 const Cart = () => {
   const {
@@ -44,8 +45,6 @@ const Cart = () => {
   const [showDeliveryErrors, setShowDeliveryErrors] = useState(false);
   const deliveryErrors = showDeliveryErrors ? getDeliveryFieldErrors(deliverySelection) : {};
   const deliverySummaryLabel = getDeliverySummaryLabel(deliverySelection);
-  const promoCampaignLabel = getPromoCampaignLabel(promoSummary);
-  const promoBenefitLabel = getPromoBenefitLabel(promoSummary);
 
   useEffect(() => {
     setPromoCode(promoSummary?.code || "");
@@ -244,54 +243,17 @@ const Cart = () => {
                     <span>-KSh {shippingDiscount.toLocaleString()}</span>
                   </div>
                 )}
-                <div className="rounded-[18px] border border-border bg-background/80 p-4">
-                  <label className="mb-2 block text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
-                    Promo Code
-                  </label>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <input
-                      type="text"
-                      value={promoCode}
-                      onChange={(event) => setPromoCode(sanitizePromoCodeInput(event.target.value))}
-                      placeholder="WELCOME10"
-                      className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
-                    />
-                    {promoSummary ? (
-                      <button
-                        type="button"
-                        onClick={handleRemovePromo}
-                        className="rounded-xl border border-border px-4 py-3 text-xs font-body font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-secondary/10"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleApplyPromo}
-                        disabled={!promoCode.trim() || promoLoading}
-                        className="rounded-xl bg-gold-gradient px-4 py-3 text-xs font-body font-bold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-                      >
-                        {promoLoading ? "Applying..." : "Apply"}
-                      </button>
-                    )}
-                  </div>
-                  {promoSummary && (
-                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                      <p className="font-semibold">
-                        {promoSummary.code} applied. You are saving KSh {(discountAmount + shippingDiscount).toLocaleString()}.
-                      </p>
-                      {promoCampaignLabel && (
-                        <p className="mt-1 text-emerald-700">{promoCampaignLabel}</p>
-                      )}
-                      {promoBenefitLabel && (
-                        <p className="mt-1 text-emerald-700">{promoBenefitLabel}</p>
-                      )}
-                    </div>
-                  )}
-                  {promoError && !promoSummary && (
-                    <p className="mt-2 text-sm text-destructive">{promoError}</p>
-                  )}
-                </div>
+                <PromoCodePanel
+                  promoCode={promoCode}
+                  onPromoCodeChange={(value) => setPromoCode(sanitizePromoCodeInput(value))}
+                  onApply={handleApplyPromo}
+                  onRemove={handleRemovePromo}
+                  promoSummary={promoSummary}
+                  promoLoading={promoLoading}
+                  promoError={promoError}
+                  totalSavingsLabel={`KSh ${(discountAmount + shippingDiscount).toLocaleString()}`}
+                  updatedTotalLabel={`KSh ${grandTotal.toLocaleString()}`}
+                />
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <span className="text-sm font-body uppercase tracking-wide text-muted-foreground">
                     Total

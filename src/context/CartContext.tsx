@@ -55,6 +55,14 @@ export interface PromoSummary {
   message?: string;
 }
 
+interface PromoValidationResponse {
+  exists?: boolean;
+  valid?: boolean;
+  message?: string;
+  reason?: string;
+  promo?: PromoSummary | null;
+}
+
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: Product, qty?: number) => void;
@@ -195,6 +203,16 @@ const buildPromoRequestItems = (items: CartItem[]) =>
     quantity: item.quantity,
   }));
 
+const resolveValidPromoFromResponse = (
+  response: PromoValidationResponse | null | undefined,
+): PromoSummary => {
+  if (response?.valid && response.promo) {
+    return response.promo;
+  }
+
+  throw new Error(response?.message || "Promo validation returned an invalid response");
+};
+
 const buildPromoRequestDelivery = (deliverySelection: DeliverySelection) => ({
   delivery_zone: deliverySelection.zone,
   county: deliverySelection.county,
@@ -292,17 +310,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPromoError(null);
 
       try {
-        const response = await cartAPI.applyPromoCode({
+        const response = (await cartAPI.applyPromoCode({
           code: normalizedCode,
           items: buildPromoRequestItems(items),
           shipping_kes: shippingFee,
           delivery: buildPromoRequestDelivery(deliverySelection),
-        });
+        })) as PromoValidationResponse;
 
-        const nextPromo = response?.promo as PromoSummary | undefined;
-        if (!nextPromo) {
-          throw new Error("Promo validation returned an invalid response");
-        }
+        const nextPromo = resolveValidPromoFromResponse(response);
 
         setPromoSummary(nextPromo);
         return nextPromo;
@@ -370,15 +385,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const refreshPromo = async () => {
       try {
-        const response = await cartAPI.applyPromoCode({
+        const response = (await cartAPI.applyPromoCode({
           code: promoSummary.code,
           items: buildPromoRequestItems(items),
           shipping_kes: shippingFee,
           delivery: buildPromoRequestDelivery(deliverySelection),
-        });
+        })) as PromoValidationResponse;
 
-        if (!cancelled && response?.promo) {
-          setPromoSummary(response.promo as PromoSummary);
+        const nextPromo = resolveValidPromoFromResponse(response);
+        if (!cancelled) {
+          setPromoSummary(nextPromo);
           setPromoError(null);
         }
       } catch (error) {

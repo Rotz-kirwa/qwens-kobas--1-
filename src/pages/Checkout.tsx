@@ -3,13 +3,14 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import DeliveryDetailsSection from "@/components/DeliveryDetailsSection";
+import PromoCodePanel from "@/components/PromoCodePanel";
 import { motion } from "framer-motion";
 import { CreditCard, Smartphone, Building2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDeliveryZone } from "@/data/kenyaDelivery";
 import { paymentAPI, ordersAPI, isApiOfflineError } from "@/lib/api";
 import { getDeliveryFieldErrors, getFirstDeliveryError } from "@/lib/delivery";
-import { getPromoBenefitLabel, getPromoCampaignLabel, sanitizePromoCodeInput } from "@/lib/promo";
+import { sanitizePromoCodeInput } from "@/lib/promo";
 import SEO from "@/components/SEO";
 
 const getPaymentIcon = (type: string) => {
@@ -157,8 +158,6 @@ const Checkout = () => {
     city: getDefaultCheckoutCity(deliverySelection.county),
     postalCode: "",
   });
-  const promoCampaignLabel = getPromoCampaignLabel(promoSummary);
-  const promoBenefitLabel = getPromoBenefitLabel(promoSummary);
   const deliveryErrors = showDeliveryErrors ? getDeliveryFieldErrors(deliverySelection) : {};
 
   useEffect(() => {
@@ -932,48 +931,18 @@ const Checkout = () => {
                   <span className="text-primary">{formatCurrency(finalTotal, country)}</span>
                 </div>
                 <div className="pt-4 border-t border-border">
-                  <label className="block text-sm font-body mb-2">Promo Code</label>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <input
-                      type="text"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(sanitizePromoCodeInput(e.target.value))}
-                      placeholder="Enter code"
-                      className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-sm focus:outline-none focus:border-primary disabled:opacity-50"
-                    />
-                    {promoSummary ? (
-                      <button
-                        onClick={handleRemovePromoCode}
-                        className="px-4 py-2 text-sm border border-border rounded-sm hover:bg-secondary/10"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleApplyPromoCode}
-                        disabled={promoLoading || !promoCode}
-                        className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:opacity-90 disabled:opacity-50"
-                      >
-                        {promoLoading ? "Applying..." : "Apply"}
-                      </button>
-                    )}
-                  </div>
-                  {promoSummary && (
-                    <div className="mt-3 rounded-sm border border-green-200 bg-green-50 px-3 py-3 text-sm text-green-800">
-                      <p className="font-semibold">
-                        {promoSummary.code} applied. Total savings: {formatCurrency(discountAmount + shippingDiscount, country)}.
-                      </p>
-                      {promoCampaignLabel && (
-                        <p className="mt-1 text-green-700">{promoCampaignLabel}</p>
-                      )}
-                      {promoBenefitLabel && (
-                        <p className="mt-1 text-green-700">{promoBenefitLabel}</p>
-                      )}
-                    </div>
-                  )}
-                  {promoError && !promoSummary && (
-                    <p className="mt-2 text-sm text-destructive">{promoError}</p>
-                  )}
+                  <PromoCodePanel
+                    promoCode={promoCode}
+                    onPromoCodeChange={(value) => setPromoCode(sanitizePromoCodeInput(value))}
+                    onApply={handleApplyPromoCode}
+                    onRemove={handleRemovePromoCode}
+                    promoSummary={promoSummary}
+                    promoLoading={promoLoading}
+                    promoError={promoError}
+                    totalSavingsLabel={formatCurrency(discountAmount + shippingDiscount, country)}
+                    updatedTotalLabel={formatCurrency(finalTotal, country)}
+                    placeholder="ENTERCODE"
+                  />
                 </div>
               </div>
             </div>
