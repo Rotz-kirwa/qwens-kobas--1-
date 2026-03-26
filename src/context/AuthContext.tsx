@@ -14,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string, phone: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -101,9 +101,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     persistSession(data.user, token);
   };
 
-  const loginWithGoogle = async () => {
-    window.location.href = `${API_URL}/auth/google`;
-    return Promise.resolve();
+  const loginWithGoogle = async (credential: string) => {
+    const response = await fetch(`${API_URL}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || error.error || 'Google sign-in failed');
+    }
+
+    const data = await response.json();
+    const token = data.token || data.access_token;
+    if (!token) throw new Error('Authentication token missing from response');
+
+    persistSession(data.user, token);
   };
 
   const logout = () => {
