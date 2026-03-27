@@ -19,8 +19,9 @@ export const getDeliveryFieldErrors = (
   delivery: DeliveryValidationShape,
 ): DeliveryFieldErrors => {
   const errors: DeliveryFieldErrors = {};
+  const activeZone = getDeliveryZone(delivery.zone);
 
-  if (!normalizeText(delivery.county)) {
+  if (activeZone.zone !== "nairobi" && !normalizeText(delivery.county)) {
     errors.county = "County is required before checkout.";
   }
 

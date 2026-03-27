@@ -46,19 +46,19 @@ const PromoCodePanel = ({
       <label className="mb-2 block text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
         Promo Code
       </label>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-3">
         <input
           type="text"
           value={promoCode}
           onChange={(event) => onPromoCodeChange(event.target.value)}
           placeholder={placeholder}
-          className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
         />
         {promoSummary ? (
           <button
             type="button"
             onClick={onRemove}
-            className="rounded-xl border border-border px-4 py-3 text-xs font-body font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-secondary/10"
+            className="w-full rounded-xl border border-border px-4 py-3 text-xs font-body font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-secondary/10"
           >
             Remove
           </button>
@@ -67,7 +67,7 @@ const PromoCodePanel = ({
             type="button"
             onClick={onApply}
             disabled={!promoCode.trim() || promoLoading}
-            className="rounded-xl bg-gold-gradient px-4 py-3 text-xs font-body font-bold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-xl bg-gold-gradient px-4 py-3 text-xs font-body font-bold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {promoLoading ? "Checking..." : "Apply"}
           </button>

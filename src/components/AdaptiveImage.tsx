@@ -9,7 +9,10 @@ import {
 import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
 interface AdaptiveImageProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "loading" | "decoding"> {
+  extends Omit<
+    ImgHTMLAttributes<HTMLImageElement>,
+    "src" | "loading" | "decoding" | "fetchPriority"
+  > {
   src: string;
   highPriority?: boolean;
   revealMargin?: string;
@@ -53,6 +56,8 @@ const AdaptiveImage = ({
   const { quality, isFast, imageLoadingMargin } = useNetworkQuality();
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [isVisible, setIsVisible] = useState(highPriority || isFast);
+  const priorityProps =
+    highPriority && isFast ? ({ fetchpriority: "high" } as Record<string, string>) : {};
 
   const resolvedSrc = useMemo(
     () => optimizeImageSource(src, quality),
@@ -95,8 +100,8 @@ const AdaptiveImage = ({
       style={isVisible ? style : { ...placeholderStyle, ...style }}
       loading={highPriority ? "eager" : "lazy"}
       decoding="async"
-      fetchPriority={highPriority && isFast ? "high" : "auto"}
       sizes={sizes}
+      {...priorityProps}
       {...props}
     />
   );

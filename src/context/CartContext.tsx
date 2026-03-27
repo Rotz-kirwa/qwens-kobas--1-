@@ -485,15 +485,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setDeliveryCounty = useCallback((county: string) => {
-    setDeliverySelection((prev) => {
-      const inferredZone = inferDeliveryZoneFromCounty(county);
-
-      return buildDeliverySelection(inferredZone || prev.zone, prev.method, {
+    setDeliverySelection((prev) =>
+      buildDeliverySelection(prev.zone, prev.method, {
         county,
         area: prev.area,
         point: prev.point,
-      });
-    });
+      }),
+    );
   }, []);
 
   const setDeliveryArea = useCallback((area: string) => {

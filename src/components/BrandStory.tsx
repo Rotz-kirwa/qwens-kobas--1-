@@ -12,14 +12,13 @@ const BrandStory = () => {
   const ref = useRef(null);
   const network = useNetworkQuality();
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const visibleIssues = network.isSlow ? issues.slice(0, 2) : issues;
-
   const issues = [
     { title: "Hyperpigmentation", desc: "Excess melanin production causing dark patches and uneven complexion." },
     { title: "Uneven Tone", desc: "Sun damage and inflammation creating inconsistent skin coloring." },
     { title: "Dark Spots", desc: "Post-inflammatory marks that linger after breakouts or irritation." },
     { title: "Toxic Creams", desc: "Mercury & hydroquinone products causing irreversible skin and organ damage." },
   ];
+  const visibleIssues = network.isSlow ? issues.slice(0, 2) : issues;
 
   return (
     <section id="story" className="section-spacing bg-secondary/30">
