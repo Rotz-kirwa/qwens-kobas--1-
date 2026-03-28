@@ -126,7 +126,7 @@ const buildDeliverySelection = (
   fields: DeliverySelectionDraft = {},
 ): DeliverySelection => {
   const config = getDeliveryZone(zone);
-  const countyValue = fields.county?.trim() || (config.zone === "nairobi" ? "Nairobi" : "");
+  const countyValue = fields.county?.trim() || "";
 
   return {
     zone: config.zone,
@@ -155,16 +155,11 @@ const readStoredDeliverySelection = (): DeliverySelection => {
   const resolvedZone = normalizeDeliveryZone(
     inferredZoneFromCounty || parsed.zone || parsed.delivery_zone || parsed.county,
   );
-  const normalizedCounty = storedCounty || (resolvedZone === "nairobi" ? "Nairobi" : "");
 
   return buildDeliverySelection(
     resolvedZone,
     parsed.method === "door" ? "door" : "pickup",
-    {
-      county: normalizedCounty,
-      area: parsed.area,
-      point: parsed.point,
-    },
+    {},
   );
 };
 
@@ -246,7 +241,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [items]);
 
   useEffect(() => {
-    localStorage.setItem(DELIVERY_STORAGE_KEY, JSON.stringify(deliverySelection));
+    localStorage.setItem(
+      DELIVERY_STORAGE_KEY,
+      JSON.stringify({
+        zone: deliverySelection.zone,
+        method: deliverySelection.method,
+      }),
+    );
   }, [deliverySelection]);
 
   useEffect(() => {
@@ -469,17 +470,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setDeliveryZone = useCallback((zone: string) => {
     setDeliverySelection((prev) => {
       const nextZone = normalizeDeliveryZone(zone);
-      const nextCounty =
-        nextZone === "nairobi"
-          ? "Nairobi"
-          : prev.county.trim().toLowerCase() === "nairobi"
-            ? ""
-            : prev.county;
+      const shouldResetAddressFields = nextZone !== prev.zone;
 
       return buildDeliverySelection(nextZone, prev.method, {
-        county: nextCounty,
-        area: prev.area,
-        point: prev.point,
+        county: shouldResetAddressFields ? "" : prev.county,
+        area: shouldResetAddressFields ? "" : prev.area,
+        point: shouldResetAddressFields ? "" : prev.point,
       });
     });
   }, []);

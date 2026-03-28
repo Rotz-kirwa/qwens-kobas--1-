@@ -19,9 +19,9 @@ export const kenyaDeliveryZones: DeliveryZoneConfig[] = [
     pickupFee: 300,
     doorFee: 300,
     eta: "Same day / next day",
-    countyPlaceholder: "Nairobi",
-    areaPlaceholder: "e.g. Westlands, Kilimani, Kasarani",
-    pointPlaceholder: "e.g. Sarit Centre stage, Kilimani Plaza gate",
+    countyPlaceholder: "Enter county",
+    areaPlaceholder: "Enter area / town / estate",
+    pointPlaceholder: "Enter exact delivery point",
   },
   {
     zone: "outside_nairobi",
@@ -29,9 +29,9 @@ export const kenyaDeliveryZones: DeliveryZoneConfig[] = [
     pickupFee: 500,
     doorFee: 500,
     eta: "2-4 business days",
-    countyPlaceholder: "e.g. Nakuru, Kisumu, Uasin Gishu",
-    areaPlaceholder: "e.g. Nakuru Town, Kisumu CBD, Eldoret Town",
-    pointPlaceholder: "e.g. stage, building, landmark, pickup centre",
+    countyPlaceholder: "Enter county",
+    areaPlaceholder: "Enter area / town / estate",
+    pointPlaceholder: "Enter exact delivery point",
   },
 ];
 

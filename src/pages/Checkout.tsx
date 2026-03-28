@@ -320,12 +320,6 @@ const Checkout = () => {
   }, [user?.email, user?.name, user?.phone]);
 
   useEffect(() => {
-    if (deliverySelection.zone === "nairobi" && deliverySelection.county.trim() !== "Nairobi") {
-      setDeliveryCounty("Nairobi");
-    }
-  }, [deliverySelection.county, deliverySelection.zone, setDeliveryCounty]);
-
-  useEffect(() => {
     const draft: CheckoutDraft = {
       step,
       paymentMethod,
