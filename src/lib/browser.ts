@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    __queenkobaGoogleInitKey?: string;
-  }
-}
-
 const createPseudoUuid = () => {
   if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
     return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) =>
@@ -82,18 +76,10 @@ export const shouldEnableGoogleAuth = (clientId?: string) => {
     return isLocalGoogleAuthEnabled();
   }
 
-  if (origin.includes("queenkoba.com")) {
-    return true;
-  }
-
-  return false;
-};
-
-export const hasInitializedGoogleForKey = (key: string) =>
-  typeof window !== "undefined" && window.__queenkobaGoogleInitKey === key;
-
-export const markGoogleInitialized = (key: string) => {
-  if (typeof window !== "undefined") {
-    window.__queenkobaGoogleInitKey = key;
+  try {
+    const url = new URL(origin);
+    return url.protocol === "https:";
+  } catch {
+    return origin.includes("queenkoba.com");
   }
 };
