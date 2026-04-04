@@ -3,19 +3,19 @@ import SEO from "@/components/SEO";
 
 const Shop = () => {
   return (
-    <main className="pt-14 md:pt-16">
+    <main className="pt-16 md:pt-[4.5rem]">
       <SEO
-        title="Shop Skincare Products"
-        description="Browse Queen Koba products including brightening toner, clarifying serum, face mask, cream, cleanser, and the full skincare kit."
+        title="Brightening Skincare Products for Dark Spots and Hyperpigmentation"
+        description="Shop brightening skincare products in Kenya for hyperpigmentation, dark spots, uneven skin tone, and dull skin. Browse cleanser, toner, serum, cream, mask, and a full skincare kit."
         path="/shop"
-        keywords="buy skincare Kenya, Queen Koba products, face mask 120ml, brightening toner, clarifying serum"
+        keywords="brightening skincare, hyperpigmentation treatment, dark spots treatment, brightening toner, hyperpigmentation serum, skincare kit for hyperpigmentation, skincare products in Kenya"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "Queen Koba Shop",
           url: "https://queenkoba.com/shop",
           description:
-            "Shop Queen Koba skincare products designed for melanin-rich skin.",
+            "Shop Queen Koba brightening skincare products for hyperpigmentation, dark spots, uneven skin tone, and melanin-rich skin.",
         }}
       />
       <ProductStore />

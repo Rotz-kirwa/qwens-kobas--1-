@@ -1,6 +1,7 @@
-import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import AdaptiveImage from "@/components/AdaptiveImage";
 import DeliveryDetailsSection from "@/components/DeliveryDetailsSection";
 import PromoCodePanel from "@/components/PromoCodePanel";
 import SEO from "@/components/SEO";
@@ -102,7 +103,7 @@ const Cart = () => {
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-secondary/20 pb-20 pt-24">
+    <main className="min-h-screen overflow-x-hidden bg-[#f8f5ef] pb-20 pt-24">
       <SEO
         title="Your Cart"
         description="Review your Queen Koba cart and delivery details before checkout."
@@ -110,7 +111,7 @@ const Cart = () => {
         robots="noindex,nofollow"
       />
 
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-7xl px-4">
         <button
           onClick={() => navigate(-1)}
           className="mb-6 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
@@ -119,11 +120,30 @@ const Cart = () => {
           <span className="font-body text-sm uppercase tracking-wide">Back</span>
         </button>
 
-        <div className="mb-8">
-          <p className="mb-3 text-sm font-body uppercase tracking-[0.28em] text-primary">Cart</p>
-          <h1 className="font-display text-4xl font-light md:text-5xl">
-            Your <span className="italic text-gold-gradient">Cart</span>
-          </h1>
+        <div className="mb-8 rounded-[32px] border border-[#eadfce] bg-[linear-gradient(180deg,#fffaf3_0%,#f7efe2_100%)] px-6 py-8 shadow-[0_20px_50px_rgba(45,30,12,0.06)] md:px-10">
+          <p className="mb-3 text-sm font-body uppercase tracking-[0.28em] text-primary">Your Bag</p>
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div>
+              <h1 className="font-display text-4xl font-light md:text-5xl">
+                Review your <span className="italic text-gold-gradient">routine</span> before checkout
+              </h1>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/75 md:text-base">
+                This pass brings the cart closer to a premium skincare flow: clearer product context,
+                delivery setup, savings visibility, and a stronger bridge into checkout.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
+                Secure checkout
+              </span>
+              <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
+                Kenya delivery
+              </span>
+              <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
+                Promo-ready
+              </span>
+            </div>
+          </div>
         </div>
 
         {items.length === 0 ? (
@@ -142,22 +162,56 @@ const Cart = () => {
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.95fr)] lg:gap-8">
-            <section className="luxury-card p-5 sm:p-8">
-              <div className="space-y-5">
+            <section className="rounded-[32px] border border-[#eadfce] bg-white p-5 shadow-[0_20px_46px_rgba(45,30,12,0.05)] sm:p-8">
+              <div className="mb-6 flex flex-col gap-3 border-b border-[#eadfce] pb-5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
+                    Selected products
+                  </p>
+                  <h2 className="mt-2 font-display text-3xl text-foreground">Your Queen Koba bag</h2>
+                </div>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center gap-2 text-sm font-body font-semibold text-primary"
+                >
+                  Continue shopping
+                </Link>
+              </div>
+
+              <div className="space-y-4">
                 {items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="flex gap-3 border-b border-border/50 pb-5 sm:gap-4 sm:pb-6"
+                    className="grid gap-4 rounded-[28px] border border-[#eadfce] bg-[#fcf8f2] p-4 sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:p-5"
                   >
-                    <div className="min-w-0 flex-1">
-                      <h2 className="mb-1 font-display text-lg font-semibold leading-snug sm:text-xl">
+                    <div className="overflow-hidden rounded-[22px] bg-white">
+                      {item.product.image ? (
+                        <AdaptiveImage
+                          src={item.product.image}
+                          alt={item.product.name}
+                          className="aspect-square w-full object-cover object-center"
+                          sizes="112px"
+                        />
+                      ) : (
+                        <div className="aspect-square w-full bg-secondary/30" />
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-body uppercase tracking-[0.2em] text-primary/75">
+                        Routine item
+                      </p>
+                      <h2 className="mt-2 font-display text-lg font-semibold leading-snug sm:text-2xl">
                         {item.product.name}
                       </h2>
-                      <p className="text-sm font-body font-semibold text-primary">
+                      <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
+                        {item.product.description}
+                      </p>
+                      <p className="mt-3 text-sm font-body font-semibold text-primary">
                         KSh {item.product.price.toLocaleString()}
                       </p>
 
-                      <div className="mt-3 flex items-center gap-2.5">
+                      <div className="mt-4 flex items-center gap-2.5">
                         <div className="flex items-center rounded-sm border border-border">
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
@@ -186,9 +240,14 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <p className="shrink-0 font-display text-lg font-semibold text-foreground sm:text-xl">
-                      KSh {(item.product.price * item.quantity).toLocaleString()}
-                    </p>
+                    <div className="flex flex-col items-start justify-between gap-3 sm:items-end">
+                      <div className="rounded-full border border-primary/15 bg-white px-3 py-1 text-[11px] font-body uppercase tracking-[0.18em] text-primary/80">
+                        Qty {item.quantity}
+                      </div>
+                      <p className="shrink-0 font-display text-xl font-semibold text-foreground sm:text-2xl">
+                        KSh {(item.product.price * item.quantity).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -201,7 +260,24 @@ const Cart = () => {
               </button>
             </section>
 
-            <aside className="luxury-card p-5 sm:p-8 lg:sticky lg:top-24">
+            <aside className="rounded-[32px] border border-[#eadfce] bg-white p-5 shadow-[0_20px_46px_rgba(45,30,12,0.05)] sm:p-8 lg:sticky lg:top-24">
+              <div className="border-b border-[#eadfce] pb-5">
+                <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
+                  Order summary
+                </p>
+                <h3 className="mt-2 font-display text-3xl text-foreground">Ready to check out</h3>
+                <div className="mt-4 space-y-2 text-sm text-foreground/75">
+                  <div className="flex items-start gap-2">
+                    <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" />
+                    <span>{isAuthenticated ? "Signed in and ready to continue." : "Sign in at checkout to place your order."}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Truck className="mt-0.5 h-4 w-4 text-primary" />
+                    <span>{deliverySummaryLabel} delivery configuration saved.</span>
+                  </div>
+                </div>
+              </div>
+
               <DeliveryDetailsSection
                 deliverySelection={deliverySelection}
                 setDeliveryZone={setDeliveryZone}
@@ -254,6 +330,11 @@ const Cart = () => {
                   totalSavingsLabel={`KSh ${(discountAmount + shippingDiscount).toLocaleString()}`}
                   updatedTotalLabel={`KSh ${grandTotal.toLocaleString()}`}
                 />
+                {promoSummary?.description && (
+                  <div className="rounded-[20px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm leading-7 text-foreground/80">
+                    {promoSummary.description}
+                  </div>
+                )}
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <span className="text-sm font-body uppercase tracking-wide text-muted-foreground">
                     Total
@@ -269,9 +350,9 @@ const Cart = () => {
                 </div>
                 <button
                   onClick={handleCheckout}
-                  className="w-full rounded-sm bg-gold-gradient py-4 text-sm font-body font-bold uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+                  className="w-full rounded-full bg-gold-gradient py-4 text-sm font-body font-bold uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
                 >
-                  Proceed to Checkout
+                  Continue to Checkout
                 </button>
               </div>
             </aside>

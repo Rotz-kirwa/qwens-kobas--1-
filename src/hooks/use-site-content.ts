@@ -15,11 +15,12 @@ export interface SiteContent {
 }
 
 const defaultSiteContent: SiteContent = {
-  hero_title: "Dark Spots & Uneven Tone Stealing Your Glow?",
-  hero_subtitle: "Naturally brighten with toxin-free, melanin-safe luxury skincare.",
-  about_title: "Explore The Full Ritual",
+  hero_title: "Brightening skincare for melanin-rich skin in Kenya",
+  hero_subtitle:
+    "Treat dark spots, hyperpigmentation, and uneven tone with toxin-free African botanical skincare.",
+  about_title: "Build Your Full Ritual",
   about_description:
-    "Explore our complete skincare lineup, mask, toner, serum, cream, and cleanser, curated to work together for healthier, glowing skin.",
+    "Explore Queen Koba cleanser, toner, serum, cream, mask, and bundle pages designed to work together for clearer, brighter-looking skin.",
   contact_email: "info@queenkoba.com",
   contact_phone: "0119 559 180",
   contact_whatsapp: "0119 559 180",

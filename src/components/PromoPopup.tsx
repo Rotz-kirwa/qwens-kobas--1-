@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AdaptiveImage from "@/components/AdaptiveImage";
 import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
@@ -11,9 +11,15 @@ const FULL_KIT_IMAGE =
 export default function PromoPopup() {
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const network = useNetworkQuality();
 
   useEffect(() => {
+    if (["/login", "/signup", "/cart", "/checkout"].includes(location.pathname)) {
+      setShowPopup(false);
+      return;
+    }
+
     const hasSeenPopup = sessionStorage.getItem("fullKitPopupSeen");
     if (hasSeenPopup) return;
 
@@ -22,7 +28,7 @@ export default function PromoPopup() {
     }, network.isSlow ? 5500 : network.isMedium ? 3000 : 1800);
 
     return () => window.clearTimeout(timer);
-  }, [network.isMedium, network.isSlow]);
+  }, [location.pathname, network.isMedium, network.isSlow]);
 
   const handleClose = () => {
     sessionStorage.setItem("fullKitPopupSeen", "true");
@@ -54,6 +60,10 @@ export default function PromoPopup() {
               ease: "easeOut",
             }}
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="promo-popup-title"
+            aria-describedby="promo-popup-description"
             className="group luxury-card relative w-full max-w-[20rem] overflow-hidden border-border/80 bg-card p-0 shadow-[0_24px_60px_rgba(24,17,8,0.24)] sm:max-w-[21.5rem]"
           >
             <button
@@ -80,10 +90,16 @@ export default function PromoPopup() {
             </div>
 
             <div className="flex flex-1 flex-col p-4">
-              <h3 className="mb-1.5 font-display text-[1.35rem] font-semibold leading-tight text-foreground sm:text-[1.55rem]">
+              <h3
+                id="promo-popup-title"
+                className="mb-1.5 font-display text-[1.35rem] font-semibold leading-tight text-foreground sm:text-[1.55rem]"
+              >
                 Full Product Kit
               </h3>
-              <p className="text-sm font-body leading-6 text-muted-foreground">
+              <p
+                id="promo-popup-description"
+                className="text-sm font-body leading-6 text-muted-foreground"
+              >
                 Complete glow routine in one bundle.
               </p>
 

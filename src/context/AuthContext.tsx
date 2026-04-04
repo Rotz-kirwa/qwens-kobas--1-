@@ -70,6 +70,12 @@ const readErrorMessage = (payload: unknown, fallback: string) => {
   return fallback;
 };
 
+const readFetchFailureMessage = () => {
+  const origin = typeof window !== "undefined" ? window.location.origin : "this browser origin";
+
+  return `Couldn't reach the Queen Koba API from ${origin}. Make sure the backend is running on ${API_URL} and that this origin is allowed by CORS.`;
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -178,11 +184,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const authenticate = useCallback(
     async (endpoint: string, body: Record<string, unknown>, fallbackMessage: string) => {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${API_URL}${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      } catch (error) {
+        if (error instanceof TypeError) {
+          throw new Error(readFetchFailureMessage());
+        }
+        throw error;
+      }
+
       const payload = await parseResponse(response);
 
       if (!response.ok) {

@@ -71,6 +71,85 @@ const getMethodCopy = (method: PaymentMethod) => {
   }
 };
 
+const getMethodTheme = (method: PaymentMethod) => {
+  switch (normalizePaymentMethodKey(method)) {
+    case "mpesa":
+      return {
+        selectedCard:
+          "border-emerald-700 bg-emerald-600 text-white shadow-[0_18px_34px_rgba(16,185,129,0.24)]",
+        unselectedCard:
+          "border-emerald-300 bg-emerald-100 hover:border-emerald-400 hover:bg-emerald-200/85",
+        focusRing: "focus-visible:ring-emerald-200",
+        iconSelected: "bg-white/15 text-white ring-1 ring-white/20",
+        iconUnselected: "bg-white/60 text-emerald-800",
+        badge: "bg-white/85 text-emerald-900",
+        cardPill:
+          "rounded-full border border-white/40 bg-white/70 px-3 py-1 text-[11px] font-body uppercase tracking-[0.16em] text-emerald-900",
+        radioSelected: "border-emerald-600 bg-emerald-600 text-white",
+        radioUnselected: "border-emerald-300 bg-white/65 text-transparent",
+        title: "text-emerald-950",
+        titleSelected: "text-white",
+        description: "text-emerald-900/90",
+        descriptionSelected: "text-white/90",
+      };
+    case "airtel":
+      return {
+        selectedCard:
+          "border-rose-700 bg-rose-600 text-white shadow-[0_18px_34px_rgba(244,63,94,0.24)]",
+        unselectedCard:
+          "border-rose-300 bg-rose-100 hover:border-rose-400 hover:bg-rose-200/85",
+        focusRing: "focus-visible:ring-rose-200",
+        iconSelected: "bg-white/15 text-white ring-1 ring-white/20",
+        iconUnselected: "bg-white/60 text-rose-800",
+        badge: "bg-white/85 text-rose-900",
+        cardPill:
+          "rounded-full border border-white/40 bg-white/70 px-3 py-1 text-[11px] font-body uppercase tracking-[0.16em] text-rose-900",
+        radioSelected: "border-rose-600 bg-rose-600 text-white",
+        radioUnselected: "border-rose-300 bg-white/65 text-transparent",
+        title: "text-rose-950",
+        titleSelected: "text-white",
+        description: "text-rose-900/90",
+        descriptionSelected: "text-white/90",
+      };
+    case "card":
+      return {
+        selectedCard:
+          "border-sky-700 bg-sky-600 text-white shadow-[0_18px_34px_rgba(14,165,233,0.24)]",
+        unselectedCard:
+          "border-sky-300 bg-sky-100 hover:border-sky-400 hover:bg-sky-200/85",
+        focusRing: "focus-visible:ring-sky-200",
+        iconSelected: "bg-white/15 text-white ring-1 ring-white/20",
+        iconUnselected: "bg-white/60 text-sky-800",
+        badge: "bg-white/85 text-sky-900",
+        cardPill:
+          "rounded-full border border-white/40 bg-white/70 px-3 py-1 text-[11px] font-body uppercase tracking-[0.16em] text-sky-900",
+        radioSelected: "border-sky-600 bg-sky-600 text-white",
+        radioUnselected: "border-sky-300 bg-white/65 text-transparent",
+        title: "text-sky-950",
+        titleSelected: "text-white",
+        description: "text-sky-900/90",
+        descriptionSelected: "text-white/90",
+      };
+    default:
+      return {
+        selectedCard: "border-primary bg-primary/5 shadow-[0_18px_34px_rgba(95,74,43,0.12)]",
+        unselectedCard: "border-border bg-background hover:border-primary/20 hover:bg-secondary/5",
+        focusRing: "focus-visible:ring-primary/25",
+        iconSelected: "bg-primary text-primary-foreground",
+        iconUnselected: "bg-secondary/30 text-primary",
+        badge: "bg-primary/10 text-primary",
+        cardPill:
+          "rounded-full border border-border bg-background px-3 py-1 text-[11px] font-body uppercase tracking-[0.16em] text-muted-foreground",
+        radioSelected: "border-primary bg-primary text-primary-foreground",
+        radioUnselected: "border-border bg-background text-transparent",
+        title: "text-foreground",
+        titleSelected: "text-foreground",
+        description: "text-muted-foreground",
+        descriptionSelected: "text-muted-foreground",
+      };
+  }
+};
+
 const PaymentMethodSkeleton = () => (
   <div className="space-y-4">
     {[0, 1, 2].map((index) => (
@@ -156,6 +235,7 @@ const PaymentMethodSelector = ({
             {orderedMethods.map((method, index) => {
               const key = normalizePaymentMethodKey(method);
               const methodCopy = getMethodCopy(method);
+              const methodTheme = getMethodTheme(method);
               const Icon = methodCopy.icon;
               const selected = selectedMethodId === method.id;
 
@@ -180,15 +260,13 @@ const PaymentMethodSelector = ({
                       moveSelection(index, -1);
                     }
                   }}
-                  className={`flex w-full items-start gap-4 rounded-[24px] border px-5 py-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                    selected
-                      ? "border-primary bg-primary/5 shadow-[0_18px_34px_rgba(95,74,43,0.12)]"
-                      : "border-border bg-background hover:border-primary/20 hover:bg-secondary/5"
+                  className={`flex w-full items-start gap-4 rounded-[24px] border px-5 py-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${methodTheme.focusRing} ${
+                    selected ? methodTheme.selectedCard : methodTheme.unselectedCard
                   }`}
                 >
                   <div
                     className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                      selected ? "bg-primary text-primary-foreground" : "bg-secondary/30 text-primary"
+                      selected ? methodTheme.iconSelected : methodTheme.iconUnselected
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -198,19 +276,31 @@ const PaymentMethodSelector = ({
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-display text-2xl text-foreground">{method.name}</p>
+                          <p
+                            className={`font-display text-2xl ${
+                              selected ? methodTheme.titleSelected : methodTheme.title
+                            }`}
+                          >
+                            {method.name}
+                          </p>
                           {methodCopy.badge && (
-                            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-body font-semibold uppercase tracking-[0.16em] text-primary">
+                            <span className={`rounded-full px-3 py-1 text-[11px] font-body font-semibold uppercase tracking-[0.16em] ${methodTheme.badge}`}>
                               {methodCopy.badge}
                             </span>
                           )}
                           {key === "card" && (
-                            <span className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-body uppercase tracking-[0.16em] text-muted-foreground">
+                            <span className={methodTheme.cardPill}>
                               Visa / Mastercard
                             </span>
                           )}
                         </div>
-                        <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
+                        <p
+                          className={`mt-2 max-w-xl text-sm leading-7 ${
+                            selected
+                              ? methodTheme.descriptionSelected
+                              : methodTheme.description
+                          }`}
+                        >
                           {methodCopy.description}
                         </p>
                       </div>
@@ -218,8 +308,8 @@ const PaymentMethodSelector = ({
                       <div
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${
                           selected
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-background text-transparent"
+                            ? methodTheme.radioSelected
+                            : methodTheme.radioUnselected
                         }`}
                         aria-hidden="true"
                       >

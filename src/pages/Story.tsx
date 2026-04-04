@@ -26,10 +26,10 @@ const Story = () => {
   return (
     <main className="pt-20">
       <SEO
-        title="Our Story"
-        description="Discover the Queen Koba story: a Kenyan skincare brand inspired by African queens and built to serve melanin-rich skin with safe, elegant formulas."
+        title="Our Story | Kenyan Brightening Skincare for Melanin-Rich Skin"
+        description="Discover the Queen Koba story, a Kenyan skincare brand creating toxin-free African botanical skincare for hyperpigmentation, dark spots, and melanin-rich skin."
         path="/story"
-        keywords="Queen Koba story, Kenyan beauty brand, melanin skincare story, African botanicals skincare"
+        keywords="Queen Koba story, Kenyan skincare brand, melanin skincare story, African botanical skincare, skincare products in Kenya"
       />
       <section className="relative min-h-[72vh] overflow-hidden border-b border-border/60 bg-black">
         <video

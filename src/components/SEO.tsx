@@ -13,6 +13,9 @@ type SeoProps = {
   type?: "website" | "article";
   robots?: string;
   keywords?: string;
+  locale?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
   structuredData?: Record<string, unknown> | Array<Record<string, unknown>>;
 };
 
@@ -40,6 +43,10 @@ const ensureLink = (selector: string, attrs: Record<string, string>) => {
   });
 };
 
+const removeElement = (selector: string) => {
+  document.head.querySelector(selector)?.remove();
+};
+
 const SEO = ({
   title,
   description,
@@ -48,6 +55,9 @@ const SEO = ({
   type = "website",
   robots = "index,follow",
   keywords,
+  locale = "en_KE",
+  publishedTime,
+  modifiedTime,
   structuredData,
 }: SeoProps) => {
   useEffect(() => {
@@ -81,11 +91,31 @@ const SEO = ({
     ensureMeta('meta[property="og:url"]', { property: "og:url", content: canonicalUrl });
     ensureMeta('meta[property="og:image"]', { property: "og:image", content: image });
     ensureMeta('meta[property="og:site_name"]', { property: "og:site_name", content: BRAND_NAME });
+    ensureMeta('meta[property="og:locale"]', { property: "og:locale", content: locale });
 
     ensureMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
     ensureMeta('meta[name="twitter:title"]', { name: "twitter:title", content: pageTitle });
     ensureMeta('meta[name="twitter:description"]', { name: "twitter:description", content: description });
     ensureMeta('meta[name="twitter:image"]', { name: "twitter:image", content: image });
+    ensureMeta('meta[name="twitter:site"]', { name: "twitter:site", content: "@queenkoba" });
+
+    if (type === "article" && publishedTime) {
+      ensureMeta('meta[property="article:published_time"]', {
+        property: "article:published_time",
+        content: publishedTime,
+      });
+    } else {
+      removeElement('meta[property="article:published_time"]');
+    }
+
+    if (type === "article" && modifiedTime) {
+      ensureMeta('meta[property="article:modified_time"]', {
+        property: "article:modified_time",
+        content: modifiedTime,
+      });
+    } else {
+      removeElement('meta[property="article:modified_time"]');
+    }
 
     ensureLink('link[rel="canonical"]', { rel: "canonical", href: canonicalUrl });
 
@@ -97,7 +127,19 @@ const SEO = ({
       document.head.appendChild(script);
     }
     script.textContent = JSON.stringify(schema);
-  }, [description, image, keywords, path, robots, structuredData, title, type]);
+  }, [
+    description,
+    image,
+    keywords,
+    locale,
+    modifiedTime,
+    path,
+    publishedTime,
+    robots,
+    structuredData,
+    title,
+    type,
+  ]);
 
   return null;
 };

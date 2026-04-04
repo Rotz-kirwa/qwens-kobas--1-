@@ -18,6 +18,7 @@ interface CheckoutReviewStepProps {
     phoneNumber: string;
     bankName: string;
   };
+  shippingFee: number;
   paymentMessage: string;
   submittingOrder: boolean;
   onPaymentInputChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
@@ -36,6 +37,7 @@ const CheckoutReviewStep = ({
   paymentMethodType,
   paymentMethodId,
   paymentDetails,
+  shippingFee,
   paymentMessage,
   submittingOrder,
   onPaymentInputChange,
@@ -99,7 +101,7 @@ const CheckoutReviewStep = ({
                 {deliveryMethodLabel}
               </p>
               <p>{activeZone.label}</p>
-              <p>KSh {activeZone.doorFee.toLocaleString()}</p>
+              <p>KSh {shippingFee.toLocaleString()}</p>
               <p>{activeZone.eta}</p>
             </div>
           </div>

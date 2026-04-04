@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   formatInstagramHandle,
   getInstagramHref,
@@ -16,6 +17,20 @@ const Footer = () => {
           <div className="text-center md:text-left">
             <p className="mb-1 font-display text-xl font-semibold text-primary">Queen Koba</p>
             <p className="text-xs font-body text-muted-foreground">Nairobi, Kenya</p>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs font-body text-muted-foreground md:justify-start">
+              <Link to="/shop" className="transition-colors hover:text-primary">
+                Shop
+              </Link>
+              <Link to="/ingredients" className="transition-colors hover:text-primary">
+                Ingredients
+              </Link>
+              <Link to="/blog" className="transition-colors hover:text-primary">
+                Blog
+              </Link>
+              <Link to="/contact" className="transition-colors hover:text-primary">
+                Contact
+              </Link>
+            </div>
           </div>
 
           <div className="flex items-center gap-6">

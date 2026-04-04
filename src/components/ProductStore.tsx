@@ -1,188 +1,20 @@
 import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-import { Star, Plus, Minus, ShoppingBag } from "lucide-react";
-import AdaptiveImage from "@/components/AdaptiveImage";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { Minus, Plus, ShoppingBag, Star } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useNetworkQuality } from "@/context/NetworkQualityContext";
-import { products as initialProducts } from "@/data/products";
 import { productsAPI } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
-
-interface ApiProduct {
-  _id?: string | number;
-  id?: string | number;
-  name?: string;
-  description?: string;
-  category?: string;
-  prices?: Record<string, { amount?: number; symbol?: string; country?: string }>;
-  in_stock: boolean;
-  image_url?: string;
-  rating?: number;
-  reviews?: number;
-  discount_percentage?: number;
-  on_sale?: boolean;
-}
-
-interface StoreProduct {
-  id: string;
-  catalogKey: string;
-  name: string;
-  description: string;
-  price: number;
-  in_stock: boolean;
-  image_url?: string;
-  rating?: number;
-  reviews?: number;
-  discount_percentage?: number;
-  on_sale?: boolean;
-  badges?: string[];
-  stock_left?: number;
-  urgency_tag?: string;
-  cta_label?: string;
-  footer_note?: string;
-  bundle_message?: string;
-  isBundle?: boolean;
-}
-
-const productMarketing: Record<string, Partial<StoreProduct>> = {
-  "new-cleanser": {
-    badges: ["Best Seller", "4.9 ★"],
-    stock_left: 12,
-    urgency_tag: "Buy Now, Glow Tomorrow",
-    rating: 4.8,
-    reviews: 87,
-  },
-  "new-toner": {
-    badges: ["Loved by Melanin Queens"],
-    stock_left: 9,
-    urgency_tag: "Buy Now, Glow Tomorrow",
-    rating: 4.7,
-    reviews: 64,
-  },
-  "new-serum": {
-    badges: ["Hero Product", "Limited Stock"],
-    stock_left: 5,
-    urgency_tag: "Buy Now, Glow Tomorrow",
-    rating: 4.9,
-    reviews: 112,
-  },
-  "new-cream": {
-    badges: ["Skin Barrier Favorite"],
-    urgency_tag: "Buy Now, Glow Tomorrow",
-    rating: 4.8,
-    reviews: 95,
-  },
-  "new-mask": {
-    badges: ["Weekly Reset", "Glow Boost"],
-    stock_left: 7,
-    urgency_tag: "Spa Night, Elevated",
-    rating: 4.8,
-    reviews: 76,
-  },
-  "new-bundle": {
-    badges: ["Full Kit", "Free Shipping"],
-    stock_left: 4,
-    cta_label: "Grab the Bundle & Save",
-    bundle_message: "Full Product Kit • KSh 9,999. Limited kits this month.",
-    rating: 5,
-    reviews: 200,
-  },
-};
-
-const catalogOrder = [
-  "new-cleanser",
-  "new-toner",
-  "new-serum",
-  "new-cream",
-  "new-mask",
-  "new-bundle",
-] as const;
-
-const shopTrustBadges = [
-  "Cruelty-Free",
-  "Sustainable Sourcing",
-  "No Harsh Chemicals",
-];
-
-const fallbackStoreProducts: StoreProduct[] = initialProducts.map((product) => {
-  const discountPercentage =
-    product.originalPrice && product.originalPrice > product.price
-      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-      : 0;
-
-  return {
-    id: product.id,
-    catalogKey: product.id,
-    name: product.name,
-    description: product.description,
-    price: product.price,
-    in_stock: true,
-    image_url: product.image,
-    rating: product.rating,
-    reviews: product.reviews,
-    discount_percentage: discountPercentage,
-    on_sale: discountPercentage > 0,
-    ...productMarketing[product.id],
-  };
-});
-
-const canonicalProductsByKey = Object.fromEntries(
-  fallbackStoreProducts.map((product) => [product.catalogKey, product])
-) as Record<string, StoreProduct>;
-
-const getProductMarketingKey = (category?: string, name?: string) => {
-  const normalizedCategory = (category || "").toLowerCase();
-  const normalizedName = (name || "").toLowerCase();
-
-  if (normalizedCategory.includes("cleanser")) return "new-cleanser";
-  if (normalizedCategory.includes("toner")) return "new-toner";
-  if (normalizedCategory.includes("serum")) return "new-serum";
-  if (normalizedCategory.includes("cream")) return "new-cream";
-  if (normalizedCategory.includes("mask")) return "new-mask";
-  if (normalizedCategory.includes("bundle")) return "new-bundle";
-
-  if (normalizedName.includes("cleanser")) return "new-cleanser";
-  if (normalizedName.includes("toner")) return "new-toner";
-  if (normalizedName.includes("serum")) return "new-serum";
-  if (normalizedName.includes("cream")) return "new-cream";
-  if (normalizedName.includes("mask")) return "new-mask";
-  if (normalizedName.includes("full product kit") || normalizedName.includes("bundle")) {
-    return "new-bundle";
-  }
-
-  return null;
-};
-
-const mapApiProduct = (product: ApiProduct): StoreProduct | null => {
-  const productId = product._id ?? product.id;
-  if (productId === undefined || productId === null) {
-    return null;
-  }
-
-  const marketingKey = getProductMarketingKey(product.category, product.name);
-  const canonicalProduct = marketingKey ? canonicalProductsByKey[marketingKey] : undefined;
-  const kesPrice = Number(product.prices?.KES?.amount ?? canonicalProduct?.price ?? 0);
-  const discountPercentage = Number(
-    product.discount_percentage ?? canonicalProduct?.discount_percentage ?? 0
-  );
-  const overlay = marketingKey ? productMarketing[marketingKey] ?? {} : {};
-
-  return {
-    id: String(productId),
-    catalogKey: marketingKey || `product-${productId}`,
-    name: product.name || canonicalProduct?.name || "Queen Koba Product",
-    description: product.description || canonicalProduct?.description || "",
-    price: kesPrice,
-    in_stock: product.in_stock ?? true,
-    image_url: product.image_url || canonicalProduct?.image_url,
-    rating: product.rating ?? canonicalProduct?.rating ?? 4.8,
-    reviews: product.reviews ?? canonicalProduct?.reviews ?? 0,
-    discount_percentage: discountPercentage,
-    on_sale: product.on_sale ?? discountPercentage > 0,
-    isBundle: marketingKey === "new-bundle",
-    ...overlay,
-  };
-};
+import {
+  fallbackStoreProducts,
+  formatCurrency,
+  getCompareAtPrice,
+  getEffectiveProductPrice,
+  mapApiProduct,
+  orderCatalogProducts,
+  shopTrustBadges,
+  toCartProduct,
+  type StoreProduct,
+} from "@/lib/storefrontCatalog";
 
 const BundleCountdown = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 11, minutes: 45 });
@@ -213,44 +45,28 @@ const BundleCountdown = () => {
 const ProductCard = ({ product, index }: { product: StoreProduct; index: number }) => {
   const [qty, setQty] = useState(1);
   const { addToCart } = useCart();
-  const network = useNetworkQuality();
-  const { toast } = useToast();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
   const price = product.price;
-  const discount = product.discount_percentage || 0;
-  const discountedPrice = discount > 0 ? price * (1 - discount / 100) : price;
+  const compareAtPrice = getCompareAtPrice(product);
+  const displayPrice = getEffectiveProductPrice(product);
   const rating = product.rating || 4.5;
   const reviews = product.reviews || 0;
+  const discount = product.discount_percentage || 0;
 
   const handleAddToCart = () => {
-    addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        price: discount > 0 ? discountedPrice : price,
-        rating,
-        reviews,
-        description: product.description,
-        image: product.image_url,
-      },
-      qty
-    );
+    addToCart(toCartProduct(product), qty);
     setQty(1);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
   };
 
   return (
     <motion.div
       ref={ref}
-      initial={network.animationEnabled ? { opacity: 0, y: 40 } : false}
-      animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.1, duration: 0.6 }}
-      className="luxury-card flex flex-col overflow-hidden p-0 relative"
+      className="luxury-card relative flex flex-col overflow-hidden p-0"
     >
       <div className="absolute left-4 right-4 top-4 z-10 flex flex-wrap gap-2">
         {product.badges?.map((badge) => (
@@ -272,36 +88,45 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
           </span>
         )}
       </div>
+
       {product.image_url && (
-        <div className="w-full overflow-hidden">
-          <AdaptiveImage
-            src={product.image_url} 
-            alt={product.name}
-            className="aspect-[4/4.1] w-full object-cover object-center sm:aspect-[4/4.35] lg:h-[26rem] lg:aspect-auto"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        <Link to={`/shop/${product.catalogKey}`} className="block w-full overflow-hidden">
+          <img
+            src={product.image_url}
+            alt={`Queen Koba ${product.name}${product.subtitle ? ` - ${product.subtitle}` : ""}`}
+            className="h-80 w-full object-cover md:h-[24rem] lg:h-[26rem]"
+            loading="lazy"
+            decoding="async"
           />
-        </div>
+        </Link>
       )}
 
-      <div className="flex flex-1 flex-col p-6 md:p-7">
-        <h3 className="font-display text-xl md:text-2xl font-semibold mb-2">{product.name}</h3>
-        <p className="text-sm text-muted-foreground font-body mb-4 leading-relaxed whitespace-pre-line">{product.description}</p>
+      <div className="flex flex-1 flex-col p-8">
+        <Link to={`/shop/${product.catalogKey}`} className="transition-colors hover:text-primary">
+          <h3 className="mb-2 font-display text-xl font-semibold md:text-2xl">{product.name}</h3>
+        </Link>
+        <p className="mb-4 whitespace-pre-line text-sm font-body leading-relaxed text-muted-foreground">
+          {product.description}
+        </p>
+
         {product.bundle_message && (
           <p className="mb-4 text-xs font-body uppercase tracking-[0.22em] text-primary">
             {product.bundle_message}
           </p>
         )}
 
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <div className="flex">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
-                className={`w-4 h-4 ${i < Math.floor(rating) ? "text-primary fill-primary" : "text-muted-foreground/30"}`}
+                className={`w-4 h-4 ${
+                  i < Math.floor(rating) ? "fill-primary text-primary" : "text-muted-foreground/30"
+                }`}
               />
             ))}
           </div>
-          <span className="text-xs text-muted-foreground font-body">
+          <span className="text-xs font-body text-muted-foreground">
             {rating}/5 ({reviews} reviews)
           </span>
         </div>
@@ -312,55 +137,62 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
           </p>
         )}
 
-        {product.isBundle && !network.isSlow && <BundleCountdown />}
+        <Link
+          to={`/shop/${product.catalogKey}`}
+          className="mb-4 inline-flex items-center gap-2 text-xs font-body font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:text-primary/80"
+        >
+          View details
+        </Link>
 
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-border/50 pt-4">
-        <div>
-          {discount > 0 ? (
-            <div>
-              <span className="font-display text-lg line-through text-muted-foreground mr-2">
-                KSh {price.toLocaleString()}
-              </span>
-              <span className="font-display text-2xl font-semibold text-red-600">
-                KSh {Math.round(discountedPrice).toLocaleString()}
-              </span>
-            </div>
-          ) : (
-            <span className="font-display text-2xl font-semibold text-primary">
-              KSh {price.toLocaleString()}
-            </span>
-          )}
-        </div>
+        {product.isBundle && <BundleCountdown />}
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center border border-border rounded-sm">
-            <button
-              onClick={() => setQty(Math.max(1, qty - 1))}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Decrease quantity"
-            >
-              <Minus className="w-3 h-3" />
-            </button>
-            <span className="px-3 text-sm font-body">{qty}</span>
-            <button
-              onClick={() => setQty(qty + 1)}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Increase quantity"
-            >
-              <Plus className="w-3 h-3" />
-            </button>
+        <div className="mt-auto flex items-end justify-between gap-4 border-t border-border/50 pt-4">
+          <div>
+            {compareAtPrice ? (
+              <div>
+                <span className="mr-2 font-display text-lg text-muted-foreground line-through">
+                  {formatCurrency(compareAtPrice)}
+                </span>
+                <span className="font-display text-2xl font-semibold text-red-600">
+                  {formatCurrency(displayPrice)}
+                </span>
+              </div>
+            ) : (
+              <span className="font-display text-2xl font-semibold text-primary">
+                {formatCurrency(displayPrice)}
+              </span>
+            )}
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gold-gradient text-primary-foreground font-body text-xs font-bold tracking-widest uppercase rounded-sm hover:opacity-90 transition-opacity"
-            disabled={!product.in_stock}
-          >
-            <ShoppingBag className="w-4 h-4" />
-            {product.in_stock ? product.cta_label || "Add to Cart" : "Out of Stock"}
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center rounded-sm border border-border">
+              <button
+                onClick={() => setQty(Math.max(1, qty - 1))}
+                className="p-2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="px-3 text-sm font-body">{qty}</span>
+              <button
+                onClick={() => setQty(qty + 1)}
+                className="p-2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Increase quantity"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+
+            <button
+              onClick={handleAddToCart}
+              className="flex items-center gap-2 rounded-sm bg-gold-gradient px-5 py-2.5 text-xs font-body font-bold uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+              disabled={!product.in_stock}
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {product.in_stock ? product.cta_label || "Add to Cart" : "Out of Stock"}
+            </button>
+          </div>
         </div>
-      </div>
       </div>
     </motion.div>
   );
@@ -368,159 +200,73 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
 
 const ProductStore = () => {
   const ref = useRef(null);
-  const network = useNetworkQuality();
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const [products, setProducts] = useState<StoreProduct[]>(fallbackStoreProducts);
   const [loading, setLoading] = useState(true);
-  const [loadingAllProducts, setLoadingAllProducts] = useState(false);
-  const [loadedFullCatalog, setLoadedFullCatalog] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    productsAPI.getAll({
-      lite: network.liteMode,
-      limit: network.isSlow ? 4 : undefined,
-      cacheTtlMs: network.isSlow ? 1000 * 60 * 15 : 1000 * 60 * 5,
-    })
-      .then(data => {
+    productsAPI
+      .getAll()
+      .then((data) => {
         const apiProducts = Array.isArray(data.products)
           ? data.products
               .map(mapApiProduct)
               .filter((product): product is StoreProduct => product !== null)
           : [];
 
-        if (apiProducts.length === 0) {
-          if (!cancelled) {
-            setProducts(fallbackStoreProducts);
-            setLoadedFullCatalog(!network.isSlow);
-            setLoading(false);
-          }
-          return;
-        }
-
-        const orderedCatalog = catalogOrder
-          .map((key) => apiProducts.find((product) => product.catalogKey === key) ?? canonicalProductsByKey[key])
-          .filter((product): product is StoreProduct => Boolean(product));
-        const extraProducts = apiProducts.filter(
-          (product) => !catalogOrder.includes(product.catalogKey as (typeof catalogOrder)[number]),
-        );
-
         if (!cancelled) {
-          setProducts([...orderedCatalog, ...extraProducts]);
-          setLoadedFullCatalog(!network.isSlow || !data?.lite);
+          setProducts(apiProducts.length > 0 ? orderCatalogProducts(apiProducts) : fallbackStoreProducts);
           setLoading(false);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setProducts(fallbackStoreProducts);
-          setLoadedFullCatalog(true);
           setLoading(false);
         }
       });
+
     return () => {
       cancelled = true;
     };
-  }, [network.isSlow, network.liteMode]);
-
-  const handleLoadFullCatalog = async () => {
-    setLoadingAllProducts(true);
-
-    try {
-      const data = await productsAPI.getAll({
-        lite: false,
-        cacheTtlMs: 1000 * 60 * 5,
-      });
-      const apiProducts = Array.isArray(data.products)
-        ? data.products
-            .map(mapApiProduct)
-            .filter((product): product is StoreProduct => product !== null)
-        : [];
-
-      if (apiProducts.length > 0) {
-        const orderedCatalog = catalogOrder
-          .map((key) => apiProducts.find((product) => product.catalogKey === key) ?? canonicalProductsByKey[key])
-          .filter((product): product is StoreProduct => Boolean(product));
-        const extraProducts = apiProducts.filter(
-          (product) => !catalogOrder.includes(product.catalogKey as (typeof catalogOrder)[number]),
-        );
-
-        setProducts([...orderedCatalog, ...extraProducts]);
-      }
-
-      setLoadedFullCatalog(true);
-    } finally {
-      setLoadingAllProducts(false);
-    }
-  };
-
-  const visibleProducts =
-    network.isSlow && !loadedFullCatalog
-      ? products.slice(0, network.initialProductCount)
-      : products;
+  }, []);
 
   return (
-    <section id="shop" className="py-12 md:py-14 lg:py-16">
+    <section id="shop" className="py-8 md:py-10 lg:py-12">
       <div className="container mx-auto px-4" ref={ref}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="mb-10 text-center md:mb-12"
+          className="mb-8 text-center md:mb-10"
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-primary font-body mb-4">The Collection</p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light">
+          <p className="mb-4 font-body text-sm uppercase tracking-[0.3em] text-primary">
+            The Collection
+          </p>
+          <h2 className="font-display text-4xl font-light md:text-5xl lg:text-6xl">
             Shop <span className="italic text-gold-gradient">Queen Koba</span>
           </h2>
         </motion.div>
 
         {loading ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: network.initialProductCount }).map((_, index) => (
-              <div
-                key={index}
-                className="luxury-card overflow-hidden p-0"
-              >
-                <div className="aspect-[4/4.1] w-full bg-secondary/35 sm:aspect-[4/4.35] lg:h-[26rem]" />
-                <div className="space-y-3 p-6 md:p-7">
-                  <div className="h-4 w-28 rounded-full bg-secondary/30" />
-                  <div className="h-7 w-4/5 rounded-full bg-secondary/40" />
-                  <div className="h-4 w-full rounded-full bg-secondary/30" />
-                  <div className="h-4 w-5/6 rounded-full bg-secondary/30" />
-                  <div className="h-10 w-36 rounded-sm bg-secondary/35" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="py-12 text-center">Loading products...</div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {visibleProducts.filter(Boolean).map((product, i) => (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+              {products.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
             </div>
 
-            {network.isSlow && !loadedFullCatalog && products.length > network.initialProductCount && (
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => void handleLoadFullCatalog()}
-                  disabled={loadingAllProducts}
-                  className="rounded-sm border border-primary/20 px-6 py-3 text-xs font-body font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary/5 disabled:opacity-60"
-                >
-                  {loadingAllProducts ? "Loading More..." : "Load Full Collection"}
-                </button>
-              </div>
-            )}
-
             <motion.div
-              initial={network.animationEnabled ? { opacity: 0, y: 24 } : false}
-              animate={network.animationEnabled && inView ? { opacity: 1, y: 0 } : {}}
+              initial={{ opacity: 0, y: 24 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.35, duration: 0.6 }}
               className="mt-8 rounded-sm border border-primary/20 bg-background px-6 py-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.06)] md:mt-10"
             >
-              <p className="mx-auto max-w-4xl text-sm leading-7 text-muted-foreground font-body">
+              <p className="mx-auto max-w-4xl text-sm font-body leading-7 text-muted-foreground">
                 Results vary; gentle and natural - patch test recommended. 100% toxin-free
                 (no mercury, hydroquinone, steroids). Dermatologist-inspired for melanin-rich
                 skin. Your safety is our promise.

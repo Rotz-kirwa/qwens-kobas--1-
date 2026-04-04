@@ -7,7 +7,7 @@ export const products: Product[] = [
     price: 1899,
     rating: 4.8,
     reviews: 87,
-    description: "Erase impurities without stripping moisture. African botanicals gently clarify and prep skin for brighter tone. Feel fresh, confident, and ready to glow.",
+    description: "Brightening face cleanser for dull skin, buildup, and uneven skin tone. African botanicals gently clarify and prep melanin-rich skin for toner, serum, and moisturizer without stripping moisture.",
     image: "https://www.dropbox.com/scl/fi/4tulvx5wuscmhcrvls4tg/sp2.jpeg?rlkey=6lr1shzfkfy14xcl6d7zhqxmd&st=uec69ia4&raw=1",
   },
   {
@@ -16,7 +16,7 @@ export const products: Product[] = [
     price: 1999,
     rating: 4.7,
     reviews: 64,
-    description: "Mist away dullness and balance tone with licorice root and aloe. Soothes instantly and reveals even radiance. Your daily step to luminous skin.",
+    description: "Brightening toner for dark spots, uneven skin tone, and post-blemish marks. Licorice root and aloe help refresh, hydrate, and support a more even-looking glow for melanin-rich skin.",
     image: "https://www.dropbox.com/scl/fi/akek115wovbezb0m923q0/sp3.jpeg?rlkey=w25aqom0rmq40uwmqse84cawb&st=vb6mzc2a&raw=1",
   },
   {
@@ -25,7 +25,7 @@ export const products: Product[] = [
     price: 2499,
     rating: 4.9,
     reviews: 112,
-    description: "Target dark spots and hyperpigmentation with liwa and moringa. Fade unevenness and unlock up to 2 shades brighter glow. Feel empowered and radiant.",
+    description: "Dark spot corrector serum for hyperpigmentation, post-acne marks, and uneven skin tone. Liwa and moringa help melanin-rich skin look brighter, clearer, and more even with consistent use.",
     image: "https://www.dropbox.com/scl/fi/ydx5ia5xvcblz5a7d8ty2/sp4.jpeg?rlkey=jy5lypf5j1csv88fy7s33pte9&st=r8air5om&raw=1",
   },
   {
@@ -34,7 +34,7 @@ export const products: Product[] = [
     price: 2399,
     rating: 4.8,
     reviews: 95,
-    description: "Deeply hydrate and plump with shea and snail mucin. Lock in brightness, smooth texture, and boost lasting confidence.",
+    description: "Skin brightening cream for uneven skin tone, dryness, and dull skin. Shea and snail mucin help lock in hydration while supporting a smoother, more radiant-looking complexion.",
     image: "https://www.dropbox.com/scl/fi/bparrxju6nzi3y816yoc7/sp5.jpeg?rlkey=mae29d7hd4dq88lj4hlvf8fju&st=yqb89dwv&raw=1",
   },
   {
@@ -43,7 +43,7 @@ export const products: Product[] = [
     price: 1499,
     rating: 4.8,
     reviews: 76,
-    description: "Weekly reset: Qasil + aloe clarify and brighten, reduce dullness for high-end glow. Pamper yourself to self-love.",
+    description: "Face brightening mask for dull skin, buildup, and uneven tone. Qasil and aloe help clarify, soften, and refresh skin as part of a weekly glow-focused routine.",
     image: "https://www.dropbox.com/scl/fi/srxgy8id5smigxy8vtepg/sp6.jpeg?rlkey=4s4p1hq245l9htmf3952f0xnb&st=9jgl6wjw&raw=1",
   },
   {
@@ -52,7 +52,7 @@ export const products: Product[] = [
     price: 9999,
     rating: 5.0,
     reviews: 200,
-    description: "Mask, toner, serum, cream, and cleanser together in one complete routine. The full kit for brighter, even, melanin-safe radiance.",
+    description: "Complete skincare kit for hyperpigmentation, dark spots, and glowing skin. Includes cleanser, toner, serum, cream, and mask for a full routine designed for melanin-rich skin.",
     isBundle: true,
     image: "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1",
   },

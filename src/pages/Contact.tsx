@@ -71,10 +71,10 @@ const Contact = () => {
   return (
     <div className="min-h-screen pt-24 pb-20">
       <SEO
-        title="Contact"
-        description="Contact Queen Koba for skincare questions, product support, and help choosing the right routine for melanin-rich skin."
+        title="Contact Queen Koba | Skincare Support in Nairobi, Kenya"
+        description="Contact Queen Koba for skincare support in Nairobi, Kenya, including help with hyperpigmentation routines, product questions, delivery, and melanin-rich skin care."
         path="/contact"
-        keywords="contact Queen Koba, skincare support Kenya, Queen Koba help"
+        keywords="contact Queen Koba, skincare support Kenya, Nairobi skincare support, Queen Koba help"
       />
       <div className="container mx-auto px-4 max-w-6xl">
         <motion.div
@@ -88,7 +88,7 @@ const Contact = () => {
             Contact <span className="italic text-gold-gradient">Queen Koba</span>
           </h1>
           <p className="text-muted-foreground font-body max-w-2xl mx-auto">
-            Have questions about our products? We're here to help you on your journey to radiant, healthy skin.
+            Have questions about Queen Koba products, delivery, or routines for dark spots and melanin-rich skin? Our Nairobi-based support experience is here to help.
           </p>
         </motion.div>
 

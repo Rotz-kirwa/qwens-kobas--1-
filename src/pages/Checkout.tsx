@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
@@ -689,7 +690,7 @@ const Checkout = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen overflow-x-hidden pb-20 pt-32">
+      <div className="min-h-screen overflow-x-hidden bg-[#f8f5ef] pb-20 pt-32">
         <SEO
           title="Checkout"
           description="Complete your Queen Koba order."
@@ -710,7 +711,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-secondary/20 pb-20 pt-24">
+    <div className="min-h-screen overflow-x-hidden bg-[#f8f5ef] pb-20 pt-24">
       <SEO
         title="Checkout"
         description="Secure checkout for Queen Koba skincare orders."
@@ -718,7 +719,7 @@ const Checkout = () => {
         robots="noindex,nofollow"
       />
 
-      <div className="container mx-auto max-w-6xl overflow-x-hidden px-4">
+      <div className="container mx-auto max-w-7xl overflow-x-hidden px-4">
         <button
           onClick={() => navigate(-1)}
           className="mb-8 flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
@@ -728,10 +729,38 @@ const Checkout = () => {
         </button>
 
         <div className="space-y-6">
+          <div className="rounded-[32px] border border-[#eadfce] bg-[linear-gradient(180deg,#fffaf3_0%,#f7efe2_100%)] px-6 py-8 shadow-[0_20px_50px_rgba(45,30,12,0.06)] md:px-10">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <div>
+                <p className="text-xs font-body font-semibold uppercase tracking-[0.3em] text-primary/80">
+                  Checkout
+                </p>
+                <h1 className="mt-3 font-display text-4xl font-light leading-tight md:text-5xl">
+                  A cleaner path from <span className="italic text-gold-gradient">bag to payment</span>
+                </h1>
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/76 md:text-base">
+                  This flow now leans more premium and guidance-led: address first, delivery next,
+                  payment after, with a persistent order summary beside each step.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
+                  Secure payment
+                </span>
+                <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
+                  M-Pesa ready
+                </span>
+                <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
+                  Kenya delivery
+                </span>
+              </div>
+            </div>
+          </div>
+
           <CheckoutProgress currentStep={step} steps={[...checkoutSteps]} />
 
-          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
-            <div className="space-y-5 lg:col-span-2 lg:space-y-6">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(20rem,0.82fr)] lg:gap-8">
+            <div className="space-y-5 lg:space-y-6">
               {step === 1 && (
                 <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
                   <CheckoutAddressStep
@@ -798,6 +827,7 @@ const Checkout = () => {
                     paymentMethodType={paymentMethodType}
                     paymentMethodId={normalizePaymentMethodId(paymentMethod)}
                     paymentDetails={paymentDetails}
+                    shippingFee={shippingFee}
                     paymentMessage={paymentMessage}
                     submittingOrder={submittingOrder}
                     onPaymentInputChange={handlePaymentInputChange}
@@ -808,8 +838,8 @@ const Checkout = () => {
               )}
             </div>
 
-            <div className="lg:col-span-1">
-              <aside className="top-24 rounded-[30px] border border-primary/10 bg-card p-5 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:p-8 lg:sticky">
+            <div>
+              <aside className="top-24 rounded-[32px] border border-[#eadfce] bg-white p-5 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:p-8 lg:sticky">
                 <div className="border-b border-border/80 pb-5">
                   <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-primary/80">
                     Secure Checkout
@@ -825,8 +855,20 @@ const Checkout = () => {
                   {items.map((item) => (
                     <div
                       key={item.product.id}
-                      className="flex gap-3 border-b border-border/50 pb-4 sm:gap-4"
+                      className="grid grid-cols-[4.5rem_minmax(0,1fr)_auto] gap-3 border-b border-border/50 pb-4 sm:gap-4"
                     >
+                      <div className="overflow-hidden rounded-[18px] bg-secondary/20">
+                        {item.product.image ? (
+                          <AdaptiveImage
+                            src={item.product.image}
+                            alt={item.product.name}
+                            className="aspect-square w-full object-cover object-center"
+                            sizes="72px"
+                          />
+                        ) : (
+                          <div className="aspect-square w-full bg-secondary/30" />
+                        )}
+                      </div>
                       <div className="min-w-0 flex-1">
                         <h4 className="font-display text-sm font-semibold text-foreground">
                           {item.product.name}
@@ -861,6 +903,25 @@ const Checkout = () => {
                     {deliverySelection.method === "door" ? "Door delivery" : "Pickup station"} ·{" "}
                     {deliverySelection.eta}
                   </p>
+                </div>
+
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm">
+                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
+                      Delivery fee
+                    </p>
+                    <p className="mt-2 font-display text-2xl text-foreground">
+                      {formatCurrency(shippingFee)}
+                    </p>
+                  </div>
+                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm">
+                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
+                      Final total
+                    </p>
+                    <p className="mt-2 font-display text-2xl text-foreground">
+                      {formatCurrency(grandTotal)}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="mt-5 space-y-3 border-t border-border pt-5">

@@ -18,12 +18,16 @@ const Navbar = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "Shop", href: "/shop" },
+    { label: "Blog", href: "/blog" },
     { label: "Results", href: "/results" },
     { label: "Our Story", href: "/story" },
     { label: "Contact", href: "/contact" },
   ];
 
-  const isActive = (href: string) => location.pathname === href;
+  const isActive = (href: string) =>
+    href === "/"
+      ? location.pathname === href
+      : location.pathname === href || location.pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     setMobileOpen(false);

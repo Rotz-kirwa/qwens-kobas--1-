@@ -5,10 +5,10 @@ const Ingredients = () => {
   return (
     <main className="pt-20">
       <SEO
-        title="Ingredients"
-        description="Explore the African botanicals and active ingredients behind Queen Koba skincare, including qasil, aloe, moringa, shea, and snail mucin."
+        title="African Botanical Ingredients for Brightening Skincare | Queen Koba"
+        description="Explore Queen Koba African botanical skincare ingredients, including qasil, aloe, moringa, licorice root, shea, and snail mucin for glow and uneven skin tone support."
         path="/ingredients"
-        keywords="Queen Koba ingredients, qasil, aloe, moringa skincare, African botanicals"
+        keywords="African botanical skincare, Queen Koba ingredients, qasil, aloe, moringa skincare, licorice root skincare"
       />
       <IngredientsSpotlight />
     </main>
