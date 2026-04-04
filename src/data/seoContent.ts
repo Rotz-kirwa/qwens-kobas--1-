@@ -45,6 +45,7 @@ export const productSeoByKey: Record<string, ProductSeoContent> = {
       },
     ],
     relatedArticleSlugs: [
+      "best-brightening-cleanser-for-dull-skin-in-kenya",
       "best-skincare-routine-for-hyperpigmentation",
       "how-to-build-a-skincare-routine-for-melanin-skin",
     ],
@@ -83,6 +84,7 @@ export const productSeoByKey: Record<string, ProductSeoContent> = {
       },
     ],
     relatedArticleSlugs: [
+      "why-use-a-brightening-toner-for-dark-spots",
       "best-skincare-routine-for-hyperpigmentation",
       "natural-ingredients-that-help-fade-hyperpigmentation",
     ],
@@ -161,6 +163,7 @@ export const productSeoByKey: Record<string, ProductSeoContent> = {
       },
     ],
     relatedArticleSlugs: [
+      "how-a-skin-brightening-cream-supports-even-tone",
       "safe-alternatives-to-bleaching-creams",
       "how-to-build-a-skincare-routine-for-melanin-skin",
     ],
@@ -199,6 +202,7 @@ export const productSeoByKey: Record<string, ProductSeoContent> = {
       },
     ],
     relatedArticleSlugs: [
+      "why-a-weekly-face-mask-helps-dull-skin-and-buildup",
       "how-to-remove-dark-spots-naturally",
       "african-botanical-ingredients-for-glowing-skin",
     ],
@@ -237,6 +241,7 @@ export const productSeoByKey: Record<string, ProductSeoContent> = {
       },
     ],
     relatedArticleSlugs: [
+      "complete-skincare-routine-kit-for-hyperpigmentation",
       "best-skincare-routine-for-hyperpigmentation",
       "best-skincare-products-in-kenya-for-dark-spots",
       "safe-alternatives-to-bleaching-creams",

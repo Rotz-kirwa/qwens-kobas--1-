@@ -10,13 +10,43 @@ import {
   featuredBlogSlugs,
   getBlogPostsByCategory,
   homeConcernCards,
+  type BlogPost,
 } from "@/data/siteSeo";
+
+const dedupePostsBySlug = (posts: BlogPost[]) => {
+  const seen = new Set<string>();
+
+  return posts.filter((post) => {
+    if (seen.has(post.slug)) {
+      return false;
+    }
+
+    seen.add(post.slug);
+    return true;
+  });
+};
 
 const Blog = () => {
   const { categorySlug } = useParams();
   const activeCategory = blogCategories.find((category) => category.slug === categorySlug);
-  const visiblePosts = getBlogPostsByCategory(activeCategory?.slug);
-  const featuredPosts = blogPosts.filter((post) => featuredBlogSlugs.includes(post.slug as (typeof featuredBlogSlugs)[number]));
+  const featuredPosts = dedupePostsBySlug(
+    blogPosts.filter((post) => {
+      if (!featuredBlogSlugs.includes(post.slug as (typeof featuredBlogSlugs)[number])) {
+        return false;
+      }
+
+      if (activeCategory) {
+        return post.categorySlug === activeCategory.slug;
+      }
+
+      return true;
+    }),
+  );
+  const featuredPostSlugs = new Set(featuredPosts.map((post) => post.slug));
+  const visiblePosts = dedupePostsBySlug(getBlogPostsByCategory(activeCategory?.slug)).filter(
+    (post) => !featuredPostSlugs.has(post.slug),
+  );
+  const heroImage = featuredPosts[0]?.heroImage || visiblePosts[0]?.heroImage;
 
   return (
     <main className="min-h-screen bg-background pb-16 pt-24 md:pb-20">
@@ -32,7 +62,7 @@ const Blog = () => {
             : "Read Queen Koba blog guides on hyperpigmentation treatment, dark spots, melanin-rich skin, natural skincare, African botanicals, and skincare products in Kenya."
         }
         path={activeCategory ? `/blog/category/${activeCategory.slug}` : "/blog"}
-        image={featuredPosts[0]?.heroImage}
+        image={heroImage}
         keywords="hyperpigmentation blog, dark spots skincare articles, melanin skin care blog, skincare products Kenya, African botanical skincare blog"
         structuredData={{
           "@context": "https://schema.org",
@@ -90,50 +120,54 @@ const Blog = () => {
         </div>
       </section>
 
-      <section className="py-8 md:py-10">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.28em] text-primary">Featured Articles</p>
-            <h2 className="mt-4 font-display text-3xl font-light md:text-4xl">
-              Start with the highest-impact content clusters
-            </h2>
-          </div>
+      {featuredPosts.length > 0 ? (
+        <section className="py-8 md:py-10">
+          <div className="container mx-auto px-4">
+            <div className="mb-8 max-w-3xl">
+              <p className="text-sm uppercase tracking-[0.28em] text-primary">Featured Articles</p>
+              <h2 className="mt-4 font-display text-3xl font-light md:text-4xl">
+                {activeCategory
+                  ? `Featured ${activeCategory.name.toLowerCase()} reads`
+                  : "Start with the highest-impact content clusters"}
+              </h2>
+            </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {featuredPosts.map((post) => (
-              <article
-                key={post.slug}
-                className="rounded-[26px] border border-border/70 bg-card p-6 shadow-[0_16px_36px_rgba(24,17,8,0.06)]"
-              >
-                <Link to={post.path} className="mb-5 block overflow-hidden rounded-[20px]">
-                  <AdaptiveImage
-                    src={post.heroImage}
-                    alt={post.heroImageAlt}
-                    className="aspect-[4/3] w-full object-cover object-center transition-transform duration-500 hover:scale-[1.02]"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                </Link>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">
-                  {blogCategories.find((category) => category.slug === post.categorySlug)?.name || "Blog"}
-                </p>
-                <h3 className="mt-3 font-display text-2xl font-light text-foreground">{post.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
-                <div className="mt-5 flex items-center justify-between gap-4 text-xs uppercase tracking-[0.16em] text-primary/75">
-                  <span>{post.readTime}</span>
-                  <span>{post.updatedAt}</span>
-                </div>
-                <Link
-                  to={post.path}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80"
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {featuredPosts.map((post) => (
+                <article
+                  key={post.slug}
+                  className="rounded-[26px] border border-border/70 bg-card p-6 shadow-[0_16px_36px_rgba(24,17,8,0.06)]"
                 >
-                  Read article
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </article>
-            ))}
+                  <Link to={post.path} className="mb-5 block overflow-hidden rounded-[20px]">
+                    <AdaptiveImage
+                      src={post.heroImage}
+                      alt={post.heroImageAlt}
+                      className="aspect-[4/3] w-full object-cover object-center transition-transform duration-500 hover:scale-[1.02]"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
+                  </Link>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">
+                    {blogCategories.find((category) => category.slug === post.categorySlug)?.name || "Blog"}
+                  </p>
+                  <h3 className="mt-3 font-display text-2xl font-light text-foreground">{post.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
+                  <div className="mt-5 flex items-center justify-between gap-4 text-xs uppercase tracking-[0.16em] text-primary/75">
+                    <span>{post.readTime}</span>
+                    <span>{post.updatedAt}</span>
+                  </div>
+                  <Link
+                    to={post.path}
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80"
+                  >
+                    Read article
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </article>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <section className="py-8 md:py-10">
         <div className="container mx-auto px-4">
@@ -144,38 +178,46 @@ const Blog = () => {
             </h2>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {visiblePosts.map((post) => (
-              <article
-                key={post.slug}
-                className="rounded-[26px] border border-border/70 bg-card p-6 shadow-[0_16px_36px_rgba(24,17,8,0.06)]"
-              >
-                <Link to={post.path} className="mb-5 block overflow-hidden rounded-[20px]">
-                  <AdaptiveImage
-                    src={post.heroImage}
-                    alt={post.heroImageAlt}
-                    className="aspect-[4/3] w-full object-cover object-center transition-transform duration-500 hover:scale-[1.02]"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                </Link>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">
-                  {blogCategories.find((category) => category.slug === post.categorySlug)?.name || "Blog"}
-                </p>
-                <h3 className="mt-3 font-display text-2xl font-light text-foreground">{post.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">{post.metaDescription}</p>
-                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  {post.readTime} · Updated {post.updatedAt}
-                </p>
-                <Link
-                  to={post.path}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80"
+          {visiblePosts.length > 0 ? (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {visiblePosts.map((post) => (
+                <article
+                  key={post.slug}
+                  className="rounded-[26px] border border-border/70 bg-card p-6 shadow-[0_16px_36px_rgba(24,17,8,0.06)]"
                 >
-                  Read article
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </article>
-            ))}
-          </div>
+                  <Link to={post.path} className="mb-5 block overflow-hidden rounded-[20px]">
+                    <AdaptiveImage
+                      src={post.heroImage}
+                      alt={post.heroImageAlt}
+                      className="aspect-[4/3] w-full object-cover object-center transition-transform duration-500 hover:scale-[1.02]"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
+                  </Link>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">
+                    {blogCategories.find((category) => category.slug === post.categorySlug)?.name || "Blog"}
+                  </p>
+                  <h3 className="mt-3 font-display text-2xl font-light text-foreground">{post.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{post.metaDescription}</p>
+                  <p className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    {post.readTime} · Updated {post.updatedAt}
+                  </p>
+                  <Link
+                    to={post.path}
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80"
+                  >
+                    Read article
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[26px] border border-border/70 bg-card p-6 text-sm leading-7 text-muted-foreground shadow-[0_16px_36px_rgba(24,17,8,0.06)]">
+              {featuredPosts.length > 0
+                ? "The remaining articles in this view are already shown above."
+                : "No articles are available in this category yet."}
+            </div>
+          )}
         </div>
       </section>
 

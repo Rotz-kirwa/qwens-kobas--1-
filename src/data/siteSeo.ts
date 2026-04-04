@@ -1015,8 +1015,9 @@ export const blogPosts: BlogPost[] = [
       "Learn how to remove dark spots naturally with Queen Koba. Explore gentle brightening skincare, barrier-safe routines, and ingredient tips for melanin-rich skin.",
     excerpt:
       "A realistic guide to fading dark spots naturally with brightening skincare, consistency, and ingredient awareness.",
-    heroImage: BLOG_IMAGE_LIBRARY.serum,
-    heroImageAlt: "Queen Koba dark spot serum for natural brightening and uneven skin tone support",
+    heroImage: BLOG_IMAGE_LIBRARY.results,
+    heroImageAlt:
+      "Visible dark spots support and brighter-looking skin journey with the Queen Koba routine",
     categorySlug: "dark-spots",
     keywords: [
       "how to remove dark spots naturally",
@@ -1524,6 +1525,446 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: "best-brightening-cleanser-for-dull-skin-in-kenya",
+    path: "/blog/best-brightening-cleanser-for-dull-skin-in-kenya",
+    title: "Best Brightening Cleanser for Dull Skin and Uneven Tone in Kenya",
+    metaDescription:
+      "Looking for the best brightening cleanser in Kenya? Learn how Queen Koba's Complexion Clarifying Cleanser supports dull skin, uneven tone, and melanin-rich skin without stripping moisture.",
+    excerpt:
+      "A product-led blog article built around cleanser-intent searches, routine education, and local SEO for shoppers in Kenya.",
+    heroImage: BLOG_IMAGE_LIBRARY.cleanser,
+    heroImageAlt:
+      "Queen Koba Complexion Clarifying Cleanser for dull skin, uneven tone, and melanin-rich skin in Kenya",
+    categorySlug: "kenya-skincare",
+    keywords: [
+      "best brightening cleanser in Kenya",
+      "brightening face cleanser",
+      "face cleanser for dull skin",
+      "cleanser for uneven skin tone",
+      "melanin skincare products",
+    ],
+    readTime: "6 min read",
+    publishedAt: "2026-04-04",
+    updatedAt: "2026-04-04",
+    heroEyebrow: "Cleanser Buyer Guide",
+    localAngle:
+      "Built for Kenya-based shoppers who want a cleanser that brightens gently, supports the barrier, and fits a full dark-spot routine.",
+    sections: [
+      {
+        heading: "Why your cleanser shapes the rest of the routine",
+        paragraphs: [
+          "Many shoppers focus on serums first, but the cleanser sets the tone for everything that follows. If cleansing leaves skin tight or irritated, the rest of the routine becomes harder to tolerate consistently.",
+          "For melanin-rich skin dealing with dullness and uneven tone, the best brightening cleanser should remove buildup while keeping the barrier calm enough for toner, serum, and moisturizer.",
+        ],
+      },
+      {
+        heading: "What to look for in a brightening face cleanser",
+        paragraphs: [
+          "The right cleanser should feel purposeful without acting harsh. That means clear positioning around dull skin, daily buildup, and uneven tone, plus a role inside a complete routine rather than a stand-alone miracle claim.",
+          "Queen Koba's Complexion Clarifying Cleanser works well in this search space because it is easy to understand: daily cleansing, prep for treatment, and support for melanin-rich skin.",
+        ],
+        bullets: [
+          "Daily use without stripped-skin discomfort",
+          "Clear fit inside a dark spot or glow-focused routine",
+          "Messaging that supports melanin-rich skin needs",
+        ],
+      },
+      {
+        heading: "How the Queen Koba cleanser fits a glow routine",
+        paragraphs: [
+          "Use the cleanser morning and evening to remove oil, sunscreen, and the day's buildup before applying toner and serum. That keeps the routine structured and easier to repeat.",
+          "It is especially helpful for shoppers who want a brightening start to the routine without jumping straight into aggressive treatment language.",
+        ],
+      },
+      {
+        heading: "Why this cleanser content helps SEO",
+        paragraphs: [
+          "A cleanser article gives Queen Koba a dedicated place to target searches for brightening face cleanser, dull skin treatment, and cleanser-led product discovery in Kenya.",
+          "That improves relevance for product-level queries while also strengthening internal links to the toner, serum, and full routine bundle.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can a cleanser help with dull skin and uneven tone?",
+        answer:
+          "Yes. A cleanser supports brighter-looking skin by removing buildup consistently and preparing the face for toner, serum, moisturizer, and sunscreen.",
+      },
+      {
+        question: "Who should buy the Queen Koba cleanser first?",
+        answer:
+          "It is a strong first step for shoppers with dull skin, uneven tone, or a routine that currently feels heavy, inconsistent, or unclear.",
+      },
+    ],
+    relatedProductKeys: ["new-cleanser", "new-toner", "new-bundle"],
+    relatedArticleSlugs: [
+      "best-skincare-routine-for-hyperpigmentation",
+      "how-to-build-a-skincare-routine-for-melanin-skin",
+      "best-skincare-products-in-kenya-for-dark-spots",
+    ],
+    relatedPageLinks: [
+      {
+        eyebrow: "Shop Product",
+        title: "Complexion Clarifying Cleanser",
+        description: "See the cleanser product page and how it fits the Queen Koba ritual.",
+        to: "/shop/new-cleanser",
+        ctaLabel: "Shop cleanser",
+      },
+    ],
+  },
+  {
+    slug: "why-use-a-brightening-toner-for-dark-spots",
+    path: "/blog/why-use-a-brightening-toner-for-dark-spots",
+    title: "Why Use a Brightening Toner for Dark Spots and Uneven Skin Tone",
+    metaDescription:
+      "Discover why a brightening toner matters for dark spots, post-blemish marks, and uneven tone. Learn how Queen Koba's Brightening Toner supports melanin-rich skin and prepares it for serum.",
+    excerpt:
+      "A toner-focused blog article for shoppers who want to understand what this step does, why it matters, and how it improves routine consistency.",
+    heroImage: BLOG_IMAGE_LIBRARY.toner,
+    heroImageAlt:
+      "Queen Koba Brightening Toner for dark spots, uneven tone, and glow-focused skincare routines",
+    categorySlug: "dark-spots",
+    keywords: [
+      "brightening toner for dark spots",
+      "toner for uneven skin tone",
+      "toner for post blemish marks",
+      "brightening toner",
+      "dark spots treatment",
+    ],
+    readTime: "5 min read",
+    publishedAt: "2026-04-04",
+    updatedAt: "2026-04-04",
+    heroEyebrow: "Toner Education",
+    localAngle:
+      "Designed for shoppers in Kenya comparing whether a toner is worth buying as part of a dark-spot routine.",
+    sections: [
+      {
+        heading: "Why toner is often misunderstood",
+        paragraphs: [
+          "A toner is not just an extra splash between cleansing and serum. In a well-built routine, it refreshes the skin, adds hydration, and makes the transition into treatment feel smoother.",
+          "That matters for melanin-rich skin because barrier comfort and routine consistency often influence how well brightening products fit into daily life.",
+        ],
+      },
+      {
+        heading: "What a brightening toner should help you do",
+        paragraphs: [
+          "A good toner helps reset the skin after cleansing, supports a more even-looking finish, and prepares the face for the targeted serum step. It should feel useful, not decorative.",
+          "Queen Koba's Brightening Toner is strongest when positioned as the glow-prep layer between cleansing and treatment.",
+        ],
+        bullets: [
+          "Refresh after cleansing",
+          "Layer well under serum",
+          "Support hydration and routine comfort",
+        ],
+      },
+      {
+        heading: "Who benefits most from the Queen Koba toner",
+        paragraphs: [
+          "This product suits shoppers dealing with dark spots, uneven tone, and post-blemish marks who want a routine that feels more polished and more complete.",
+          "It also helps people who already have a serum but need a better support step to make the full routine feel easier to maintain.",
+        ],
+      },
+      {
+        heading: "SEO value of a toner article",
+        paragraphs: [
+          "Product-level content around toner for dark spots and uneven tone gives Queen Koba a dedicated answer for shoppers searching mid-funnel questions before buying.",
+          "That improves topic depth and reduces the need to force toner messaging into unrelated routine or ingredient articles.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Do I need a toner if I already use a serum?",
+        answer:
+          "Not always, but a toner can make the routine feel more hydrated, balanced, and easier to layer consistently before serum.",
+      },
+      {
+        question: "Is the Queen Koba toner only for dark spots?",
+        answer:
+          "No. It is also useful for dullness, uneven tone, and shoppers who want a more complete glow-focused skincare ritual.",
+      },
+    ],
+    relatedProductKeys: ["new-toner", "new-serum", "new-cleanser"],
+    relatedArticleSlugs: [
+      "best-skincare-routine-for-hyperpigmentation",
+      "natural-ingredients-that-help-fade-hyperpigmentation",
+      "how-to-remove-dark-spots-naturally",
+    ],
+    relatedPageLinks: [
+      {
+        eyebrow: "Shop Product",
+        title: "Brightening Toner",
+        description: "Explore the toner product page and its role in the Queen Koba routine.",
+        to: "/shop/new-toner",
+        ctaLabel: "Shop toner",
+      },
+    ],
+  },
+  {
+    slug: "how-a-skin-brightening-cream-supports-even-tone",
+    path: "/blog/how-a-skin-brightening-cream-supports-even-tone",
+    title: "How a Skin Brightening Cream Supports Even Tone and Daily Hydration",
+    metaDescription:
+      "Learn how a skin brightening cream supports uneven tone, glow, and daily hydration. Discover where Queen Koba's Complexion Clarifying Cream fits in a routine for melanin-rich skin.",
+    excerpt:
+      "A cream-focused blog article that explains why hydration is essential in any brightening routine for dark spots and uneven tone.",
+    heroImage: BLOG_IMAGE_LIBRARY.cream,
+    heroImageAlt:
+      "Queen Koba Complexion Clarifying Cream for uneven tone, hydration, and melanin-rich skincare routines",
+    categorySlug: "melanin-skin",
+    keywords: [
+      "skin brightening cream",
+      "cream for uneven skin tone",
+      "moisturizer for dark spots routine",
+      "hydrating cream for glow",
+      "melanin skincare products",
+    ],
+    readTime: "5 min read",
+    publishedAt: "2026-04-04",
+    updatedAt: "2026-04-04",
+    heroEyebrow: "Cream Guide",
+    localAngle:
+      "Useful for shoppers who understand treatment steps but still need help choosing the right moisturizer for a brightening routine in Kenya.",
+    sections: [
+      {
+        heading: "Brightening routines still need comfort",
+        paragraphs: [
+          "A lot of dark-spot content focuses on treatment actives, but hydration is what keeps the routine usable over time. Without that support, the skin can feel tight, inconsistent, or easily irritated.",
+          "For melanin-rich skin, a brightening cream helps protect the progress made by the rest of the routine rather than acting as an afterthought.",
+        ],
+      },
+      {
+        heading: "What a good brightening cream should do",
+        paragraphs: [
+          "It should lock in moisture, support smoother-looking texture, and work well after serum. It should also feel credible as part of a daily ritual for uneven tone instead of being framed as a separate concern.",
+          "Queen Koba's Complexion Clarifying Cream is strongest when positioned as the daily support step that keeps treatment routines balanced.",
+        ],
+        bullets: [
+          "Hydration that supports routine consistency",
+          "Comfort after serum use",
+          "Glow and softness without heavy confusion",
+        ],
+      },
+      {
+        heading: "Who should buy the Queen Koba cream",
+        paragraphs: [
+          "It suits shoppers dealing with dryness, rough texture, dullness, or uneven tone who want a moisturizer that still belongs inside a brightening routine.",
+          "It is also a strong add-on for customers who already bought the serum and want better routine completion.",
+        ],
+      },
+      {
+        heading: "Why cream content helps conversion and SEO",
+        paragraphs: [
+          "A dedicated article lets Queen Koba rank for cream-specific searches while guiding shoppers from research into purchase with stronger internal links and clearer intent matching.",
+          "It also reduces product duplication because the cream no longer has to borrow relevance from serum or bundle articles.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Is moisturizer really necessary in a dark-spot routine?",
+        answer:
+          "Yes. Moisturizer helps keep the barrier comfortable, which makes it easier to stay consistent with the rest of a brightening routine.",
+      },
+      {
+        question: "Can I use the Queen Koba cream every day?",
+        answer:
+          "Yes. It is designed as a daily moisturizing step after toner and serum in a morning or evening routine.",
+      },
+    ],
+    relatedProductKeys: ["new-cream", "new-serum", "new-bundle"],
+    relatedArticleSlugs: [
+      "safe-alternatives-to-bleaching-creams",
+      "how-to-build-a-skincare-routine-for-melanin-skin",
+      "best-skincare-routine-for-hyperpigmentation",
+    ],
+    relatedPageLinks: [
+      {
+        eyebrow: "Shop Product",
+        title: "Complexion Clarifying Cream",
+        description: "Visit the cream product page and see how it supports hydration and even tone.",
+        to: "/shop/new-cream",
+        ctaLabel: "Shop cream",
+      },
+    ],
+  },
+  {
+    slug: "why-a-weekly-face-mask-helps-dull-skin-and-buildup",
+    path: "/blog/why-a-weekly-face-mask-helps-dull-skin-and-buildup",
+    title: "Why a Weekly Face Mask Helps Dull Skin, Buildup, and Glow Goals",
+    metaDescription:
+      "Find out why a weekly face mask helps dull skin, buildup, and uneven tone. Learn how Queen Koba's Brightening Face Mask supports a glow-focused routine for melanin-rich skin.",
+    excerpt:
+      "A weekly-treatment article that gives the Queen Koba mask its own search-friendly space inside the blog and buying journey.",
+    heroImage: BLOG_IMAGE_LIBRARY.mask,
+    heroImageAlt:
+      "Queen Koba Brightening Face Mask for dull skin, weekly glow support, and melanin-rich skincare rituals",
+    categorySlug: "ingredients",
+    keywords: [
+      "face brightening mask",
+      "weekly face mask for dull skin",
+      "mask for uneven tone",
+      "products for dark spots",
+      "African botanical skincare products",
+    ],
+    readTime: "5 min read",
+    publishedAt: "2026-04-04",
+    updatedAt: "2026-04-04",
+    heroEyebrow: "Weekly Reset",
+    localAngle:
+      "Built for shoppers who want to understand the value of adding a weekly mask instead of relying only on daily treatment products.",
+    sections: [
+      {
+        heading: "Why a weekly step can improve the routine",
+        paragraphs: [
+          "Not every skincare benefit has to come from a daily treatment product. A weekly mask gives the routine a reset point for dullness, buildup, and texture so the rest of the week feels smoother.",
+          "That makes it especially useful for shoppers who already cleanse and moisturize but still want a more visible glow ritual.",
+        ],
+      },
+      {
+        heading: "What a face brightening mask should help with",
+        paragraphs: [
+          "A good weekly mask should help skin feel fresher, softer, and more prepared for the next round of routine steps. It should support the glow story without pretending to replace cleanser, toner, or serum.",
+          "Queen Koba's Brightening Face Mask is best framed as the ritual reset step that keeps dullness and buildup from taking over the routine.",
+        ],
+        bullets: [
+          "Weekly refresh for dull-looking skin",
+          "Support for texture and surface buildup",
+          "Extra glow without harsh bleaching language",
+        ],
+      },
+      {
+        heading: "Who should add the Queen Koba mask",
+        paragraphs: [
+          "It suits shoppers who want a stronger weekly ritual, especially if their skin feels tired, congested, or flat between regular cleanser and serum use.",
+          "It also strengthens the appeal of the full bundle by giving the routine a complete weekly reset step.",
+        ],
+      },
+      {
+        heading: "SEO benefits of a mask-specific article",
+        paragraphs: [
+          "Dedicated content around face brightening masks creates a unique keyword home for weekly-treatment searches and reduces overlap with cleanser, serum, and ingredient articles.",
+          "That improves topical clarity while giving the mask its own internal-link path into product and bundle pages.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "How often should I use a face brightening mask?",
+        answer:
+          "Usually one or two times per week is enough for a weekly reset step, depending on the rest of your routine.",
+      },
+      {
+        question: "Can a face mask replace my serum or cream?",
+        answer:
+          "No. A weekly mask supports the routine, but cleanser, toner, serum, moisturizer, and sunscreen still matter for daily consistency.",
+      },
+    ],
+    relatedProductKeys: ["new-mask", "new-cleanser", "new-toner"],
+    relatedArticleSlugs: [
+      "african-botanical-ingredients-for-glowing-skin",
+      "how-to-remove-dark-spots-naturally",
+      "best-skincare-routine-for-hyperpigmentation",
+    ],
+    relatedPageLinks: [
+      {
+        eyebrow: "Shop Product",
+        title: "Brightening Face Mask",
+        description: "See the mask product page and how it fits a weekly glow-focused routine.",
+        to: "/shop/new-mask",
+        ctaLabel: "Shop mask",
+      },
+    ],
+  },
+  {
+    slug: "complete-skincare-routine-kit-for-hyperpigmentation",
+    path: "/blog/complete-skincare-routine-kit-for-hyperpigmentation",
+    title: "Complete Skincare Routine Kit for Hyperpigmentation: Who Should Buy a Bundle?",
+    metaDescription:
+      "Thinking about a skincare routine kit for hyperpigmentation? Learn who should buy Queen Koba's Full Product Kit, why routine bundles convert well, and how they support dark spots and uneven tone.",
+    excerpt:
+      "A bundle-led buyer guide that gives the full Queen Koba routine its own SEO article and a clearer reason to buy as a set.",
+    heroImage: BLOG_IMAGE_LIBRARY.ritual,
+    heroImageAlt:
+      "Queen Koba Full Product Kit complete skincare routine for hyperpigmentation and uneven tone",
+    categorySlug: "hyperpigmentation",
+    keywords: [
+      "skincare routine kit for hyperpigmentation",
+      "brightening skincare kit",
+      "skincare bundle for dark spots",
+      "complete skincare routine for glowing skin",
+      "skincare routine for melanin skin",
+    ],
+    readTime: "6 min read",
+    publishedAt: "2026-04-04",
+    updatedAt: "2026-04-04",
+    heroEyebrow: "Bundle Buyer Guide",
+    localAngle:
+      "Tailored for Kenya-based shoppers who want a complete routine, better product matching, and fewer decisions before checkout.",
+    sections: [
+      {
+        heading: "Why shoppers choose a bundle instead of single products",
+        paragraphs: [
+          "A full skincare kit removes guesswork. Instead of choosing one product at a time, shoppers get a complete routine with cleanser, toner, serum, cream, and a weekly mask already working toward one outcome.",
+          "That matters most for hyperpigmentation because consistency usually improves when the full routine is clear from day one.",
+        ],
+      },
+      {
+        heading: "Who the Queen Koba Full Product Kit is best for",
+        paragraphs: [
+          "The bundle is ideal for shoppers starting a new routine, rebuilding after using scattered products, or looking for a more structured plan for dark spots and uneven tone.",
+          "It is also commercially strong for gift buyers and for customers who prefer one coordinated brand rather than mixing unknown products together.",
+        ],
+        bullets: [
+          "Best for shoppers starting from scratch",
+          "Useful for clearer routine adherence",
+          "Stronger value story than disconnected single-SKU browsing",
+        ],
+      },
+      {
+        heading: "Why bundles support better SEO and conversion",
+        paragraphs: [
+          "Bundle articles target high-intent searches such as skincare kit for hyperpigmentation, complete routine for dark spots, and brightening skincare set. Those searches signal shoppers who are already close to buying.",
+          "A dedicated article also helps Queen Koba promote the bundle without repeating the same messaging inside serum, cleanser, or general routine articles.",
+        ],
+      },
+      {
+        heading: "How to move from research into purchase",
+        paragraphs: [
+          "The strongest bundle content explains who it is for, what each step does, and why the full ritual performs better than trying to patch together isolated products.",
+          "That makes this article an ideal bridge from blog discovery into the Full Product Kit product page.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Should I buy the bundle or start with just the serum?",
+        answer:
+          "Buy the serum if you only want the most targeted treatment step. Choose the bundle if you want a full routine with less guesswork and better overall structure.",
+      },
+      {
+        question: "Does the Queen Koba bundle support melanin-rich skin?",
+        answer:
+          "Yes. The Full Product Kit is positioned around dark spots, uneven tone, dullness, and glow support for melanin-rich skin.",
+      },
+    ],
+    relatedProductKeys: ["new-bundle", "new-serum", "new-cleanser"],
+    relatedArticleSlugs: [
+      "best-skincare-routine-for-hyperpigmentation",
+      "best-skincare-products-in-kenya-for-dark-spots",
+      "safe-alternatives-to-bleaching-creams",
+    ],
+    relatedPageLinks: [
+      {
+        eyebrow: "Shop Product",
+        title: "Full Product Kit",
+        description: "Go straight to the complete Queen Koba routine bundle.",
+        to: "/shop/new-bundle",
+        ctaLabel: "Shop bundle",
+      },
+    ],
+  },
 ];
 
 export const blogPostsBySlug = Object.fromEntries(
@@ -1566,6 +2007,36 @@ export const blogContentCalendar = [
     title: "African Botanical Ingredients for Glowing Skin",
     stage: "Published",
     to: "/blog/african-botanical-ingredients-for-glowing-skin",
+  },
+  {
+    month: "April 2026",
+    title: "Best Brightening Cleanser for Dull Skin and Uneven Tone in Kenya",
+    stage: "Published",
+    to: "/blog/best-brightening-cleanser-for-dull-skin-in-kenya",
+  },
+  {
+    month: "April 2026",
+    title: "Why Use a Brightening Toner for Dark Spots and Uneven Skin Tone",
+    stage: "Published",
+    to: "/blog/why-use-a-brightening-toner-for-dark-spots",
+  },
+  {
+    month: "April 2026",
+    title: "How a Skin Brightening Cream Supports Even Tone and Daily Hydration",
+    stage: "Published",
+    to: "/blog/how-a-skin-brightening-cream-supports-even-tone",
+  },
+  {
+    month: "April 2026",
+    title: "Why a Weekly Face Mask Helps Dull Skin, Buildup, and Glow Goals",
+    stage: "Published",
+    to: "/blog/why-a-weekly-face-mask-helps-dull-skin-and-buildup",
+  },
+  {
+    month: "April 2026",
+    title: "Complete Skincare Routine Kit for Hyperpigmentation: Who Should Buy a Bundle?",
+    stage: "Published",
+    to: "/blog/complete-skincare-routine-kit-for-hyperpigmentation",
   },
   {
     month: "May 2026",
