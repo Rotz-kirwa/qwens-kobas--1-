@@ -1,0 +1,25 @@
+{
+  "name": "Queen Koba",
+  "short_name": "Queen Koba",
+  "description": "Premium brightening skincare for melanin-rich skin in Kenya.",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png?v=20260404",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png?v=20260404",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png?v=20260404",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#123f35",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
