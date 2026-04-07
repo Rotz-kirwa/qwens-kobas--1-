@@ -1,5 +1,6 @@
 import ProductStore from "@/components/ProductStore";
 import SEO from "@/components/SEO";
+import KitPopup from "@/components/KitPopup";
 
 const Shop = () => {
   return (
@@ -19,8 +20,10 @@ const Shop = () => {
         }}
       />
       <ProductStore />
+      <KitPopup />
     </main>
   );
 };
 
 export default Shop;
+

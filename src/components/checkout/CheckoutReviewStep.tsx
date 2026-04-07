@@ -22,7 +22,6 @@ interface CheckoutReviewStepProps {
   paymentMessage: string;
   submittingOrder: boolean;
   onPaymentInputChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  onBack: () => void;
   onSubmit: () => void;
 }
 
@@ -41,20 +40,16 @@ const CheckoutReviewStep = ({
   paymentMessage,
   submittingOrder,
   onPaymentInputChange,
-  onBack,
   onSubmit,
 }: CheckoutReviewStepProps) => {
   const deliveryMethodLabel =
     deliverySelection.method === "door" ? "Door Delivery" : "Pickup Station";
 
   return (
-    <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8">
+    <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8 lg:sticky lg:top-24">
       <div className="border-b border-border/80 pb-5">
-        <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
-          Step 4
-        </p>
-        <h2 className="mt-3 font-display text-3xl text-foreground sm:text-[2.35rem]">
-          Review & Pay
+        <h2 className="font-display text-2xl text-foreground sm:text-3xl">
+          Order Summary
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
           Confirm your address, delivery method, and payment details before you complete the order.
@@ -198,19 +193,12 @@ const CheckoutReviewStep = ({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center justify-center rounded-[18px] border border-border bg-background px-6 py-4 text-sm font-body font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-secondary/10"
-        >
-          Back
-        </button>
+      <div className="mt-8">
         <button
           type="button"
           onClick={onSubmit}
           disabled={submittingOrder}
-          className="inline-flex items-center justify-center rounded-[18px] bg-primary px-6 py-4 text-sm font-body font-bold uppercase tracking-[0.16em] text-primary-foreground shadow-[0_18px_36px_rgba(95,74,43,0.18)] transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center rounded-[18px] bg-primary px-6 py-4 text-sm font-body font-bold uppercase tracking-[0.16em] text-primary-foreground shadow-[0_18px_36px_rgba(95,74,43,0.18)] transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submittingOrder
             ? paymentMethodId === "mpesa"

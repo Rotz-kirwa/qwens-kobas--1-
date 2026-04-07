@@ -18,7 +18,6 @@ interface CheckoutAddressStepProps {
   onSetDeliveryCounty: (value: string) => void;
   onSetDeliveryArea: (value: string) => void;
   onSetDeliveryPoint: (value: string) => void;
-  onContinue: () => void;
 }
 
 const getInputClassName = (hasError = false) =>
@@ -38,18 +37,14 @@ const CheckoutAddressStep = ({
   onSetDeliveryCounty,
   onSetDeliveryArea,
   onSetDeliveryPoint,
-  onContinue,
 }: CheckoutAddressStepProps) => {
   const isWithinNairobi = deliverySelection.zone === "nairobi";
 
   return (
     <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8">
       <div className="flex flex-col gap-3 border-b border-border/80 pb-5">
-        <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
-          Step 1
-        </p>
-        <h2 className="font-display text-3xl text-foreground sm:text-[2.35rem]">
-          Address & Delivery Zone
+        <h2 className="font-display text-2xl text-foreground sm:text-3xl">
+          1. Address & Delivery Zone
         </h2>
         <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
           Add your delivery details once so we can calculate the correct Kenya shipping fee and
@@ -243,16 +238,6 @@ const CheckoutAddressStep = ({
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="mt-8 flex justify-end">
-        <button
-          type="button"
-          onClick={onContinue}
-          className="inline-flex items-center justify-center rounded-[18px] bg-primary px-6 py-4 text-sm font-body font-bold uppercase tracking-[0.16em] text-primary-foreground shadow-[0_18px_36px_rgba(95,74,43,0.18)] transition-all hover:bg-primary/90"
-        >
-          Continue to Delivery
-        </button>
       </div>
     </section>
   );

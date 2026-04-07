@@ -7,8 +7,6 @@ interface CheckoutDeliveryMethodStepProps {
   activeZone: DeliveryZoneConfig;
   shippingFee: number;
   onSelectMethod: (method: DeliveryMethod) => void;
-  onBack: () => void;
-  onContinue: () => void;
 }
 
 const methodCards: Array<{
@@ -36,17 +34,12 @@ const CheckoutDeliveryMethodStep = ({
   activeZone,
   shippingFee,
   onSelectMethod,
-  onBack,
-  onContinue,
 }: CheckoutDeliveryMethodStepProps) => {
   return (
     <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8">
       <div className="border-b border-border/80 pb-5">
-        <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
-          Step 2
-        </p>
-        <h2 className="mt-3 font-display text-3xl text-foreground sm:text-[2.35rem]">
-          Delivery Method
+        <h2 className="font-display text-2xl text-foreground sm:text-3xl">
+          2. Delivery Method
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
           Choose how you would like the order delivered. Your shipping rate stays at KSh{" "}
@@ -117,23 +110,6 @@ const CheckoutDeliveryMethodStep = ({
             </button>
           );
         })}
-      </div>
-
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center justify-center rounded-[18px] border border-border bg-background px-6 py-4 text-sm font-body font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-secondary/10"
-        >
-          Back
-        </button>
-        <button
-          type="button"
-          onClick={onContinue}
-          className="inline-flex items-center justify-center rounded-[18px] bg-primary px-6 py-4 text-sm font-body font-bold uppercase tracking-[0.16em] text-primary-foreground shadow-[0_18px_36px_rgba(95,74,43,0.18)] transition-all hover:bg-primary/90"
-        >
-          Continue to Payment
-        </button>
       </div>
     </section>
   );

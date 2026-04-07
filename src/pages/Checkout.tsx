@@ -9,13 +9,13 @@ import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import PromoCodePanel from "@/components/PromoCodePanel";
 import CheckoutAddressStep from "@/components/checkout/CheckoutAddressStep";
 import CheckoutDeliveryMethodStep from "@/components/checkout/CheckoutDeliveryMethodStep";
-import CheckoutProgress from "@/components/checkout/CheckoutProgress";
 import CheckoutReviewStep from "@/components/checkout/CheckoutReviewStep";
 import { useToast } from "@/hooks/use-toast";
 import { getDeliveryZone } from "@/data/kenyaDelivery";
 import { paymentAPI, ordersAPI, isApiOfflineError } from "@/lib/api";
 import { getDeliveryFieldErrors, getFirstDeliveryError } from "@/lib/delivery";
 import { sanitizePromoCodeInput } from "@/lib/promo";
+import { products } from "@/data/products";
 import SEO from "@/components/SEO";
 
 interface PaymentMethod {
@@ -27,7 +27,6 @@ interface PaymentMethod {
 }
 
 interface CheckoutDraft {
-  step?: number;
   paymentMethod?: string;
   paymentDetails?: {
     phoneNumber?: string;
@@ -50,14 +49,21 @@ const paymentLogos: Record<string, string> = {
 
 const country = "Kenya";
 const CHECKOUT_STORAGE_KEY = "queenkoba-checkout-progress";
-const checkoutSteps = [
-  { id: 1, label: "Address", description: "Address & zone" },
-  { id: 2, label: "Delivery", description: "Pickup or door" },
-  { id: 3, label: "Payment", description: "Choose method" },
-  { id: 4, label: "Confirm", description: "Review & pay" },
-] as const;
 
 const formatCurrency = (amount: number) => `KSh ${Math.round(amount).toLocaleString()}`;
+
+const getBackendProductId = (product: { apiId?: number; id: string }) => {
+  if (product.apiId !== undefined) {
+    return String(product.apiId);
+  }
+
+  if (/^\d+$/.test(product.id)) {
+    return product.id;
+  }
+
+  const catalogProduct = products.find((item) => item.id === product.id);
+  return catalogProduct?.apiId !== undefined ? String(catalogProduct.apiId) : product.id;
+};
 
 const normalizePaymentMethodId = (value: string) => value.trim().toLowerCase();
 
@@ -155,9 +161,6 @@ const buildStructuredAddress = (county: string, area: string, deliveryPoint: str
   [county.trim(), area.trim(), deliveryPoint.trim()].filter(Boolean).join(", ");
 
 const buildStructuredCity = (deliveryCounty: string) => deliveryCounty.trim() || "Nairobi";
-
-const clampCheckoutStep = (value?: number) =>
-  typeof value === "number" && value >= 1 && value <= 4 ? value : 1;
 
 const readStoredCheckoutDraft = (): CheckoutDraft | null => {
   if (typeof window === "undefined") {
@@ -271,7 +274,6 @@ const Checkout = () => {
   const [initialDraft] = useState<CheckoutDraft | null>(() => readStoredCheckoutDraft());
   const activeDeliveryZone = getDeliveryZone(deliverySelection.zone);
 
-  const [step, setStep] = useState(() => clampCheckoutStep(initialDraft?.step));
   const [paymentMethod, setPaymentMethod] = useState(initialDraft?.paymentMethod || "");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [paymentMethodsLoading, setPaymentMethodsLoading] = useState(false);
@@ -322,14 +324,13 @@ const Checkout = () => {
 
   useEffect(() => {
     const draft: CheckoutDraft = {
-      step,
       paymentMethod,
       paymentDetails,
       formData,
     };
 
     sessionStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(draft));
-  }, [formData, paymentDetails, paymentMethod, step]);
+  }, [formData, paymentDetails, paymentMethod]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -466,7 +467,6 @@ const Checkout = () => {
 
   const validateReviewStep = () => {
     if (!paymentMethod) {
-      setStep(3);
       setPaymentSelectionError("Select a payment method before completing the order.");
       return false;
     }
@@ -535,7 +535,7 @@ const Checkout = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateReviewStep()) {
+    if (!validateAddressStep() || !validateReviewStep()) {
       return;
     }
 
@@ -548,19 +548,10 @@ const Checkout = () => {
       }
 
       const token = localStorage.getItem("token");
-      if (!token) {
-        toast({
-          title: "Login required",
-          description: "Please sign in to complete checkout.",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
 
       const orderPayload = {
         items: items.map((item) => ({
-          product_id: item.product.id,
+          product_id: getBackendProductId(item.product),
           product_name: item.product.name,
           quantity: item.quantity,
           price_per_item_kes: item.product.price,
@@ -629,22 +620,35 @@ const Checkout = () => {
           throw new Error("Order reference missing after M-Pesa initiation.");
         }
 
-        for (let attempt = 0; attempt < 20; attempt += 1) {
-          await wait(3000);
-          let statusResponse;
+        // Poll backend (NOT Safaricom directly) — backend is the source of truth.
+        // Webhook updates the DB; we just read order status.
+        const MAX_POLLS = 24; // 24 × 5 s = 2 min
+        const POLL_INTERVAL_MS = 5000;
 
+        for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
+          await wait(POLL_INTERVAL_MS);
+
+          let statusResponse;
           try {
             statusResponse = await paymentAPI.getMpesaStatus(orderId);
           } catch (error) {
             if (isTransientMpesaStatusError(error)) {
+              // Network hiccup — keep waiting, don't throw
               continue;
             }
             throw error;
           }
 
           const payment = statusResponse?.payment;
+          const paymentStatus = payment?.payment_status;
 
-          if (payment?.payment_status === "paid") {
+          setPaymentMessage(
+            attempt < 4
+              ? "Waiting for M-Pesa confirmation…"
+              : "Still awaiting payment — please complete the prompt on your phone."
+          );
+
+          if (paymentStatus === "paid") {
             clearStoredCheckoutDraft();
             toast({
               title: "Payment confirmed",
@@ -655,13 +659,13 @@ const Checkout = () => {
             return;
           }
 
-          if (payment?.payment_status === "failed") {
+          if (paymentStatus === "failed") {
             throw new Error(formatMpesaFailureDetails(payment));
           }
         }
 
         throw new Error(
-          "Payment is still pending. Complete the M-Pesa prompt, then try again in a moment.",
+          "Payment confirmation is taking longer than expected. If you completed the M-Pesa prompt, your order is saved — check your orders or contact support."
         );
       }
 
@@ -736,11 +740,12 @@ const Checkout = () => {
                   Checkout
                 </p>
                 <h1 className="mt-3 font-display text-4xl font-light leading-tight md:text-5xl">
-                  A cleaner path from <span className="italic text-gold-gradient">bag to payment</span>
+                  Your glow is{" "}<span className="italic text-gold-gradient">one step away</span>
                 </h1>
                 <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/76 md:text-base">
-                  This flow now leans more premium and guidance-led: address first, delivery next,
-                  payment after, with a persistent order summary beside each step.
+                  You chose Queen Koba — toxin-free, melanin-made, and proven on real skin across Kenya.
+                  Secure your order now and receive the brightening ritual that thousands of women trust
+                  to treat dark spots, hyperpigmentation, and dull skin from day one.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 lg:justify-end">
@@ -757,85 +762,34 @@ const Checkout = () => {
             </div>
           </div>
 
-          <CheckoutProgress currentStep={step} steps={[...checkoutSteps]} />
-
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(20rem,0.82fr)] lg:gap-8">
-            <div className="space-y-5 lg:space-y-6">
-              {step === 1 && (
-                <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-                  <CheckoutAddressStep
-                    formData={formData}
-                    deliverySelection={deliverySelection}
-                    activeZone={activeDeliveryZone}
-                    errors={deliveryErrors}
-                    onInputChange={handleInputChange}
-                    onSetDeliveryZone={setDeliveryZone}
-                    onSetDeliveryCounty={setDeliveryCounty}
-                    onSetDeliveryArea={setDeliveryArea}
-                    onSetDeliveryPoint={setDeliveryPoint}
-                    onContinue={() => {
-                      if (validateAddressStep()) {
-                        setStep(2);
-                      }
-                    }}
-                  />
-                </motion.div>
-              )}
+            <div className="space-y-8 lg:space-y-10">
+              <CheckoutAddressStep
+                formData={formData}
+                deliverySelection={deliverySelection}
+                activeZone={activeDeliveryZone}
+                errors={deliveryErrors}
+                onInputChange={handleInputChange}
+                onSetDeliveryZone={setDeliveryZone}
+                onSetDeliveryCounty={setDeliveryCounty}
+                onSetDeliveryArea={setDeliveryArea}
+                onSetDeliveryPoint={setDeliveryPoint}
+              />
 
-              {step === 2 && (
-                <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-                  <CheckoutDeliveryMethodStep
-                    deliverySelection={deliverySelection}
-                    activeZone={activeDeliveryZone}
-                    shippingFee={shippingFee}
-                    onSelectMethod={setDeliveryMethod}
-                    onBack={() => setStep(1)}
-                    onContinue={() => setStep(3)}
-                  />
-                </motion.div>
-              )}
+              <CheckoutDeliveryMethodStep
+                deliverySelection={deliverySelection}
+                activeZone={activeDeliveryZone}
+                shippingFee={shippingFee}
+                onSelectMethod={setDeliveryMethod}
+              />
 
-              {step === 3 && (
-                <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-                  <PaymentMethodSelector
-                    methods={paymentMethods}
-                    selectedMethodId={paymentMethod}
-                    loading={paymentMethodsLoading}
-                    selectionError={paymentSelectionError}
-                    onSelect={handleSelectPaymentMethod}
-                    onBack={() => setStep(2)}
-                    onContinue={() => {
-                      if (!paymentMethod) {
-                        setPaymentSelectionError("Select a payment method to continue.");
-                        return;
-                      }
-
-                      setPaymentSelectionError(null);
-                      setStep(4);
-                    }}
-                  />
-                </motion.div>
-              )}
-
-              {step === 4 && (
-                <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-                  <CheckoutReviewStep
-                    formData={formData}
-                    deliverySelection={deliverySelection}
-                    activeZone={activeDeliveryZone}
-                    paymentMethodLabel={selectedPaymentMethod?.name || "Payment method"}
-                    paymentMethodType={paymentMethodType}
-                    paymentMethodId={normalizePaymentMethodId(paymentMethod)}
-                    paymentDetails={paymentDetails}
-                    shippingFee={shippingFee}
-                    paymentMessage={paymentMessage}
-                    submittingOrder={submittingOrder}
-                    onPaymentInputChange={handlePaymentInputChange}
-                    onBack={() => setStep(3)}
-                    onSubmit={handleSubmit}
-                  />
-                </motion.div>
-              )}
+              <PaymentMethodSelector
+                methods={paymentMethods}
+                selectedMethodId={paymentMethod}
+                loading={paymentMethodsLoading}
+                selectionError={paymentSelectionError}
+                onSelect={handleSelectPaymentMethod}
+              />
             </div>
 
             <div>
@@ -969,6 +923,23 @@ const Checkout = () => {
                     totalSavingsLabel={formatCurrency(discountAmount + shippingDiscount)}
                     updatedTotalLabel={formatCurrency(grandTotal)}
                     placeholder="WELCOME10"
+                  />
+                </div>
+
+                <div className="mt-8">
+                  <CheckoutReviewStep
+                    formData={formData}
+                    deliverySelection={deliverySelection}
+                    activeZone={activeDeliveryZone}
+                    paymentMethodLabel={selectedPaymentMethod?.name || "Payment method"}
+                    paymentMethodType={paymentMethodType}
+                    paymentMethodId={normalizePaymentMethodId(paymentMethod)}
+                    paymentDetails={paymentDetails}
+                    shippingFee={shippingFee}
+                    paymentMessage={paymentMessage}
+                    submittingOrder={submittingOrder}
+                    onPaymentInputChange={handlePaymentInputChange}
+                    onSubmit={handleSubmit}
                   />
                 </div>
               </aside>

@@ -92,12 +92,12 @@ const Home = () => {
       <section className="bg-background py-5 md:py-8">
         <div className="container mx-auto px-4">
           <div className="grid max-w-5xl items-center gap-4 overflow-hidden rounded-sm border border-primary/15 bg-secondary/20 shadow-[0_24px_60px_rgba(0,0,0,0.06)] md:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
-            <div className="flex justify-start bg-background/70 p-3 md:p-5">
+            <div className="flex items-stretch bg-background/70 p-3 md:p-5">
               <AdaptiveImage
                 src={HERO_FOLLOWUP_IMAGE}
                 alt="Queen Koba Eternal Radiance"
-                className="h-auto w-full rounded-sm object-cover sm:max-w-sm"
-                sizes="(max-width: 768px) 100vw, 24rem"
+                className="h-auto w-full rounded-sm object-cover"
+                sizes="100vw"
               />
             </div>
             <div className="max-w-2xl p-5 text-left md:p-8">

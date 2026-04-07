@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { X, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import AdaptiveImage from "@/components/AdaptiveImage";
 import { useNetworkQuality } from "@/context/NetworkQualityContext";
 
 const FULL_KIT_IMAGE =
   "https://www.dropbox.com/scl/fi/jpdncaq9lkmtnhxz3xbli/new.jpeg?rlkey=y6gg1oiji39i52ve9avevqplh&st=zuyfr36d&raw=1";
+
+const HIDDEN_PATHS = ["/login", "/signup", "/cart", "/checkout"];
 
 export default function PromoPopup() {
   const [showPopup, setShowPopup] = useState(false);
@@ -15,20 +16,25 @@ export default function PromoPopup() {
   const network = useNetworkQuality();
 
   useEffect(() => {
-    if (["/login", "/signup", "/cart", "/checkout"].includes(location.pathname)) {
+    if (HIDDEN_PATHS.includes(location.pathname)) {
       setShowPopup(false);
       return;
     }
 
     const hasSeenPopup = sessionStorage.getItem("fullKitPopupSeen");
-    if (hasSeenPopup) return;
+    const queryParams = new URLSearchParams(location.search);
+    const forceShow = queryParams.get("promo") === "1";
+
+    if (hasSeenPopup && !forceShow) {
+      return;
+    }
 
     const timer = window.setTimeout(() => {
       setShowPopup(true);
     }, network.isSlow ? 5500 : network.isMedium ? 3000 : 1800);
 
     return () => window.clearTimeout(timer);
-  }, [location.pathname, network.isMedium, network.isSlow]);
+  }, [location.pathname, location.search, network.isMedium, network.isSlow]);
 
   const handleClose = () => {
     sessionStorage.setItem("fullKitPopupSeen", "true");
@@ -48,23 +54,20 @@ export default function PromoPopup() {
           initial={network.animationEnabled ? { opacity: 0 } : false}
           animate={network.animationEnabled ? { opacity: 1 } : {}}
           exit={network.animationEnabled ? { opacity: 0 } : {}}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.18),transparent_32%),linear-gradient(180deg,rgba(7,10,8,0.46),rgba(7,10,8,0.74))] p-4 backdrop-blur-md"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.18),transparent_32%),linear-gradient(180deg,rgba(7,10,8,0.46),rgba(7,10,8,0.74))] p-4 backdrop-blur-md"
           onClick={handleClose}
         >
           <motion.div
             initial={network.animationEnabled ? { opacity: 0, y: 24, scale: 0.97 } : false}
             animate={network.animationEnabled ? { opacity: 1, y: 0, scale: 1 } : {}}
             exit={network.animationEnabled ? { opacity: 0, y: 18, scale: 0.97 } : {}}
-            transition={{
-              duration: 0.28,
-              ease: "easeOut",
-            }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-labelledby="promo-popup-title"
             aria-describedby="promo-popup-description"
-            className="group luxury-card relative w-full max-w-[20rem] overflow-hidden border-border/80 bg-card p-0 shadow-[0_24px_60px_rgba(24,17,8,0.24)] sm:max-w-[21.5rem]"
+            className="group luxury-card relative w-full max-w-[22rem] overflow-hidden border-border/90 bg-card p-0 shadow-[0_24px_60px_rgba(24,17,8,0.28)] sm:max-w-[24rem]"
           >
             <button
               onClick={handleClose}
@@ -81,11 +84,11 @@ export default function PromoPopup() {
             </div>
 
             <div className="w-full overflow-hidden">
-              <AdaptiveImage
+              <img
                 src={FULL_KIT_IMAGE}
                 alt="Queen Koba Full Product Kit"
                 className="aspect-[4/3.15] w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02] sm:aspect-[4/3.35]"
-                sizes="(max-width: 640px) 100vw, 22rem"
+                loading="eager"
               />
             </div>
 

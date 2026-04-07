@@ -12,10 +12,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ShopNowFloat from "@/components/ShopNowFloat";
+import PromoPopup from "@/components/PromoPopup";
 import Home from "./pages/Home";
 import { setAuthRedirect } from "@/lib/authRedirect";
 
-const PromoPopup = lazy(() => import("@/components/PromoPopup"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Index = lazy(() => import("./pages/Index"));
 const Story = lazy(() => import("./pages/Story"));
@@ -90,11 +90,7 @@ const AppShell = () => {
       <Navbar />
       {!hideMarketingOverlays && <WhatsAppFloat />}
       {!hideMarketingOverlays && <ShopNowFloat />}
-      {!hideMarketingOverlays && (
-        <Suspense fallback={null}>
-          <PromoPopup />
-        </Suspense>
-      )}
+      {!hideMarketingOverlays && <PromoPopup />}
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -129,14 +125,7 @@ const AppShell = () => {
           <Route path="/blog/:slug" element={<BlogArticle />} />
           <Route path="/shop/:productId" element={<ProductDetail />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route
-            path="/checkout"
-            element={
-              <RequireAuth>
-                <Checkout />
-              </RequireAuth>
-            }
-          />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

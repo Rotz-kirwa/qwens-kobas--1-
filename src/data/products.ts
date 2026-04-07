@@ -2,6 +2,7 @@ import type { Product } from "@/context/CartContext";
 
 export const products: Product[] = [
   {
+    apiId: 1,
     id: "new-cleanser",
     name: "Complexion Clarifying Cleanser 120ml",
     price: 1899,
@@ -11,6 +12,7 @@ export const products: Product[] = [
     image: "https://www.dropbox.com/scl/fi/4tulvx5wuscmhcrvls4tg/sp2.jpeg?rlkey=6lr1shzfkfy14xcl6d7zhqxmd&st=uec69ia4&raw=1",
   },
   {
+    apiId: 2,
     id: "new-toner",
     name: "Brightening Toner 120ml",
     price: 1999,
@@ -20,6 +22,7 @@ export const products: Product[] = [
     image: "https://www.dropbox.com/scl/fi/akek115wovbezb0m923q0/sp3.jpeg?rlkey=w25aqom0rmq40uwmqse84cawb&st=vb6mzc2a&raw=1",
   },
   {
+    apiId: 3,
     id: "new-serum",
     name: "Complexion Clarifying Serum 30ml",
     price: 2499,
@@ -29,6 +32,7 @@ export const products: Product[] = [
     image: "https://www.dropbox.com/scl/fi/ydx5ia5xvcblz5a7d8ty2/sp4.jpeg?rlkey=jy5lypf5j1csv88fy7s33pte9&st=r8air5om&raw=1",
   },
   {
+    apiId: 4,
     id: "new-cream",
     name: "Complexion Clarifying Cream 50ml",
     price: 2399,
@@ -38,6 +42,7 @@ export const products: Product[] = [
     image: "https://www.dropbox.com/scl/fi/bparrxju6nzi3y816yoc7/sp5.jpeg?rlkey=mae29d7hd4dq88lj4hlvf8fju&st=yqb89dwv&raw=1",
   },
   {
+    apiId: 5,
     id: "new-mask",
     name: "Brightening Face Mask 120ml",
     price: 1499,
@@ -47,6 +52,7 @@ export const products: Product[] = [
     image: "https://www.dropbox.com/scl/fi/srxgy8id5smigxy8vtepg/sp6.jpeg?rlkey=4s4p1hq245l9htmf3952f0xnb&st=9jgl6wjw&raw=1",
   },
   {
+    apiId: 6,
     id: "new-bundle",
     name: "Full Product Kit",
     price: 9999,

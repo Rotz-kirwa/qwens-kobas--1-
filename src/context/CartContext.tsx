@@ -8,8 +8,10 @@ import {
   type DeliveryZone,
 } from "@/data/kenyaDelivery";
 import { cartAPI } from "@/lib/api";
+import { products } from "@/data/products";
 
 export interface Product {
+  apiId?: number;
   id: string;
   name: string;
   price: number;
@@ -111,6 +113,45 @@ interface DeliverySelectionDraft {
   point?: string;
 }
 
+const findCatalogProduct = (productId: string) =>
+  products.find((product) => product.id === productId);
+
+const augmentProductWithApiId = (product: Product): Product => {
+  if (product.apiId !== undefined) {
+    return product;
+  }
+
+  const catalogProduct = findCatalogProduct(product.id);
+  return catalogProduct?.apiId !== undefined ? { ...product, apiId: catalogProduct.apiId } : product;
+};
+
+const getBackendProductId = (product: Product) => {
+  if (product.apiId !== undefined) {
+    return String(product.apiId);
+  }
+
+  if (/^\d+$/.test(product.id)) {
+    return product.id;
+  }
+
+  const catalogProduct = findCatalogProduct(product.id);
+  return catalogProduct?.apiId !== undefined ? String(catalogProduct.apiId) : product.id;
+};
+
+const resolveBackendProductId = (productId: string, currentItems: CartItem[]) => {
+  const existingItem = currentItems.find((item) => item.product.id === productId);
+  if (existingItem) {
+    return getBackendProductId(existingItem.product);
+  }
+
+  const catalogProduct = findCatalogProduct(productId);
+  if (catalogProduct?.apiId !== undefined) {
+    return String(catalogProduct.apiId);
+  }
+
+  return productId;
+};
+
 const inferDeliveryZoneFromCounty = (county?: string | null): DeliveryZone | null => {
   const normalizedCounty = county?.trim().toLowerCase();
   if (!normalizedCounty) {
@@ -165,7 +206,19 @@ const readStoredDeliverySelection = (): DeliverySelection => {
 
 const readStoredCartItems = (): CartItem[] => {
   const saved = localStorage.getItem(CART_STORAGE_KEY);
-  return saved ? JSON.parse(saved) : [];
+  if (!saved) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(saved) as CartItem[];
+    return parsed.map((item) => ({
+      ...item,
+      product: augmentProductWithApiId(item.product),
+    }));
+  } catch {
+    return [];
+  }
 };
 
 const readStoredPromoSummary = (): PromoSummary | null => {
@@ -198,7 +251,7 @@ const normalizeBackendCart = (payload: unknown): CartItem[] => {
 
 const buildPromoRequestItems = (items: CartItem[]) =>
   items.map((item) => ({
-    product_id: item.product.id,
+    product_id: getBackendProductId(item.product),
     quantity: item.quantity,
   }));
 
@@ -354,7 +407,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (backendItems.length === 0 && localItems.length > 0) {
           for (const item of localItems) {
-            await cartAPI.add(item.product.id, item.quantity);
+            await cartAPI.add(getBackendProductId(item.product), item.quantity);
           }
 
           const synced = await cartAPI.get();
@@ -432,7 +485,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       setIsOpen(false);
-      syncBackendCartAction(() => cartAPI.add(product.id, qty));
+      syncBackendCartAction(() => cartAPI.add(getBackendProductId(product), qty));
     },
     [syncBackendCartAction],
   );
@@ -440,25 +493,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeFromCart = useCallback(
     (productId: string) => {
       setItems((prev) => prev.filter((item) => item.product.id !== productId));
-      syncBackendCartAction(() => cartAPI.remove(productId));
+      syncBackendCartAction(() => cartAPI.remove(resolveBackendProductId(productId, items)));
     },
-    [syncBackendCartAction],
+    [syncBackendCartAction, items],
   );
 
   const updateQuantity = useCallback(
     (productId: string, qty: number) => {
       if (qty <= 0) {
         setItems((prev) => prev.filter((item) => item.product.id !== productId));
-        syncBackendCartAction(() => cartAPI.remove(productId));
+        syncBackendCartAction(() => cartAPI.remove(resolveBackendProductId(productId, items)));
         return;
       }
 
       setItems((prev) =>
         prev.map((item) => (item.product.id === productId ? { ...item, quantity: qty } : item)),
       );
-      syncBackendCartAction(() => cartAPI.update(productId, qty));
+      syncBackendCartAction(() => cartAPI.update(resolveBackendProductId(productId, items), qty));
     },
-    [syncBackendCartAction],
+    [syncBackendCartAction, items],
   );
 
   const clearCart = useCallback(() => {
