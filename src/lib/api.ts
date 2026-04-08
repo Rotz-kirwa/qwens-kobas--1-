@@ -241,7 +241,17 @@ export const ordersAPI = {
 // Payment Methods API
 export const paymentAPI = {
   getByCountry: (country: string) => apiClient(`/payment-methods/${country}`, { quietError: true }),
-  getMpesaStatus: (orderId: string) => apiClient(`/payments/mpesa/status/${orderId}`, { quietError: true }),
+  getMpesaStatus: (
+    orderId: string,
+    verification?: { email?: string; phone?: string },
+  ) =>
+    apiClient(
+      buildEndpointWithQuery(`/payments/mpesa/status/${orderId}`, {
+        email: verification?.email,
+        phone: verification?.phone,
+      }),
+      { quietError: true },
+    ),
 };
 
 export const contentAPI = {

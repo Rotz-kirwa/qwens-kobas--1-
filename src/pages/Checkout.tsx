@@ -607,6 +607,7 @@ const Checkout = () => {
       if (normalizePaymentMethodId(paymentMethod) === "mpesa") {
         const orderId = response?.order_id;
         const customerMessage =
+          response?.message ||
           response?.payment?.customer_message ||
           "Check your phone and complete the M-Pesa prompt to finish payment.";
 
@@ -630,7 +631,10 @@ const Checkout = () => {
 
           let statusResponse;
           try {
-            statusResponse = await paymentAPI.getMpesaStatus(orderId);
+            statusResponse = await paymentAPI.getMpesaStatus(orderId, {
+              email: formData.email.trim(),
+              phone: paymentDetails.phoneNumber.trim() || formData.phone.trim(),
+            });
           } catch (error) {
             if (isTransientMpesaStatusError(error)) {
               // Network hiccup — keep waiting, don't throw
@@ -641,21 +645,28 @@ const Checkout = () => {
 
           const payment = statusResponse?.payment;
           const paymentStatus = payment?.payment_status;
+          const successMessage =
+            payment?.customer_message ||
+            statusResponse?.message ||
+            `Payment confirmed. Your order ${orderId} was placed successfully.`;
 
           setPaymentMessage(
-            attempt < 4
+            paymentStatus === "paid"
+              ? successMessage
+              : attempt < 4
               ? "Waiting for M-Pesa confirmation…"
-              : "Still awaiting payment — please complete the prompt on your phone."
+              : payment?.customer_message ||
+                "Still awaiting payment — please complete the prompt on your phone."
           );
 
           if (paymentStatus === "paid") {
             clearStoredCheckoutDraft();
             toast({
-              title: "Payment confirmed",
-              description: "Your M-Pesa payment was received successfully.",
+              title: "Order successful",
+              description: successMessage,
             });
             clearCart();
-            setTimeout(() => navigate("/shop"), 1200);
+            setTimeout(() => navigate("/shop"), 2000);
             return;
           }
 
