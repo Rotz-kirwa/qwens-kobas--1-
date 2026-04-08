@@ -53,6 +53,12 @@ const shopSelectionPrinciples = [
   },
 ];
 
+const shopHighlights = [
+  "Dark spots and hyperpigmentation support",
+  "Made for melanin-rich skin",
+  "Cleanser to full routine bundle",
+];
+
 const Shop = () => {
   const structuredData = [
     {
@@ -116,15 +122,72 @@ const Shop = () => {
         structuredData={structuredData}
       />
 
-      <section className="bg-background pb-8 pt-8 md:pb-10 md:pt-10">
+      <section className="bg-background pb-4 pt-8 md:pb-6 md:pt-10">
         <div className="container mx-auto px-4">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]">
-            <article className="rounded-[30px] border border-border/70 bg-card p-7 shadow-[0_20px_48px_rgba(24,17,8,0.06)] md:p-10">
-              <p className="text-sm uppercase tracking-[0.3em] text-primary">Shop Queen Koba</p>
-              <h1 className="mt-4 font-display text-4xl font-light leading-tight md:text-6xl">
-                Skincare products in Kenya for dark spots, uneven tone, and a clearer glow
-              </h1>
-              <div className="mt-6 space-y-4 text-sm leading-8 text-muted-foreground md:text-base">
+          <article className="rounded-[24px] border border-border/70 bg-card p-6 shadow-[0_20px_48px_rgba(24,17,8,0.06)] md:p-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm uppercase tracking-[0.3em] text-primary">Shop Queen Koba</p>
+                <h1 className="mt-3 font-display text-3xl font-light leading-tight md:text-5xl">
+                  Brightening skincare for dark spots, uneven tone, and a clearer glow
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+                  Start with the product that fits your goal, then build the rest of your Queen Koba
+                  routine around it without getting buried in too much copy first.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/shop/new-bundle"
+                  className="inline-flex items-center justify-center rounded-full bg-gold-gradient px-7 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  Shop the full routine
+                </Link>
+                <Link
+                  to="/hyperpigmentation-treatment"
+                  className="inline-flex items-center justify-center rounded-full border border-primary/20 px-7 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary/5"
+                >
+                  Explore treatment guide
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {shopHighlights.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="bg-background py-6 md:py-8">
+        <div className="container mx-auto px-4">
+          <ProductRecommendations
+            title="Start with the highest-intent Queen Koba products"
+            description="These are the strongest starting points for shoppers searching for dark spots care, hyperpigmentation treatment, and a complete glow routine."
+            productKeys={["new-serum", "new-cleanser", "new-bundle"]}
+          />
+        </div>
+      </section>
+
+      <ProductStore />
+
+      <section className="bg-secondary/20 py-10 md:py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.02fr)_minmax(18rem,0.98fr)]">
+            <article className="rounded-[28px] border border-border/70 bg-card p-6 shadow-[0_18px_44px_rgba(24,17,8,0.06)] md:p-8">
+              <p className="text-sm uppercase tracking-[0.28em] text-primary">How to choose</p>
+              <h2 className="mt-4 font-display text-4xl font-light md:text-5xl">
+                The collection is organized around what each step actually does
+              </h2>
+              <div className="mt-5 space-y-4 text-sm leading-8 text-muted-foreground md:text-base">
                 <p>
                   This collection is built for shoppers who want more than generic beauty products.
                   Queen Koba focuses on brightening skincare for melanin-rich skin, especially where
@@ -137,20 +200,6 @@ const Shop = () => {
                   stronger for SEO and easier for customers who are trying to choose the right skincare
                   products without getting overwhelmed.
                 </p>
-              </div>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  to="/shop/new-bundle"
-                  className="inline-flex items-center justify-center rounded-full bg-gold-gradient px-8 py-4 text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
-                >
-                  Shop the full routine
-                </Link>
-                <Link
-                  to="/hyperpigmentation-treatment"
-                  className="inline-flex items-center justify-center rounded-full border border-primary/20 px-8 py-4 text-xs font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary/5"
-                >
-                  Explore treatment guide
-                </Link>
               </div>
             </article>
 
@@ -182,18 +231,6 @@ const Shop = () => {
           </div>
         </div>
       </section>
-
-      <section className="bg-background py-8 md:py-10">
-        <div className="container mx-auto px-4">
-          <ProductRecommendations
-            title="Start with the highest-intent Queen Koba products"
-            description="These pages capture the strongest commercial intent around hyperpigmentation treatment, dark spots skincare, and complete brightening routines."
-            productKeys={["new-serum", "new-cleanser", "new-bundle"]}
-          />
-        </div>
-      </section>
-
-      <ProductStore />
 
       <section className="bg-secondary/20 py-12 md:py-14">
         <div className="container mx-auto px-4">
