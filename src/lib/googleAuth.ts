@@ -1,5 +1,7 @@
+import { normalizeClientId } from "@/lib/runtimeConfig";
+
 const GOOGLE_CLIENT_ID =
-  import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+  normalizeClientId(import.meta.env.VITE_GOOGLE_CLIENT_ID) ||
   '445338583811-0gknu3ni8fn9mh3pa874agtu61i29tvr.apps.googleusercontent.com';
 
 const GOOGLE_IDENTITY_SCRIPT_ID = 'google-identity-services';

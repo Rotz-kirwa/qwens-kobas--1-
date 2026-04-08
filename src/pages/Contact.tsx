@@ -10,8 +10,9 @@ import {
   getWhatsAppHref,
   useSiteContent,
 } from "@/hooks/use-site-content";
+import { normalizeApiUrl } from "@/lib/runtimeConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 const Contact = () => {
   const { toast } = useToast();

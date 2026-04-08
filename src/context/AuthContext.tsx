@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { normalizeApiUrl } from "@/lib/runtimeConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 const AUTH_CHANGED_EVENT = "queenkoba-auth-changed";
 const USER_STORAGE_KEY = "user";
 const TOKEN_STORAGE_KEY = "token";
@@ -73,7 +74,7 @@ const readErrorMessage = (payload: unknown, fallback: string) => {
 const readFetchFailureMessage = () => {
   const origin = typeof window !== "undefined" ? window.location.origin : "this browser origin";
 
-  return `Couldn't reach the Queen Koba API from ${origin}. Make sure the backend is running on ${API_URL} and that this origin is allowed by CORS.`;
+  return `Couldn't reach the Queen Koba service from ${origin}. Please refresh and try again. If the problem continues, contact support.`;
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

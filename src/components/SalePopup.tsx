@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { X, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { normalizeApiUrl } from "@/lib/runtimeConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 interface SaleProduct {
   _id: string;

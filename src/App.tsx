@@ -12,7 +12,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ShopNowFloat from "@/components/ShopNowFloat";
-import PromoPopup from "@/components/PromoPopup";
 import Home from "./pages/Home";
 import { setAuthRedirect } from "@/lib/authRedirect";
 
@@ -90,7 +89,6 @@ const AppShell = () => {
       <Navbar />
       {!hideMarketingOverlays && <WhatsAppFloat />}
       {!hideMarketingOverlays && <ShopNowFloat />}
-      {!hideMarketingOverlays && <PromoPopup />}
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />

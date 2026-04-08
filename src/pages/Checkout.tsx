@@ -692,7 +692,7 @@ const Checkout = () => {
       toast({
         title: "Order failed",
         description: isApiOfflineError(error)
-          ? "The backend is offline. Start the API server on port 5000 to place orders."
+          ? "We couldn't reach the payment service to confirm your order. Please refresh and try again. If you already approved the M-Pesa prompt, wait a moment and check your order status before retrying."
           : error instanceof Error
             ? error.message
             : "Failed to place order. Please try again.",

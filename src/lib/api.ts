@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { normalizeApiUrl } from "@/lib/runtimeConfig";
+
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 const LOCAL_API_RETRY_COOLDOWN_MS = 30000;
 const CACHE_PREFIX = "qk-api-cache:";
 let localApiUnavailableUntil = 0;

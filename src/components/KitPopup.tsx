@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { X, ShoppingBag, Sparkles, Star, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,6 @@ import { products } from "@/data/products";
 
 const KIT_PRODUCT = products.find((p) => p.id === "new-bundle")!;
 const KIT_ITEMS = ["Clarifying Cleanser", "Brightening Toner", "Clarifying Serum", "Clarifying Cream", "Brightening Mask"];
-const STORAGE_KEY = "queenkoba-kit-popup-dismissed";
 const TRIGGER_DELAY = 30_000; // 30 seconds
 
 export default function KitPopup() {
@@ -16,33 +15,46 @@ export default function KitPopup() {
   const [adding, setAdding] = useState(false);
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const timerRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    // Only show once per session
-    if (sessionStorage.getItem(STORAGE_KEY)) return;
+  const clearPopupTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
-    const timer = window.setTimeout(() => {
+  const schedulePopup = useCallback(() => {
+    clearPopupTimer();
+    timerRef.current = window.setTimeout(() => {
+      timerRef.current = null;
       setVisible(true);
     }, TRIGGER_DELAY);
+  }, [clearPopupTimer]);
 
-    return () => window.clearTimeout(timer);
-  }, []);
+  useEffect(() => {
+    schedulePopup();
+
+    return () => {
+      clearPopupTimer();
+    };
+  }, [clearPopupTimer, schedulePopup]);
 
   const dismiss = useCallback(() => {
-    sessionStorage.setItem(STORAGE_KEY, "1");
     setVisible(false);
-  }, []);
+    schedulePopup();
+  }, [schedulePopup]);
 
   const handleAddAndCheckout = useCallback(async () => {
     if (!KIT_PRODUCT) return;
     setAdding(true);
+    clearPopupTimer();
     addToCart(KIT_PRODUCT, 1);
     // Small delay so cart state settles before navigation
     await new Promise((r) => window.setTimeout(r, 280));
-    sessionStorage.setItem(STORAGE_KEY, "1");
     setVisible(false);
     navigate("/checkout");
-  }, [addToCart, navigate]);
+  }, [addToCart, clearPopupTimer, navigate]);
 
   return (
     <AnimatePresence>
