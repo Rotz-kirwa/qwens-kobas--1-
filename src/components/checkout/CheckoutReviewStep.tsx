@@ -1,5 +1,4 @@
 import { CreditCard, MapPin, ShieldCheck, Smartphone, Store, Truck } from "lucide-react";
-import type { ChangeEvent } from "react";
 import type { DeliverySelection } from "@/context/CartContext";
 import type { DeliveryZoneConfig } from "@/data/kenyaDelivery";
 
@@ -21,12 +20,8 @@ interface CheckoutReviewStepProps {
   shippingFee: number;
   paymentMessage: string;
   submittingOrder: boolean;
-  onPaymentInputChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: () => void;
 }
-
-const inputClassName =
-  "w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary";
 
 const CheckoutReviewStep = ({
   formData,
@@ -39,14 +34,13 @@ const CheckoutReviewStep = ({
   shippingFee,
   paymentMessage,
   submittingOrder,
-  onPaymentInputChange,
   onSubmit,
 }: CheckoutReviewStepProps) => {
   const deliveryMethodLabel =
     deliverySelection.method === "door" ? "Door Delivery" : "Pickup Station";
 
   return (
-    <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8 lg:sticky lg:top-24">
+    <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8">
       <div className="border-b border-border/80 pb-5">
         <h2 className="font-display text-2xl text-foreground sm:text-3xl">
           Order Summary
@@ -127,22 +121,17 @@ const CheckoutReviewStep = ({
                   </p>
                 </div>
                 <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                  Enter the Safaricom number that should receive the payment prompt.
+                  The STK push will be sent to the Safaricom number saved in the previous step.
                 </p>
-                <div className="mt-4">
-                  <label className="mb-2 block text-sm font-body text-foreground">
-                    M-Pesa Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    value={paymentDetails.phoneNumber}
-                    onChange={onPaymentInputChange}
-                    placeholder="07XXXXXXXX"
-                    className={inputClassName}
-                  />
+                <div className="mt-4 rounded-2xl border border-border bg-secondary/10 px-4 py-4">
+                  <p className="text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
+                    Saved M-Pesa Number
+                  </p>
+                  <p className="mt-2 text-base font-body font-semibold text-foreground">
+                    {paymentDetails.phoneNumber || formData.phone || "Number pending"}
+                  </p>
                   <p className="mt-2 text-xs leading-6 text-muted-foreground">
-                    We will send an STK push to this number as soon as you tap pay now.
+                    We will send the STK push as soon as you tap pay now.
                   </p>
                 </div>
               </div>
@@ -177,6 +166,14 @@ const CheckoutReviewStep = ({
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
                   Bank transfer instructions are shared after order confirmation.
                 </p>
+                <div className="mt-4 rounded-2xl border border-border bg-secondary/10 px-4 py-4">
+                  <p className="text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
+                    Selected Bank
+                  </p>
+                  <p className="mt-2 text-base font-body font-semibold text-foreground">
+                    {paymentDetails.bankName || "Bank pending"}
+                  </p>
+                </div>
               </div>
             ) : (
               <p className="text-sm leading-7 text-muted-foreground">

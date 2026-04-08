@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CreditCard,
+  MapPin,
+  ShieldCheck,
+  Smartphone,
+  Truck,
+} from "lucide-react";
 import AdaptiveImage from "@/components/AdaptiveImage";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -26,7 +35,19 @@ interface PaymentMethod {
   logo?: string;
 }
 
+type CheckoutStepId = "details" | "delivery" | "payment" | "review";
+
+interface CheckoutStepDefinition {
+  id: CheckoutStepId;
+  label: string;
+  title: string;
+  description: string;
+  ctaLabel?: string;
+  icon: typeof MapPin;
+}
+
 interface CheckoutDraft {
+  currentStep?: number;
   paymentMethod?: string;
   paymentDetails?: {
     phoneNumber?: string;
@@ -49,6 +70,39 @@ const paymentLogos: Record<string, string> = {
 
 const country = "Kenya";
 const CHECKOUT_STORAGE_KEY = "queenkoba-checkout-progress";
+const checkoutSteps: CheckoutStepDefinition[] = [
+  {
+    id: "details",
+    label: "Details",
+    title: "Contact & Address",
+    description: "Start with the basics so we know who the order belongs to and where it is going.",
+    ctaLabel: "Continue to delivery",
+    icon: MapPin,
+  },
+  {
+    id: "delivery",
+    label: "Delivery",
+    title: "Delivery Method",
+    description: "Choose how you want the order to reach you after we prepare it.",
+    ctaLabel: "Continue to payment",
+    icon: Truck,
+  },
+  {
+    id: "payment",
+    label: "Payment",
+    title: "Payment Setup",
+    description: "Pick a payment option and add only the last detail needed before review.",
+    ctaLabel: "Review order",
+    icon: CreditCard,
+  },
+  {
+    id: "review",
+    label: "Review",
+    title: "Final Confirmation",
+    description: "Do one quick final check, then complete your order with confidence.",
+    icon: ShieldCheck,
+  },
+];
 
 const formatCurrency = (amount: number) => `KSh ${Math.round(amount).toLocaleString()}`;
 
@@ -162,6 +216,14 @@ const buildStructuredAddress = (county: string, area: string, deliveryPoint: str
 
 const buildStructuredCity = (deliveryCounty: string) => deliveryCounty.trim() || "Nairobi";
 
+const getSafeStepIndex = (value?: number) => {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return 0;
+  }
+
+  return Math.min(Math.max(Math.round(value), 0), checkoutSteps.length - 1);
+};
+
 const readStoredCheckoutDraft = (): CheckoutDraft | null => {
   if (typeof window === "undefined") {
     return null;
@@ -274,6 +336,7 @@ const Checkout = () => {
   const [initialDraft] = useState<CheckoutDraft | null>(() => readStoredCheckoutDraft());
   const activeDeliveryZone = getDeliveryZone(deliverySelection.zone);
 
+  const [currentStep, setCurrentStep] = useState(() => getSafeStepIndex(initialDraft?.currentStep));
   const [paymentMethod, setPaymentMethod] = useState(initialDraft?.paymentMethod || "");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [paymentMethodsLoading, setPaymentMethodsLoading] = useState(false);
@@ -297,6 +360,7 @@ const Checkout = () => {
     paymentMethods.find((method) => normalizePaymentMethodId(method.id) === normalizePaymentMethodId(paymentMethod)) ||
     null;
   const paymentMethodType = getPaymentMethodType(selectedPaymentMethod);
+  const normalizedPaymentMethod = normalizePaymentMethodId(paymentMethod);
   const structuredAddress = buildStructuredAddress(
     deliverySelection.zone === "nairobi" ? "Nairobi" : deliverySelection.county,
     deliverySelection.area,
@@ -305,6 +369,10 @@ const Checkout = () => {
   const structuredCity = buildStructuredCity(
     deliverySelection.zone === "nairobi" ? "Nairobi" : deliverySelection.county,
   );
+  const stepConfig = checkoutSteps[currentStep];
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalSavings = discountAmount + shippingDiscount;
+  const progressPercentage = ((currentStep + 1) / checkoutSteps.length) * 100;
 
   useEffect(() => {
     setPromoCode(promoSummary?.code || "");
@@ -324,13 +392,14 @@ const Checkout = () => {
 
   useEffect(() => {
     const draft: CheckoutDraft = {
+      currentStep,
       paymentMethod,
       paymentDetails,
       formData,
     };
 
     sessionStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(draft));
-  }, [formData, paymentDetails, paymentMethod]);
+  }, [currentStep, formData, paymentDetails, paymentMethod]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -465,13 +534,13 @@ const Checkout = () => {
     return true;
   };
 
-  const validateReviewStep = () => {
+  const validatePaymentStep = () => {
     if (!paymentMethod) {
-      setPaymentSelectionError("Select a payment method before completing the order.");
+      setPaymentSelectionError("Select a payment method before continuing.");
       return false;
     }
 
-    if (normalizePaymentMethodId(paymentMethod) === "mpesa") {
+    if (normalizedPaymentMethod === "mpesa") {
       if (!paymentDetails.phoneNumber.trim()) {
         toast({
           title: "M-Pesa number needed",
@@ -501,6 +570,45 @@ const Checkout = () => {
     }
 
     return true;
+  };
+
+  const validateStep = (stepIndex: number) => {
+    if (stepIndex === 0) {
+      return validateAddressStep();
+    }
+
+    if (stepIndex === 2) {
+      return validatePaymentStep();
+    }
+
+    return true;
+  };
+
+  const handleContinue = () => {
+    if (!validateStep(currentStep)) {
+      return;
+    }
+
+    setCurrentStep((prev) => Math.min(prev + 1, checkoutSteps.length - 1));
+  };
+
+  const handleStepSelect = (stepIndex: number) => {
+    if (stepIndex === currentStep) {
+      return;
+    }
+
+    if (stepIndex < currentStep) {
+      setCurrentStep(stepIndex);
+      return;
+    }
+
+    for (let index = currentStep; index < stepIndex; index += 1) {
+      if (!validateStep(index)) {
+        return;
+      }
+    }
+
+    setCurrentStep(stepIndex);
   };
 
   const handleApplyPromoCode = async () => {
@@ -535,19 +643,17 @@ const Checkout = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateAddressStep() || !validateReviewStep()) {
+    if (!validateAddressStep() || !validatePaymentStep()) {
       return;
     }
 
     try {
       setSubmittingOrder(true);
-      if (normalizePaymentMethodId(paymentMethod) === "mpesa") {
+      if (normalizedPaymentMethod === "mpesa") {
         setPaymentMessage("Sending payment request...");
       } else {
         setPaymentMessage("");
       }
-
-      const token = localStorage.getItem("token");
 
       const orderPayload = {
         items: items.map((item) => ({
@@ -584,7 +690,7 @@ const Checkout = () => {
         payment_details: {
           type: paymentMethodType,
           phone_number:
-            normalizePaymentMethodId(paymentMethod) === "mpesa"
+            normalizedPaymentMethod === "mpesa"
               ? normalizePhoneNumberForPayload(paymentDetails.phoneNumber)
               : undefined,
           bank_name: paymentMethodType === "bank" ? paymentDetails.bankName : undefined,
@@ -604,7 +710,7 @@ const Checkout = () => {
 
       const response = await ordersAPI.create(orderPayload);
 
-      if (normalizePaymentMethodId(paymentMethod) === "mpesa") {
+      if (normalizedPaymentMethod === "mpesa") {
         const orderId = response?.order_id;
         const customerMessage =
           response?.message ||
@@ -621,9 +727,7 @@ const Checkout = () => {
           throw new Error("Order reference missing after M-Pesa initiation.");
         }
 
-        // Poll backend (NOT Safaricom directly) — backend is the source of truth.
-        // Webhook updates the DB; we just read order status.
-        const MAX_POLLS = 24; // 24 × 5 s = 2 min
+        const MAX_POLLS = 24;
         const POLL_INTERVAL_MS = 5000;
 
         for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
@@ -637,7 +741,6 @@ const Checkout = () => {
             });
           } catch (error) {
             if (isTransientMpesaStatusError(error)) {
-              // Network hiccup — keep waiting, don't throw
               continue;
             }
             throw error;
@@ -654,9 +757,9 @@ const Checkout = () => {
             paymentStatus === "paid"
               ? successMessage
               : attempt < 4
-              ? "Waiting for M-Pesa confirmation…"
-              : payment?.customer_message ||
-                "Still awaiting payment — please complete the prompt on your phone."
+                ? "Waiting for M-Pesa confirmation..."
+                : payment?.customer_message ||
+                  "Still awaiting payment. Please complete the prompt on your phone."
           );
 
           if (paymentStatus === "paid") {
@@ -676,7 +779,7 @@ const Checkout = () => {
         }
 
         throw new Error(
-          "Payment confirmation is taking longer than expected. If you completed the M-Pesa prompt, your order is saved — check your orders or contact support."
+          "Payment confirmation is taking longer than expected. If you completed the M-Pesa prompt, your order is saved. Please check your order status or contact support."
         );
       }
 
@@ -701,6 +804,211 @@ const Checkout = () => {
     } finally {
       setSubmittingOrder(false);
     }
+  };
+
+  const renderPaymentSetupStep = () => {
+    const showMpesaForm = normalizedPaymentMethod === "mpesa";
+    const showBankForm = paymentMethodType === "bank";
+    const showCardSummary = paymentMethodType === "card";
+    const showAirtelSummary = normalizedPaymentMethod.includes("airtel");
+
+    return (
+      <div className="space-y-6">
+        <PaymentMethodSelector
+          methods={paymentMethods}
+          selectedMethodId={paymentMethod}
+          loading={paymentMethodsLoading}
+          selectionError={paymentSelectionError}
+          onSelect={handleSelectPaymentMethod}
+        />
+
+        <section className="rounded-[30px] border border-primary/10 bg-card px-5 py-6 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8 sm:py-8">
+          <div className="border-b border-border/80 pb-5">
+            <h2 className="font-display text-2xl text-foreground sm:text-3xl">
+              Payment Details
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+              Keep this step short and simple. Add only the detail needed for the method you chose,
+              then move straight to review.
+            </p>
+          </div>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(16rem,0.95fr)]">
+            <div className="space-y-4">
+              {showMpesaForm ? (
+                <div className="rounded-[24px] border border-border bg-background p-5">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-foreground/80">
+                      M-Pesa Number
+                    </p>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    Enter the Safaricom number that should receive the STK push right after you tap
+                    pay.
+                  </p>
+                  <div className="mt-4">
+                    <label className="mb-2 block text-sm font-body text-foreground">
+                      M-Pesa Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={paymentDetails.phoneNumber}
+                      onChange={handlePaymentInputChange}
+                      placeholder="07XXXXXXXX"
+                      className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary"
+                    />
+                    <p className="mt-2 text-xs leading-6 text-muted-foreground">
+                      We will use this number for the payment prompt and for payment verification.
+                    </p>
+                  </div>
+                </div>
+              ) : showBankForm ? (
+                <div className="rounded-[24px] border border-border bg-background p-5">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-foreground/80">
+                      Bank Details
+                    </p>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    Choose the bank you plan to use so the final instructions are matched
+                    correctly.
+                  </p>
+                  <div className="mt-4">
+                    <label className="mb-2 block text-sm font-body text-foreground">
+                      Bank Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="bankName"
+                      value={paymentDetails.bankName}
+                      onChange={handlePaymentInputChange}
+                      placeholder="Equity Bank"
+                      className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-[24px] border border-primary/12 bg-secondary/10 p-5">
+                  <div className="flex items-center gap-2">
+                    {showCardSummary ? (
+                      <CreditCard className="h-4 w-4 text-primary" />
+                    ) : showAirtelSummary ? (
+                      <Smartphone className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                    )}
+                    <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-primary/80">
+                      What happens next
+                    </p>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    {showCardSummary
+                      ? "After the final review, we will guide you into the secure card-payment step."
+                      : showAirtelSummary
+                        ? "After confirmation, we will use your checkout contact details to guide the Airtel Money payment step."
+                        : "Complete the last review step and we will guide the selected payment flow from there."}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-[24px] border border-primary/12 bg-secondary/10 p-5">
+              <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-primary/80">
+                Payment Snapshot
+              </p>
+              <h3 className="mt-3 font-display text-2xl text-foreground">
+                {selectedPaymentMethod?.name || "Choose a method"}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                The final review will summarize this payment choice together with your address,
+                delivery method, and total.
+              </p>
+
+              <div className="mt-6 space-y-3">
+                <div className="rounded-2xl border border-border bg-background px-4 py-4">
+                  <p className="text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
+                    Checkout Contact
+                  </p>
+                  <p className="mt-2 text-sm font-body font-semibold text-foreground">
+                    {formData.fullName || "Name pending"}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {formData.phone || "Phone pending"}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {formData.email || "Email pending"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-background px-4 py-4">
+                  <p className="text-xs font-body uppercase tracking-[0.18em] text-muted-foreground">
+                    Delivery Total
+                  </p>
+                  <p className="mt-2 text-lg font-body font-semibold text-foreground">
+                    {formatCurrency(grandTotal)}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Includes shipping fee of {formatCurrency(shippingFee)}.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  };
+
+  const renderCurrentStep = () => {
+    if (currentStep === 0) {
+      return (
+        <CheckoutAddressStep
+          formData={formData}
+          deliverySelection={deliverySelection}
+          activeZone={activeDeliveryZone}
+          errors={deliveryErrors}
+          onInputChange={handleInputChange}
+          onSetDeliveryZone={setDeliveryZone}
+          onSetDeliveryCounty={setDeliveryCounty}
+          onSetDeliveryArea={setDeliveryArea}
+          onSetDeliveryPoint={setDeliveryPoint}
+        />
+      );
+    }
+
+    if (currentStep === 1) {
+      return (
+        <CheckoutDeliveryMethodStep
+          deliverySelection={deliverySelection}
+          activeZone={activeDeliveryZone}
+          shippingFee={shippingFee}
+          onSelectMethod={setDeliveryMethod}
+        />
+      );
+    }
+
+    if (currentStep === 2) {
+      return renderPaymentSetupStep();
+    }
+
+    return (
+      <CheckoutReviewStep
+        formData={formData}
+        deliverySelection={deliverySelection}
+        activeZone={activeDeliveryZone}
+        paymentMethodLabel={selectedPaymentMethod?.name || "Payment method"}
+        paymentMethodType={paymentMethodType}
+        paymentMethodId={normalizedPaymentMethod}
+        paymentDetails={paymentDetails}
+        shippingFee={shippingFee}
+        paymentMessage={paymentMessage}
+        submittingOrder={submittingOrder}
+        onSubmit={handleSubmit}
+      />
+    );
   };
 
   if (items.length === 0) {
@@ -745,79 +1053,222 @@ const Checkout = () => {
 
         <div className="space-y-6">
           <div className="rounded-[32px] border border-[#eadfce] bg-[linear-gradient(180deg,#fffaf3_0%,#f7efe2_100%)] px-6 py-8 shadow-[0_20px_50px_rgba(45,30,12,0.06)] md:px-10">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div>
                 <p className="text-xs font-body font-semibold uppercase tracking-[0.3em] text-primary/80">
-                  Checkout
+                  Guided checkout
                 </p>
                 <h1 className="mt-3 font-display text-4xl font-light leading-tight md:text-5xl">
-                  Your glow is{" "}<span className="italic text-gold-gradient">one step away</span>
+                  Checkout at your pace
                 </h1>
                 <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/76 md:text-base">
-                  You chose Queen Koba — toxin-free, melanin-made, and proven on real skin across Kenya.
-                  Secure your order now and receive the brightening ritual that thousands of women trust
-                  to treat dark spots, hyperpigmentation, and dull skin from day one.
+                  We have broken your order into four short steps so you can move from address to
+                  payment without one long, tiring form.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 lg:justify-end">
                 <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
-                  Secure payment
+                  4 simple steps
                 </span>
                 <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
-                  M-Pesa ready
+                  Secure payment
                 </span>
                 <span className="rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-[11px] font-body font-semibold uppercase tracking-[0.18em] text-primary">
                   Kenya delivery
                 </span>
               </div>
             </div>
+
+            <div className="mt-8">
+              <div className="h-2 overflow-hidden rounded-full bg-white/70">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-4">
+                {checkoutSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  const isActive = index === currentStep;
+                  const isComplete = index < currentStep;
+                  const isReachable = index <= currentStep;
+
+                  return (
+                    <button
+                      key={step.id}
+                      type="button"
+                      onClick={() => handleStepSelect(index)}
+                      disabled={!isReachable}
+                      aria-current={isActive ? "step" : undefined}
+                      className={`rounded-[24px] border px-4 py-4 text-left transition-all ${
+                        isActive
+                          ? "border-primary bg-white shadow-[0_18px_34px_rgba(95,74,43,0.12)]"
+                          : isComplete
+                            ? "border-primary/20 bg-white/80 hover:border-primary/35"
+                            : "border-white/60 bg-white/55 text-foreground/70"
+                      } ${!isReachable ? "cursor-not-allowed opacity-75" : ""}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                            isActive
+                              ? "bg-primary text-primary-foreground"
+                              : isComplete
+                                ? "bg-primary/10 text-primary"
+                                : "bg-white text-muted-foreground"
+                          }`}
+                        >
+                          {isComplete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-primary/80">
+                            Step {index + 1}
+                          </p>
+                          <p className="mt-2 font-display text-xl text-foreground">{step.label}</p>
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                            {step.title}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(20rem,0.82fr)] lg:gap-8">
-            <div className="space-y-8 lg:space-y-10">
-              <CheckoutAddressStep
-                formData={formData}
-                deliverySelection={deliverySelection}
-                activeZone={activeDeliveryZone}
-                errors={deliveryErrors}
-                onInputChange={handleInputChange}
-                onSetDeliveryZone={setDeliveryZone}
-                onSetDeliveryCounty={setDeliveryCounty}
-                onSetDeliveryArea={setDeliveryArea}
-                onSetDeliveryPoint={setDeliveryPoint}
-              />
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(19rem,0.92fr)] lg:gap-8">
+            <div className="space-y-6">
+              <div className="rounded-[28px] border border-primary/10 bg-white px-5 py-5 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:px-8">
+                <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
+                  Step {currentStep + 1} of {checkoutSteps.length}
+                </p>
+                <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <h2 className="font-display text-3xl text-foreground">{stepConfig.title}</h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+                      {stepConfig.description}
+                    </p>
+                  </div>
+                  <div className="rounded-[20px] border border-primary/12 bg-secondary/10 px-4 py-3 text-sm text-muted-foreground">
+                    {itemCount} item{itemCount === 1 ? "" : "s"} in your order
+                  </div>
+                </div>
+              </div>
 
-              <CheckoutDeliveryMethodStep
-                deliverySelection={deliverySelection}
-                activeZone={activeDeliveryZone}
-                shippingFee={shippingFee}
-                onSelectMethod={setDeliveryMethod}
-              />
+              <motion.div
+                key={stepConfig.id}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.24, ease: "easeOut" }}
+              >
+                {renderCurrentStep()}
+              </motion.div>
 
-              <PaymentMethodSelector
-                methods={paymentMethods}
-                selectedMethodId={paymentMethod}
-                loading={paymentMethodsLoading}
-                selectionError={paymentSelectionError}
-                onSelect={handleSelectPaymentMethod}
-              />
+              {currentStep < checkoutSteps.length - 1 && (
+                <div className="flex flex-col-reverse gap-3 rounded-[28px] border border-primary/10 bg-white px-5 py-5 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (currentStep === 0) {
+                        navigate(-1);
+                        return;
+                      }
+
+                      setCurrentStep((prev) => Math.max(prev - 1, 0));
+                    }}
+                    className="inline-flex items-center justify-center rounded-[18px] border border-primary/12 px-5 py-3 text-sm font-body font-semibold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary/5"
+                  >
+                    {currentStep === 0 ? "Back" : "Previous step"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleContinue}
+                    className="inline-flex items-center justify-center gap-2 rounded-[18px] bg-primary px-6 py-3.5 text-sm font-body font-bold uppercase tracking-[0.16em] text-primary-foreground shadow-[0_18px_36px_rgba(95,74,43,0.18)] transition-all hover:bg-primary/90"
+                  >
+                    {stepConfig.ctaLabel}
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div>
               <aside className="top-24 rounded-[32px] border border-[#eadfce] bg-white p-5 shadow-[0_22px_48px_rgba(32,24,17,0.06)] sm:p-8 lg:sticky">
                 <div className="border-b border-border/80 pb-5">
                   <p className="text-xs font-body font-semibold uppercase tracking-[0.18em] text-primary/80">
-                    Secure Checkout
+                    Order snapshot
                   </p>
-                  <h3 className="mt-3 font-display text-2xl text-foreground">Order Summary</h3>
+                  <h3 className="mt-3 font-display text-2xl text-foreground">
+                    Smooth, step-by-step checkout
+                  </h3>
                   <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                    Review your products, delivery fee, promo savings, and final total before you
-                    pay.
+                    Your products and totals stay here while the left side focuses on just one step
+                    at a time.
                   </p>
                 </div>
 
-                <div className="mt-5 space-y-4">
-                  {items.map((item) => (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm">
+                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
+                      Items
+                    </p>
+                    <p className="mt-2 font-display text-2xl text-foreground">{itemCount}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {formatCurrency(total)} subtotal
+                    </p>
+                  </div>
+
+                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm">
+                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
+                      Delivery
+                    </p>
+                    <p className="mt-2 font-display text-2xl text-foreground">
+                      {formatCurrency(shippingFee)}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{activeDeliveryZone.label}</p>
+                  </div>
+
+                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm sm:col-span-2 lg:col-span-1">
+                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
+                      Final total
+                    </p>
+                    <p className="mt-2 font-display text-2xl text-foreground">
+                      {formatCurrency(grandTotal)}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {totalSavings > 0
+                        ? `${formatCurrency(totalSavings)} saved so far`
+                        : "Promo savings will appear here"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-[22px] border border-primary/12 bg-secondary/10 px-4 py-4 text-sm">
+                  <p className="font-body font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                    Delivery summary
+                  </p>
+                  <p className="mt-2 text-muted-foreground">{activeDeliveryZone.label}</p>
+                  <p className="text-muted-foreground">
+                    {deliverySelection.zone === "nairobi"
+                      ? "Nairobi"
+                      : deliverySelection.county || "County pending"}
+                    {" · "}
+                    {deliverySelection.area || "Area pending"}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {deliverySelection.point || "Exact delivery point pending"}
+                  </p>
+                  <p className="capitalize text-muted-foreground">
+                    {deliverySelection.method === "door" ? "Door delivery" : "Pickup station"} ·{" "}
+                    {deliverySelection.eta}
+                  </p>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {items.slice(0, currentStep === checkoutSteps.length - 1 ? items.length : 2).map((item) => (
                     <div
                       key={item.product.id}
                       className="grid grid-cols-[4.5rem_minmax(0,1fr)_auto] gap-3 border-b border-border/50 pb-4 sm:gap-4"
@@ -849,45 +1300,12 @@ const Checkout = () => {
                   ))}
                 </div>
 
-                <div className="mt-5 rounded-[22px] border border-primary/12 bg-secondary/10 px-4 py-4 text-sm">
-                  <p className="font-body font-semibold uppercase tracking-[0.16em] text-foreground/80">
-                    Delivery
-                  </p>
-                  <p className="mt-2 text-muted-foreground">{activeDeliveryZone.label}</p>
-                  <p className="text-muted-foreground">
-                    {deliverySelection.zone === "nairobi"
-                      ? "Nairobi"
-                      : deliverySelection.county || "County pending"}
-                    {" · "}
-                    {deliverySelection.area || "Area pending"}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {deliverySelection.point || "Exact delivery point pending"}
-                  </p>
-                  <p className="capitalize text-muted-foreground">
-                    {deliverySelection.method === "door" ? "Door delivery" : "Pickup station"} ·{" "}
-                    {deliverySelection.eta}
-                  </p>
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm">
-                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
-                      Delivery fee
-                    </p>
-                    <p className="mt-2 font-display text-2xl text-foreground">
-                      {formatCurrency(shippingFee)}
-                    </p>
+                {items.length > 2 && currentStep < checkoutSteps.length - 1 && (
+                  <div className="mt-4 rounded-[18px] border border-dashed border-primary/15 bg-secondary/10 px-4 py-3 text-sm text-muted-foreground">
+                    +{items.length - 2} more item{items.length - 2 === 1 ? "" : "s"} waiting in
+                    your order summary.
                   </div>
-                  <div className="rounded-[22px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm">
-                    <p className="text-xs font-body uppercase tracking-[0.18em] text-primary/75">
-                      Final total
-                    </p>
-                    <p className="mt-2 font-display text-2xl text-foreground">
-                      {formatCurrency(grandTotal)}
-                    </p>
-                  </div>
-                </div>
+                )}
 
                 <div className="mt-5 space-y-3 border-t border-border pt-5">
                   <div className="flex justify-between text-sm font-body">
@@ -922,36 +1340,37 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                <div className="mt-5 border-t border-border pt-5">
-                  <PromoCodePanel
-                    promoCode={promoCode}
-                    onPromoCodeChange={(value) => setPromoCode(sanitizePromoCodeInput(value))}
-                    onApply={handleApplyPromoCode}
-                    onRemove={handleRemovePromoCode}
-                    promoSummary={promoSummary}
-                    promoLoading={promoLoading}
-                    promoError={promoError}
-                    totalSavingsLabel={formatCurrency(discountAmount + shippingDiscount)}
-                    updatedTotalLabel={formatCurrency(grandTotal)}
-                    placeholder="WELCOME10"
-                  />
-                </div>
+                {currentStep === checkoutSteps.length - 1 ? (
+                  <div className="mt-5 border-t border-border pt-5">
+                    <PromoCodePanel
+                      promoCode={promoCode}
+                      onPromoCodeChange={(value) => setPromoCode(sanitizePromoCodeInput(value))}
+                      onApply={handleApplyPromoCode}
+                      onRemove={handleRemovePromoCode}
+                      promoSummary={promoSummary}
+                      promoLoading={promoLoading}
+                      promoError={promoError}
+                      totalSavingsLabel={formatCurrency(totalSavings)}
+                      updatedTotalLabel={formatCurrency(grandTotal)}
+                      placeholder="WELCOME10"
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-5 rounded-[20px] border border-primary/12 bg-secondary/10 px-4 py-4 text-sm leading-7 text-muted-foreground">
+                    Promo codes are still available. You can apply one in the final review step
+                    before you pay.
+                  </div>
+                )}
 
-                <div className="mt-8">
-                  <CheckoutReviewStep
-                    formData={formData}
-                    deliverySelection={deliverySelection}
-                    activeZone={activeDeliveryZone}
-                    paymentMethodLabel={selectedPaymentMethod?.name || "Payment method"}
-                    paymentMethodType={paymentMethodType}
-                    paymentMethodId={normalizePaymentMethodId(paymentMethod)}
-                    paymentDetails={paymentDetails}
-                    shippingFee={shippingFee}
-                    paymentMessage={paymentMessage}
-                    submittingOrder={submittingOrder}
-                    onPaymentInputChange={handlePaymentInputChange}
-                    onSubmit={handleSubmit}
-                  />
+                {currentStep === 2 && normalizedPaymentMethod === "mpesa" && paymentDetails.phoneNumber && (
+                  <div className="mt-5 rounded-[20px] border border-primary/12 bg-primary/5 px-4 py-4 text-sm leading-7 text-foreground">
+                    M-Pesa prompt will be sent to <span className="font-semibold">{paymentDetails.phoneNumber}</span>.
+                  </div>
+                )}
+
+                <div className="mt-5 rounded-[20px] border border-primary/12 bg-secondary/10 px-4 py-4 text-sm leading-7 text-muted-foreground">
+                  Need help before you pay? Your address, delivery choice, and payment setup stay
+                  saved while you move between steps.
                 </div>
               </aside>
             </div>
