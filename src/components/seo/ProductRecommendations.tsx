@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
+import { productSeoByKey } from "@/data/seoContent";
 import {
   canonicalProductsByKey,
   formatCurrency,
@@ -43,12 +45,11 @@ const ProductRecommendations = ({
           >
             <Link to={`/shop/${product.catalogKey}`} className="block overflow-hidden">
               {product.image_url ? (
-                <img
+                <AdaptiveImage
                   src={product.image_url}
-                  alt={`Queen Koba ${product.name}`}
+                  alt={productSeoByKey[product.catalogKey]?.imageAlt ?? `Queen Koba ${product.name}`}
                   className="aspect-[4/4.2] w-full object-cover object-center transition-transform duration-500 hover:scale-[1.02]"
-                  loading="lazy"
-                  decoding="async"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                 />
               ) : null}
             </Link>

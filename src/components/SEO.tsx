@@ -10,6 +10,7 @@ type SeoProps = {
   description: string;
   path?: string;
   image?: string;
+  imageAlt?: string;
   type?: "website" | "article";
   robots?: string;
   keywords?: string;
@@ -52,6 +53,7 @@ const SEO = ({
   description,
   path = "/",
   image = DEFAULT_IMAGE,
+  imageAlt = `${BRAND_NAME} skincare`,
   type = "website",
   robots = "index,follow",
   keywords,
@@ -61,7 +63,10 @@ const SEO = ({
   structuredData,
 }: SeoProps) => {
   useEffect(() => {
-    const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin || DEFAULT_SITE_URL;
+    const siteUrl =
+      import.meta.env.VITE_SITE_URL?.trim() ||
+      window.location.origin ||
+      DEFAULT_SITE_URL;
     const canonicalUrl = new URL(path, siteUrl).toString();
     const pageTitle = title.includes(BRAND_NAME) ? title : `${title} | ${BRAND_NAME}`;
     const schema =
@@ -90,6 +95,7 @@ const SEO = ({
     ensureMeta('meta[property="og:type"]', { property: "og:type", content: type });
     ensureMeta('meta[property="og:url"]', { property: "og:url", content: canonicalUrl });
     ensureMeta('meta[property="og:image"]', { property: "og:image", content: image });
+    ensureMeta('meta[property="og:image:alt"]', { property: "og:image:alt", content: imageAlt });
     ensureMeta('meta[property="og:site_name"]', { property: "og:site_name", content: BRAND_NAME });
     ensureMeta('meta[property="og:locale"]', { property: "og:locale", content: locale });
 
@@ -97,6 +103,7 @@ const SEO = ({
     ensureMeta('meta[name="twitter:title"]', { name: "twitter:title", content: pageTitle });
     ensureMeta('meta[name="twitter:description"]', { name: "twitter:description", content: description });
     ensureMeta('meta[name="twitter:image"]', { name: "twitter:image", content: image });
+    ensureMeta('meta[name="twitter:image:alt"]', { name: "twitter:image:alt", content: imageAlt });
     ensureMeta('meta[name="twitter:site"]', { name: "twitter:site", content: "@queenkoba" });
 
     if (type === "article" && publishedTime) {
@@ -118,6 +125,16 @@ const SEO = ({
     }
 
     ensureLink('link[rel="canonical"]', { rel: "canonical", href: canonicalUrl });
+    ensureLink('link[rel="alternate"][hreflang="en-KE"]', {
+      rel: "alternate",
+      hreflang: "en-KE",
+      href: canonicalUrl,
+    });
+    ensureLink('link[rel="alternate"][hreflang="x-default"]', {
+      rel: "alternate",
+      hreflang: "x-default",
+      href: canonicalUrl,
+    });
 
     let script = document.head.querySelector("#seo-structured-data") as HTMLScriptElement | null;
     if (!script) {
@@ -130,6 +147,7 @@ const SEO = ({
   }, [
     description,
     image,
+    imageAlt,
     keywords,
     locale,
     modifiedTime,

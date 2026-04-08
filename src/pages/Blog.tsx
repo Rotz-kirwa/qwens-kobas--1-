@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import AdaptiveImage from "@/components/AdaptiveImage";
 import SEO from "@/components/SEO";
+import ProductRecommendations from "@/components/seo/ProductRecommendations";
 import ResourceGrid from "@/components/seo/ResourceGrid";
 import {
   blogCategories,
@@ -26,6 +27,14 @@ const dedupePostsBySlug = (posts: BlogPost[]) => {
   });
 };
 
+const categoryProductMap: Record<string, string[]> = {
+  hyperpigmentation: ["new-serum", "new-bundle", "new-cream"],
+  "dark-spots": ["new-serum", "new-toner", "new-bundle"],
+  "melanin-skin": ["new-bundle", "new-cream", "new-cleanser"],
+  ingredients: ["new-cleanser", "new-mask", "new-bundle"],
+  "kenya-skincare": ["new-serum", "new-bundle", "new-cleanser"],
+};
+
 const Blog = () => {
   const { categorySlug } = useParams();
   const activeCategory = blogCategories.find((category) => category.slug === categorySlug);
@@ -46,7 +55,61 @@ const Blog = () => {
   const visiblePosts = dedupePostsBySlug(getBlogPostsByCategory(activeCategory?.slug)).filter(
     (post) => !featuredPostSlugs.has(post.slug),
   );
+  const articleItemList = dedupePostsBySlug([...featuredPosts, ...visiblePosts]).slice(0, 12);
   const heroImage = featuredPosts[0]?.heroImage || visiblePosts[0]?.heroImage;
+  const collectionPath = activeCategory ? `/blog/category/${activeCategory.slug}` : "/blog";
+  const collectionUrl = `https://queenkoba.com${collectionPath}`;
+  const productKeys = activeCategory ? categoryProductMap[activeCategory.slug] ?? ["new-bundle"] : ["new-serum", "new-bundle", "new-cleanser"];
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: activeCategory ? `${activeCategory.name} articles` : "Queen Koba Blog",
+      description:
+        activeCategory?.description ||
+        "Educational skincare content focused on hyperpigmentation, dark spots, melanin-rich skin, natural skincare, and Kenya-focused skincare discovery.",
+      url: collectionUrl,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://queenkoba.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Blog",
+          item: "https://queenkoba.com/blog",
+        },
+        ...(activeCategory
+          ? [
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: activeCategory.name,
+                item: collectionUrl,
+              },
+            ]
+          : []),
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: activeCategory ? `${activeCategory.name} blog articles` : "Queen Koba educational articles",
+      itemListElement: articleItemList.map((post, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `https://queenkoba.com${post.path}`,
+        name: post.title,
+      })),
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-background pb-16 pt-24 md:pb-20">
@@ -61,19 +124,10 @@ const Blog = () => {
             ? activeCategory.description
             : "Read Queen Koba blog guides on hyperpigmentation treatment, dark spots, melanin-rich skin, natural skincare, African botanicals, and skincare products in Kenya."
         }
-        path={activeCategory ? `/blog/category/${activeCategory.slug}` : "/blog"}
+        path={collectionPath}
         image={heroImage}
         keywords="hyperpigmentation blog, dark spots skincare articles, melanin skin care blog, skincare products Kenya, African botanical skincare blog"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "Blog",
-          name: "Queen Koba Blog",
-          description:
-            "Educational skincare content focused on hyperpigmentation, dark spots, melanin-rich skin, natural skincare, and Kenya-focused skincare discovery.",
-          url: activeCategory
-            ? `https://queenkoba.com/blog/category/${activeCategory.slug}`
-            : "https://queenkoba.com/blog",
-        }}
+        structuredData={structuredData}
       />
 
       <section className="pb-10">
@@ -87,8 +141,9 @@ const Blog = () => {
             </h1>
             <p className="mt-6 max-w-3xl text-sm leading-8 text-muted-foreground md:text-lg">
               Queen Koba's blog architecture targets hyperpigmentation, dark spots, melanin skin,
-              ingredient education, and skincare products in Kenya. Each article links into the
-              product catalog and strategic landing pages to build topical authority over time.
+              ingredient education, and skincare products in Kenya. Each article is built to answer
+              a real search query, then connect that search intent to the relevant product and
+              landing page instead of leaving visitors stranded in information-only content.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               {blogCategories.map((category) => {
@@ -222,6 +277,20 @@ const Blog = () => {
       </section>
 
       <section className="py-10 md:py-12">
+        <div className="container mx-auto px-4">
+          <ProductRecommendations
+            title={activeCategory ? `Products linked to ${activeCategory.name.toLowerCase()} searches` : "Products most closely linked to the blog's top keyword clusters"}
+            description={
+              activeCategory
+                ? "These products map most closely to the concerns covered in this category, helping readers move from education to action."
+                : "These are the products most often supported by Queen Koba's educational content around dark spots, hyperpigmentation, glow, and routine building."
+            }
+            productKeys={productKeys}
+          />
+        </div>
+      </section>
+
+      <section className="pb-10 md:pb-12">
         <div className="container mx-auto px-4">
           <ResourceGrid
             title="Strategic landing pages connected to the blog"

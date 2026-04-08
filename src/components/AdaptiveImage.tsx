@@ -56,8 +56,7 @@ const AdaptiveImage = ({
   const { quality, isFast, imageLoadingMargin } = useNetworkQuality();
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [isVisible, setIsVisible] = useState(highPriority || isFast);
-  const priorityProps =
-    highPriority && isFast ? ({ fetchpriority: "high" } as Record<string, string>) : {};
+  const priorityProps = highPriority ? ({ fetchpriority: "high" } as Record<string, string>) : {};
 
   const resolvedSrc = useMemo(
     () => optimizeImageSource(src, quality),

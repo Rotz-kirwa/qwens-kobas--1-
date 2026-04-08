@@ -14,6 +14,12 @@ import {
   type LinkCard,
 } from "@/data/siteSeo";
 
+const toHeadingId = (heading: string) =>
+  heading
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
 const BlogArticle = () => {
   const { slug = "" } = useParams();
   const post = blogPostsBySlug[slug];
@@ -55,6 +61,10 @@ const BlogArticle = () => {
       to: relatedPost.path,
       ctaLabel: "Read article",
     }));
+  const sectionAnchors = post.sections.map((section) => ({
+    id: toHeadingId(section.heading),
+    label: section.heading,
+  }));
 
   const structuredData = [
     {
@@ -64,6 +74,7 @@ const BlogArticle = () => {
       description: post.metaDescription,
       datePublished: post.publishedAt,
       dateModified: post.updatedAt,
+      image: [post.heroImage],
       author: {
         "@type": "Person",
         name: defaultArticleAuthor.name,
@@ -77,8 +88,13 @@ const BlogArticle = () => {
         },
       },
       url: `https://queenkoba.com${post.path}`,
+      mainEntityOfPage: `https://queenkoba.com${post.path}`,
       articleSection: category?.name || "Skincare",
       keywords: post.keywords.join(", "),
+      about: post.keywords.map((keyword) => ({
+        "@type": "Thing",
+        name: keyword,
+      })),
     },
     {
       "@context": "https://schema.org",
@@ -126,6 +142,7 @@ const BlogArticle = () => {
         path={post.path}
         type="article"
         image={post.heroImage}
+        imageAlt={post.heroImageAlt}
         keywords={post.keywords.join(", ")}
         publishedTime={post.publishedAt}
         modifiedTime={post.updatedAt}
@@ -181,6 +198,42 @@ const BlogArticle = () => {
         </div>
       </section>
 
+      <section className="pb-4">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.95fr)]">
+            <div className="rounded-[28px] border border-border/70 bg-card p-6 shadow-[0_18px_40px_rgba(24,17,8,0.05)] md:p-8">
+              <p className="text-sm uppercase tracking-[0.28em] text-primary">What you'll learn</p>
+              <div className="mt-5 grid gap-3 md:grid-cols-2">
+                {sectionAnchors.map((section, index) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="rounded-[20px] border border-primary/15 bg-primary/5 px-4 py-4 text-sm leading-7 text-foreground/85 transition-colors hover:border-primary/25 hover:bg-primary/10"
+                  >
+                    <span className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary/70">
+                      0{index + 1}
+                    </span>
+                    {section.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <aside className="rounded-[28px] border border-primary/15 bg-secondary/20 p-6 shadow-[0_18px_40px_rgba(24,17,8,0.05)] md:p-8">
+              <p className="text-sm uppercase tracking-[0.28em] text-primary">Why this matters</p>
+              <h2 className="mt-4 font-display text-3xl font-light md:text-4xl">
+                Search traffic should end in confident buying decisions
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                Each Queen Koba article is designed to answer a real skincare question, then guide the
+                reader toward the product or landing page most aligned with that intent. That is how
+                content builds authority without becoming disconnected from revenue.
+              </p>
+            </aside>
+          </div>
+        </div>
+      </section>
+
       <section className="py-8 md:py-10">
         <div className="container mx-auto space-y-8 px-4 md:space-y-10">
           {post.sections.map((section) => (
@@ -188,7 +241,9 @@ const BlogArticle = () => {
               key={section.heading}
               className="rounded-[30px] border border-border/70 bg-card p-6 shadow-[0_18px_40px_rgba(24,17,8,0.05)] md:p-8"
             >
-              <h2 className="font-display text-3xl font-light md:text-4xl">{section.heading}</h2>
+              <h2 id={toHeadingId(section.heading)} className="scroll-mt-28 font-display text-3xl font-light md:text-4xl">
+                {section.heading}
+              </h2>
               <div className="mt-5 space-y-4">
                 {section.paragraphs.map((paragraph) => (
                   <p key={paragraph} className="text-sm leading-8 text-muted-foreground md:text-base">

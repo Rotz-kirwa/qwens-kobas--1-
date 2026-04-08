@@ -2,6 +2,7 @@ import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Minus, Plus, ShoppingBag, Star } from "lucide-react";
+import AdaptiveImage from "@/components/AdaptiveImage";
 import { useCart } from "@/context/CartContext";
 import { productsAPI } from "@/lib/api";
 import {
@@ -91,12 +92,11 @@ const ProductCard = ({ product, index }: { product: StoreProduct; index: number 
 
       {product.image_url && (
         <Link to={`/shop/${product.catalogKey}`} className="block w-full overflow-hidden">
-          <img
+          <AdaptiveImage
             src={product.image_url}
             alt={`Queen Koba ${product.name}${product.subtitle ? ` - ${product.subtitle}` : ""}`}
             className="h-80 w-full object-cover md:h-[24rem] lg:h-[26rem]"
-            loading="lazy"
-            decoding="async"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           />
         </Link>
       )}

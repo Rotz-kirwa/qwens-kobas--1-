@@ -15,7 +15,7 @@ import SEO from "@/components/SEO";
 import FaqSection from "@/components/seo/FaqSection";
 import ResourceGrid from "@/components/seo/ResourceGrid";
 import { useCart } from "@/context/CartContext";
-import { findBlogPostsBySlugs, type LinkCard } from "@/data/siteSeo";
+import { findBlogPostsBySlugs, homeConcernCards, type LinkCard } from "@/data/siteSeo";
 import { productSeoByKey } from "@/data/seoContent";
 import { defaultKenyaDeliveryZone } from "@/data/kenyaDelivery";
 import { productsAPI } from "@/lib/api";
@@ -31,6 +31,15 @@ import {
   type StoreProduct,
 } from "@/lib/storefrontCatalog";
 import { useToast } from "@/hooks/use-toast";
+
+const productConcernLinkMap: Record<string, string[]> = {
+  "new-cleanser": ["/skincare-products-kenya", "/african-botanical-skincare"],
+  "new-toner": ["/dark-spots-treatment", "/skincare-products-kenya"],
+  "new-serum": ["/hyperpigmentation-treatment", "/dark-spots-treatment"],
+  "new-cream": ["/skincare-for-melanin-skin", "/african-botanical-skincare"],
+  "new-mask": ["/african-botanical-skincare", "/skincare-products-kenya"],
+  "new-bundle": ["/hyperpigmentation-treatment", "/skincare-products-kenya"],
+};
 
 const ProductDetail = () => {
   const { productId = "" } = useParams();
@@ -151,6 +160,14 @@ const ProductDetail = () => {
     to: post.path,
     ctaLabel: "Read guide",
   }));
+  const concernPageLinks = homeConcernCards
+    .filter((card) => (productConcernLinkMap[product.catalogKey] ?? []).includes(card.to))
+    .map<LinkCard>((card) => ({
+      ...card,
+      eyebrow: "Concern Guide",
+      ctaLabel: card.ctaLabel || "Explore guide",
+    }));
+  const resourceItems = [...concernPageLinks, ...relatedGuides].slice(0, 6);
 
   const structuredData = [
     {
@@ -158,12 +175,13 @@ const ProductDetail = () => {
       "@type": "Product",
       name: seoContent?.searchHeading ?? product.name,
       description: seoDescription,
-      image: product.image_url,
+      image: product.image_url ? [product.image_url] : undefined,
       url: `https://queenkoba.com/shop/${product.catalogKey}`,
       sku: product.catalogKey,
       category: product.stepLabel || "Skincare",
       keywords: seoKeywords.join(", "),
       brand: { "@type": "Brand", name: "Queen Koba" },
+      seller: { "@type": "Organization", name: "Queen Koba" },
       aggregateRating:
         reviews > 0
           ? {
@@ -177,6 +195,7 @@ const ProductDetail = () => {
         priceCurrency: "KES",
         price: displayPrice,
         availability: product.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/NewCondition",
       },
     },
     {
@@ -227,6 +246,8 @@ const ProductDetail = () => {
         title={seoTitle}
         description={seoDescription}
         path={`/shop/${product.catalogKey}`}
+        image={product.image_url}
+        imageAlt={seoContent?.imageAlt ?? product.name}
         keywords={seoKeywords.join(", ")}
         structuredData={structuredData}
       />
@@ -274,6 +295,46 @@ const ProductDetail = () => {
                   {benefit}
                 </div>
               ))}
+            </div>
+
+            <div className="rounded-[32px] border border-[#eadfce] bg-white p-6 shadow-[0_18px_38px_rgba(45,30,12,0.05)] md:p-8">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.95fr)]">
+                <div>
+                  <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
+                    Why this product matters
+                  </p>
+                  <h2 className="mt-3 font-display text-3xl font-light text-foreground md:text-4xl">
+                    How this {seoContent?.searchHeading?.toLowerCase() ?? product.name.toLowerCase()} fits a complete Queen Koba routine
+                  </h2>
+                  <div className="mt-4 space-y-4 text-sm leading-8 text-foreground/80">
+                    <p>
+                      Shoppers searching for {seoKeywords.slice(0, 2).join(" and ")} usually need a
+                      product that solves a specific problem without making the rest of the routine more
+                      confusing. This step is built to do a clear job in the ritual, then work smoothly
+                      with the supporting cleanser, toner, moisturizer, and weekly reset mask around it.
+                    </p>
+                    <p>
+                      That is what makes the product page commercially important. It is not just a price
+                      tag. It explains who the product is for, how it supports visible skin goals, and
+                      what kind of routine consistency gives shoppers the best chance of seeing progress.
+                    </p>
+                  </div>
+                </div>
+
+                <aside className="rounded-[24px] bg-[#fbf5ec] px-5 py-5">
+                  <p className="text-xs font-body font-semibold uppercase tracking-[0.2em] text-primary/80">
+                    Best used when you want to
+                  </p>
+                  <ul className="mt-4 space-y-3 text-sm leading-7 text-foreground/80">
+                    {(product.skinConcerns || []).map((concern) => (
+                      <li key={concern} className="flex items-start gap-3">
+                        <Check className="mt-1 h-4 w-4 text-primary" />
+                        <span>Support {concern.toLowerCase()} with a more intentional routine.</span>
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              </div>
             </div>
 
             <div className="rounded-[32px] border border-[#eadfce] bg-white p-6 shadow-[0_18px_38px_rgba(45,30,12,0.05)] md:p-8">
@@ -521,7 +582,7 @@ const ProductDetail = () => {
           <ResourceGrid
             title="Learn more before you buy"
             intro="These educational guides support the same concern as this product and strengthen the path from research to conversion."
-            items={relatedGuides}
+            items={resourceItems}
           />
         </div>
       </div>

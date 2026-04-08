@@ -6,4 +6,5 @@ Disallow: /login
 Disallow: /signup
 Disallow: /all
 
+Host: queenkoba.com
 Sitemap: https://queenkoba.com/sitemap.xml

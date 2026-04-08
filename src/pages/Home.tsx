@@ -15,11 +15,45 @@ import {
   homeTrustPillars,
   keywordPageMap,
 } from "@/data/siteSeo";
+import { canonicalProductsByKey } from "@/lib/storefrontCatalog";
 
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const IngredientsSpotlight = lazy(() => import("@/components/IngredientsSpotlight"));
 const HERO_FOLLOWUP_IMAGE =
   "https://www.dropbox.com/scl/fi/xbfgwzkqvfqe2hhybwwhp/er.png?rlkey=jovtvo8ux3daj3m7h2pkkie3c&st=1jb5ihyj&raw=1";
+
+const featuredHomeProducts = ["new-serum", "new-cleanser", "new-bundle"]
+  .map((key) => canonicalProductsByKey[key])
+  .filter((product) => Boolean(product));
+
+const homeRoutineSteps = [
+  {
+    title: "Cleanse and prep daily",
+    description:
+      "Start with a cleanser that removes buildup without stripping the barrier, then follow with a toner that helps skin feel fresh and ready for treatment.",
+  },
+  {
+    title: "Treat visible dark spots consistently",
+    description:
+      "A targeted serum is the step most shoppers need for post-acne marks, uneven tone, and stubborn discoloration, but it works best when the rest of the routine supports it.",
+  },
+  {
+    title: "Hydrate so the barrier stays comfortable",
+    description:
+      "Brightening routines are easier to maintain when the skin feels calm, nourished, and resilient enough for daily use over time.",
+  },
+  {
+    title: "Protect results with SPF",
+    description:
+      "Sun exposure can keep hyperpigmentation visible for longer, so sunscreen remains a non-negotiable final step for anyone chasing a clearer, more even-looking tone.",
+  },
+];
+
+const homeBuyingPrinciples = [
+  "Look for products matched to a specific concern such as hyperpigmentation, dark spots, dullness, or dryness.",
+  "Choose formulas that feel gentle enough to use consistently instead of relying on harsh brightening shortcuts.",
+  "Build a routine that moves in order: cleanse, tone, treat, moisturize, then protect with SPF.",
+];
 
 const Home = () => {
   const network = useNetworkQuality();
@@ -67,6 +101,17 @@ const Home = () => {
             url: "https://queenkoba.com/",
             description:
               "Brightening skincare in Kenya for hyperpigmentation, dark spots, uneven skin tone, and melanin-rich skin.",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Queen Koba featured skincare products",
+            itemListElement: featuredHomeProducts.map((product, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              url: `https://queenkoba.com/shop/${product.catalogKey}`,
+              name: product.name,
+            })),
           },
           {
             "@context": "https://schema.org",
@@ -226,6 +271,68 @@ const Home = () => {
                 <p className="mt-4 text-sm leading-7 text-muted-foreground">{pillar.description}</p>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-secondary/20 py-12 md:py-14">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]">
+            <article className="rounded-[28px] border border-border/70 bg-card p-6 shadow-[0_18px_44px_rgba(24,17,8,0.06)] md:p-8">
+              <p className="text-sm uppercase tracking-[0.28em] text-primary">Routine Strategy</p>
+              <h2 className="mt-4 font-display text-4xl font-light md:text-5xl">
+                Why a consistent skincare routine matters more than random product switching
+              </h2>
+              <div className="mt-5 space-y-4 text-sm leading-8 text-muted-foreground md:text-base">
+                <p>
+                  Healthy, glowing skin usually comes from consistency, not chaos. Shoppers trying to
+                  fade dark spots, reduce dullness, and build a more even-looking tone often get better
+                  results when they use a simple routine long enough for the skin to respond.
+                </p>
+                <p>
+                  Queen Koba is strongest when it helps people understand that cleanser, toner, serum,
+                  moisturizer, and sun protection each do a different job. That education improves SEO,
+                  raises trust, and makes it easier for visitors to choose the right product instead of
+                  bouncing between conflicting skincare advice.
+                </p>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                {homeRoutineSteps.map((step, index) => (
+                  <div
+                    key={step.title}
+                    className="rounded-[22px] border border-primary/15 bg-primary/5 px-5 py-5"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/75">
+                      Step {index + 1}
+                    </p>
+                    <h3 className="mt-2 font-display text-2xl font-light text-foreground">{step.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{step.description}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <aside className="rounded-[28px] border border-primary/15 bg-card p-6 shadow-[0_18px_44px_rgba(24,17,8,0.06)] md:p-8">
+              <p className="text-sm uppercase tracking-[0.28em] text-primary">Buying Guidance</p>
+              <h2 className="mt-4 font-display text-4xl font-light md:text-[2.8rem]">
+                What to look for when choosing skincare products in Kenya
+              </h2>
+              <ul className="mt-6 space-y-4">
+                {homeBuyingPrinciples.map((principle) => (
+                  <li
+                    key={principle}
+                    className="rounded-[20px] border border-border/70 bg-background px-5 py-4 text-sm leading-7 text-muted-foreground"
+                  >
+                    {principle}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-6 text-sm leading-7 text-muted-foreground">
+                This lets Queen Koba compete for keywords like skincare products in Kenya, glowing skin
+                routine, hyperpigmentation treatment, and dark spots treatment without sounding generic or
+                drifting away from the brand's actual value proposition.
+              </p>
+            </aside>
           </div>
         </div>
       </section>
