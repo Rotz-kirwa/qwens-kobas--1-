@@ -10,6 +10,33 @@
       ]
     },
     {
+      "source": "/(site\\.webmanifest|site-qk-v20260411\\.webmanifest)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/favicon\\.ico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(favicon-qk-v20260411\\.ico|favicon-qk-v20260411-16x16\\.png|favicon-qk-v20260411-32x32\\.png|apple-touch-icon-qk-v20260411\\.png|android-chrome-qk-v20260411-192x192\\.png|android-chrome-qk-v20260411-512x512\\.png|maskable-icon-qk-v20260411-512x512\\.png)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {
