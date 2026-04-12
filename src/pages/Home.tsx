@@ -19,8 +19,7 @@ import { canonicalProductsByKey } from "@/lib/storefrontCatalog";
 
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const IngredientsSpotlight = lazy(() => import("@/components/IngredientsSpotlight"));
-const HERO_FOLLOWUP_IMAGE =
-  "https://www.dropbox.com/scl/fi/xbfgwzkqvfqe2hhybwwhp/er.png?rlkey=jovtvo8ux3daj3m7h2pkkie3c&st=1jb5ihyj&raw=1";
+const HERO_FOLLOWUP_IMAGE = "/images/products/full-product-kit.webp";
 
 const featuredHomeProducts = ["new-serum", "new-cleanser", "new-bundle"]
   .map((key) => canonicalProductsByKey[key])
@@ -136,45 +135,55 @@ const Home = () => {
 
       <section className="bg-background py-5 md:py-8">
         <div className="container mx-auto px-4">
-          <div className="grid max-w-5xl items-center gap-4 overflow-hidden rounded-sm border border-primary/15 bg-secondary/20 shadow-[0_24px_60px_rgba(0,0,0,0.06)] md:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
-            <div className="flex items-stretch bg-background/70 p-3 md:p-5">
-              <AdaptiveImage
-                src={HERO_FOLLOWUP_IMAGE}
-                alt="Queen Koba Eternal Radiance"
-                className="h-auto w-full rounded-sm object-cover"
-                sizes="100vw"
-              />
-            </div>
-            <div className="max-w-2xl p-5 text-left md:p-8">
-              <p className="font-body text-sm uppercase tracking-[0.24em] text-primary">
-                Brightening skincare · Nairobi, Kenya
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-light leading-tight text-foreground md:text-5xl">
-                Built for shoppers looking for <span className="italic text-gold-gradient">clarity</span>,
-                glow, and trustworthy skincare in Kenya
-              </h2>
-              <p className="mt-4 font-body text-base leading-7 text-foreground md:text-lg">
-                Queen Koba is a premium skincare brand focused on hyperpigmentation treatment,
-                dark spots treatment, natural brightening care, and toxin-free rituals made for
-                melanin-rich skin. Every page should help customers understand what to buy, why
-                it works, and how to build a routine that feels safe enough to continue.
-              </p>
-              <p className="mt-4 font-body text-sm uppercase tracking-[0.24em] text-primary">
-                No mercury. No hydroquinone. No compromises.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  to="/shop/new-bundle"
-                  className="inline-flex items-center rounded-full bg-gold-gradient px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
-                >
-                  Shop The Full Routine
-                </Link>
-                <Link
-                  to="/skincare-products-kenya"
-                  className="inline-flex items-center rounded-full border border-primary/20 px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary/5"
-                >
-                  Explore Kenya Skincare
-                </Link>
+          <div className="max-w-6xl overflow-hidden rounded-sm border border-primary/15 bg-secondary/20 shadow-[0_24px_60px_rgba(0,0,0,0.06)]">
+            <div className="grid gap-6 p-4 md:p-6 lg:gap-8 lg:p-8">
+              <div className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)] lg:gap-8">
+                <div className="flex items-center bg-background/70 p-3 md:p-5">
+                  <div className="relative w-full overflow-hidden rounded-sm shadow-[0_18px_40px_rgba(23,16,8,0.08)] aspect-[82/49]">
+                    <AdaptiveImage
+                      src={HERO_FOLLOWUP_IMAGE}
+                      alt="Queen Koba full product kit"
+                      className="h-full w-full object-cover object-center"
+                      sizes="100vw"
+                    />
+                  </div>
+                </div>
+                <div className="max-w-xl text-left">
+                  <p className="font-body text-sm uppercase tracking-[0.24em] text-primary">
+                    Brightening skincare · Nairobi, Kenya
+                  </p>
+                  <h2 className="mt-3 font-display text-3xl font-light leading-tight text-foreground md:text-5xl">
+                    Built for shoppers looking for <span className="italic text-gold-gradient">clarity</span>,
+                    glow, and trustworthy skincare in Kenya
+                  </h2>
+                </div>
+              </div>
+              <div className="border-t border-primary/10 pt-6">
+                <div className="max-w-4xl text-left">
+                  <p className="font-body text-base leading-7 text-foreground md:text-lg">
+                    Queen Koba is a premium skincare brand focused on hyperpigmentation treatment,
+                    dark spots treatment, natural brightening care, and toxin-free rituals made for
+                    melanin-rich skin. Every page should help customers understand what to buy, why
+                    it works, and how to build a routine that feels safe enough to continue.
+                  </p>
+                  <p className="mt-4 font-body text-sm uppercase tracking-[0.24em] text-primary">
+                    No mercury. No hydroquinone. No compromises.
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Link
+                      to="/shop/new-bundle"
+                      className="inline-flex items-center rounded-full bg-gold-gradient px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
+                    >
+                      Shop The Full Routine
+                    </Link>
+                    <Link
+                      to="/skincare-products-kenya"
+                      className="inline-flex items-center rounded-full border border-primary/20 px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary/5"
+                    >
+                      Explore Kenya Skincare
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

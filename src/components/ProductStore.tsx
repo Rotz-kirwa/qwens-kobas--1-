@@ -254,7 +254,7 @@ const ProductStore = () => {
           <div className="py-12 text-center">Loading products...</div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
               {products.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}

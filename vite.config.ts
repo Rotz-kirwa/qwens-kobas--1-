@@ -39,6 +39,10 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@radix-ui")) {
             return "radix-ui";
           }
+
+          if (id.includes("lucide-react")) {
+            return "lucide";
+          }
         },
       },
     },

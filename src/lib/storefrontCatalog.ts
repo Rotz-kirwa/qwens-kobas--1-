@@ -192,6 +192,17 @@ export const canonicalProductsByKey = Object.fromEntries(
   fallbackStoreProducts.map((product) => [product.catalogKey, product]),
 ) as Record<string, StoreProduct>;
 
+const isLegacyDropboxImage = (imageUrl?: string) =>
+  Boolean(imageUrl && /dropbox(?:usercontent)?\.com/i.test(imageUrl));
+
+const resolveCatalogImageUrl = (apiImageUrl?: string, canonicalImageUrl?: string) => {
+  if (apiImageUrl && !isLegacyDropboxImage(apiImageUrl)) {
+    return apiImageUrl;
+  }
+
+  return canonicalImageUrl || apiImageUrl;
+};
+
 export const getProductMarketingKey = (category?: string, name?: string) => {
   const normalizedCategory = (category || "").toLowerCase();
   const normalizedName = (name || "").toLowerCase();
@@ -228,6 +239,8 @@ export const mapApiProduct = (product: ApiProduct): StoreProduct | null => {
     product.discount_percentage ?? canonicalProduct?.discount_percentage ?? 0,
   );
   const overlay = marketingKey ? productMarketing[marketingKey] ?? {} : {};
+  const resolvedImageUrl = resolveCatalogImageUrl(product.image_url, canonicalProduct?.image_url);
+
   return {
     id: String(productId),
     catalogKey: marketingKey || `product-${productId}`,
@@ -236,8 +249,8 @@ export const mapApiProduct = (product: ApiProduct): StoreProduct | null => {
     price: kesPrice,
     originalPrice: canonicalProduct?.originalPrice,
     in_stock: product.in_stock ?? true,
-    image: product.image_url || canonicalProduct?.image_url,
-    image_url: product.image_url || canonicalProduct?.image_url,
+    image: resolvedImageUrl,
+    image_url: resolvedImageUrl,
     rating: product.rating ?? canonicalProduct?.rating ?? 4.8,
     reviews: product.reviews ?? canonicalProduct?.reviews ?? 0,
     discount_percentage: discountPercentage,

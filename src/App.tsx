@@ -9,10 +9,11 @@ import { AuthProvider } from "@/context/AuthContext";
 import { NetworkQualityProvider } from "@/context/NetworkQualityContext";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
-import ShopNowFloat from "@/components/ShopNowFloat";
 import Home from "./pages/Home";
+
+const Footer = lazy(() => import("@/components/Footer"));
+const WhatsAppFloat = lazy(() => import("@/components/WhatsAppFloat"));
+const ShopNowFloat = lazy(() => import("@/components/ShopNowFloat"));
 import { setAuthRedirect } from "@/lib/authRedirect";
 
 const Cart = lazy(() => import("./pages/Cart"));
@@ -32,7 +33,9 @@ const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 5 * 60 * 1000 } },
+});
 const OVERLAY_HIDDEN_PATHS = new Set(["/login", "/signup", "/cart", "/checkout"]);
 
 const PageFallback = () => <div className="min-h-[40vh]" />;
@@ -87,8 +90,12 @@ const AppShell = () => {
       <Toaster />
       <Sonner />
       <Navbar />
-      {!hideMarketingOverlays && <WhatsAppFloat />}
-      {!hideMarketingOverlays && <ShopNowFloat />}
+      {!hideMarketingOverlays && (
+        <Suspense fallback={null}>
+          <WhatsAppFloat />
+          <ShopNowFloat />
+        </Suspense>
+      )}
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -130,7 +137,9 @@ const AppShell = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </>
   );
 };

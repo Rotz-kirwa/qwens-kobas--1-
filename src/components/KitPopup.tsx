@@ -7,7 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { products } from "@/data/products";
 
 const KIT_PRODUCT = products.find((p) => p.id === "new-bundle")!;
-const KIT_ITEMS = ["Clarifying Cleanser", "Brightening Toner", "Clarifying Serum", "Clarifying Cream", "Brightening Mask"];
+const KIT_SUMMARY = "5 essentials: Cleanser, Toner, Serum, Cream, and Mask.";
 const TRIGGER_DELAY = 30_000; // 30 seconds
 
 export default function KitPopup() {
@@ -123,14 +123,6 @@ export default function KitPopup() {
                 sizes="(max-width: 640px) 100vw, 26rem"
               />
 
-              {/* Gradient overlay on image */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(12,9,5,0.14) 0%, rgba(12,9,5,0.04) 32%, rgba(255,249,241,0.88) 100%)",
-                }}
-              />
             </div>
 
             {/* Content */}
@@ -159,22 +151,16 @@ export default function KitPopup() {
               </div>
 
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                Every step of the brightening routine in one box — made for melanin-rich skin.
+                Complete glow routine in one box for melanin-rich skin.
               </p>
 
-              {/* What's included */}
-              <div className="mt-4 rounded-[10px] border border-[#d9c5a5] bg-white/75 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
-                <p className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">
-                  What's included
+              <div className="mt-4 rounded-[10px] border border-[#d9c5a5] bg-white/75 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">
+                  What's inside
                 </p>
-                <ul className="grid gap-1.5">
-                  {KIT_ITEMS.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-xs text-foreground/90">
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <p className="mt-1.5 text-sm leading-6 text-foreground/85">
+                  {KIT_SUMMARY}
+                </p>
               </div>
 
               {/* CTA */}

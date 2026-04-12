@@ -144,6 +144,8 @@ const ProductDetail = () => {
     "melanin skincare Kenya",
     product.stepLabel || "skincare",
   ];
+  const siteUrl = import.meta.env.VITE_SITE_URL?.trim() || "https://queenkoba.com";
+  const productImageUrl = product.image_url ? new URL(product.image_url, siteUrl).toString() : undefined;
 
   const handleAddToCart = () => {
     addToCart(toCartProduct(product), quantity);
@@ -175,7 +177,7 @@ const ProductDetail = () => {
       "@type": "Product",
       name: seoContent?.searchHeading ?? product.name,
       description: seoDescription,
-      image: product.image_url ? [product.image_url] : undefined,
+      image: productImageUrl ? [productImageUrl] : undefined,
       url: `https://queenkoba.com/shop/${product.catalogKey}`,
       sku: product.catalogKey,
       category: product.stepLabel || "Skincare",
@@ -246,7 +248,7 @@ const ProductDetail = () => {
         title={seoTitle}
         description={seoDescription}
         path={`/shop/${product.catalogKey}`}
-        image={product.image_url}
+        image={productImageUrl}
         imageAlt={seoContent?.imageAlt ?? product.name}
         keywords={seoKeywords.join(", ")}
         structuredData={structuredData}

@@ -1,10 +1,18 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import AdaptiveImage from "@/components/AdaptiveImage";
 import { useNetworkQuality } from "@/context/NetworkQualityContext";
 import { useSiteContent } from "@/hooks/use-site-content";
 
-const HERO_IMAGE = "https://www.dropbox.com/scl/fi/p84c58epahjoegmdiwc8b/herotx.png?rlkey=l98jozcgjhnxzz5q3m6wyv7nn&st=yu5yeqoa&raw=1";
+const HERO_IMAGE = {
+  mobile: {
+    avif: "/images/hero/optimized/home-hero-mobile.avif",
+    webp: "/images/hero/optimized/home-hero-mobile.webp",
+  },
+  desktop: {
+    avif: "/images/hero/optimized/home-hero-desktop.avif",
+    webp: "/images/hero/optimized/home-hero-desktop.webp",
+  },
+} as const;
 
 interface HeroProps {
   eyebrow?: string;
@@ -35,19 +43,42 @@ const Hero = ({
   return (
     <section className="relative flex min-h-[82svh] items-center overflow-hidden sm:min-h-[88svh] md:min-h-[100vh] lg:min-h-[105vh]">
       <div className="absolute inset-0 overflow-hidden">
-        <AdaptiveImage
-          src={HERO_IMAGE}
-          alt="Queen Koba - radiant melanin-rich skin"
-          className="h-full w-full object-cover object-center saturate-[1.02] contrast-[1.01] brightness-[0.88]"
-          style={{ 
-            maxWidth: '100%', 
-            maxHeight: '100%', 
-            objectFit: 'cover', 
-            display: 'block'
-          }}
-          highPriority
-          sizes="100vw"
-        />
+        <picture>
+          <source
+            media="(max-width: 767px)"
+            type="image/avif"
+            srcSet={HERO_IMAGE.mobile.avif}
+            sizes="100vw"
+          />
+          <source
+            media="(max-width: 767px)"
+            type="image/webp"
+            srcSet={HERO_IMAGE.mobile.webp}
+            sizes="100vw"
+          />
+          <source
+            type="image/avif"
+            srcSet={HERO_IMAGE.desktop.avif}
+            sizes="100vw"
+          />
+          <img
+            src={HERO_IMAGE.desktop.webp}
+            alt="Queen Koba - radiant melanin-rich skin"
+            width={1248}
+            height={832}
+            className="h-full w-full object-cover object-[60%_center] saturate-[1.02] contrast-[1.01] brightness-[0.88] md:object-center"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            sizes="100vw"
+          />
+        </picture>
         {/* Improved Premium Overlay for Text Contrast */}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.38)_45%,transparent_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,rgba(0,0,0,0.2)_0%,transparent_70%)]" />
