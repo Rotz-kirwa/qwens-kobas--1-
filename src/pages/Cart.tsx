@@ -6,9 +6,7 @@ import DeliveryDetailsSection from "@/components/DeliveryDetailsSection";
 import PromoCodePanel from "@/components/PromoCodePanel";
 import SEO from "@/components/SEO";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { setAuthRedirect } from "@/lib/authRedirect";
 import {
   getDeliveryFieldErrors,
   getDeliverySummaryLabel,
@@ -39,7 +37,6 @@ const Cart = () => {
     applyPromoCode,
     removePromoCode,
   } = useCart();
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [promoCode, setPromoCode] = useState(promoSummary?.code || "");
@@ -60,17 +57,6 @@ const Cart = () => {
         description: deliveryError,
         variant: "destructive",
       });
-      return;
-    }
-
-    if (!isAuthenticated) {
-      setAuthRedirect("/checkout");
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in or create an account before proceeding to checkout.",
-        variant: "destructive",
-      });
-      navigate("/login", { state: { from: "/checkout" } });
       return;
     }
 
@@ -269,7 +255,7 @@ const Cart = () => {
                 <div className="mt-4 space-y-2 text-sm text-foreground/75">
                   <div className="flex items-start gap-2">
                     <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" />
-                    <span>{isAuthenticated ? "Signed in and ready to continue." : "Sign in at checkout to place your order."}</span>
+                    <span>No account needed — checkout as a guest.</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Truck className="mt-0.5 h-4 w-4 text-primary" />
