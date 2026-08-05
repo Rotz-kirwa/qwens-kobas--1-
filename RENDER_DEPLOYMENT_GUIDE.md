@@ -52,9 +52,9 @@ git push origin main
    - **Plan**: Starter ($7/month) recommended (Free plan expires after 90 days)
    - Click **Create Database**
 
-3. **Save the connection details:**
-   - **Internal Database URL** (for backend): `postgresql://queenkoba_user:PASSWORD@localhost/queenkoba`
-   - **External Database URL** (if needed for migrations)
+3. **Active Connection Details:**
+   - **Internal Database URL** (for backend): `postgresql://queenkoba_db_53bf_user:mFE0gvRyJMYjcqPaqWHAXRJuekqT2LU1@dpg-d9ouv0u7bikc73846kp0-a/queenkoba_db_53bf`
+   - **External Database URL** (for local CLI / migrations): `postgresql://queenkoba_db_53bf_user:mFE0gvRyJMYjcqPaqWHAXRJuekqT2LU1@dpg-d9ouv0u7bikc73846kp0-a.virginia-postgres.render.com/queenkoba_db_53bf`
 
 ---
 
@@ -70,26 +70,27 @@ git push origin main
 | **Repository** | Your GitHub repo (e.g., `Rotz-kirwa/queen-koba`) |
 | **Branch** | `main` |
 | **Name** | `queenkoba-backend` |
-| **Region** | Same as database |
-| **Root Directory** | `backend/koba--backend-only` |
+| **Region** | Virginia |
+| **Root Directory** | `backend/koba--backend-only/backend/queen-koba-backend` |
 | **Runtime** | `Python 3` |
-| **Build Command** | `pip install -r app/requirements.txt` |
-| **Start Command** | `gunicorn queenkoba_postgresql:app` |
+| **Build Command** | `pip install -r app/requirements.txt gunicorn` |
+| **Start Command** | `gunicorn queenkoba_mongodb:app` |
 | **Plan** | Free or Starter ($7/month) |
 
 ### 3.2 Add Environment Variables
 In Render, go to **Environment** and add these variables:
 
-```
-DATABASE_URL = [Copy from PostgreSQL database connection string]
-JWT_SECRET_KEY = [Generate: openssl rand -hex 32]
-FRONTEND_URL = https://queenkoba-frontend.onrender.com
-ADMIN_URL = https://queenkoba-admin.onrender.com
+```env
+DATABASE_URL = postgresql://queenkoba_db_53bf_user:mFE0gvRyJMYjcqPaqWHAXRJuekqT2LU1@dpg-d9ouv0u7bikc73846kp0-a/queenkoba_db_53bf
+EXTERNAL_DATABASE_URL = postgresql://queenkoba_db_53bf_user:mFE0gvRyJMYjcqPaqWHAXRJuekqT2LU1@dpg-d9ouv0u7bikc73846kp0-a.virginia-postgres.render.com/queenkoba_db_53bf
+FRONTEND_URL = https://queenkoba.vercel.app
+ADMIN_URL = https://queenkoba-admin.vercel.app
 M_PESA_ENV = production
-M_PESA_CONSUMER_KEY = [Your Safaricom key]
-M_PESA_CONSUMER_SECRET = [Your Safaricom secret]
-M_PESA_SHORTCODE = [Your shortcode]
-M_PESA_PASSKEY = [Your passkey]
+M_PESA_APP_NAME = Prod-Walche Commodity Traders Ltd-1773395059343
+M_PESA_CONSUMER_KEY = eZk6yOsCInRJHkvAc4bselyVjgVZbXuABGHKgU4SaZrkAmSy
+M_PESA_CONSUMER_SECRET = BqJY7s3al5Sa7LCcSGDwsUHZ7ipSbqpvuIi2ZCensBN1NBlUumMdcfDB2A41Msfw
+M_PESA_SHORTCODE = 4152819
+M_PESA_PASSKEY = 8e10ea8595b5cc6a555ad8d3f6436f852898258a5647cd927a10e15359d7634b
 M_PESA_CALLBACK_URL = https://queenkoba-backend.onrender.com/payments/mpesa/callback
 M_PESA_TRANSACTION_TYPE = CustomerPayBillOnline
 M_PESA_ACCOUNT_REFERENCE = QueenKoba

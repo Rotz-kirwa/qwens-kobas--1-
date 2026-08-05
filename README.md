@@ -62,12 +62,24 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### 🚀 Target Deployment Architecture
 
-## Can I connect a custom domain to my Lovable project?
+1. **Main Website (Frontend) → Vercel**
+   - **Framework Preset**: Vite / React
+   - **Build Command**: `npm run build:frontend`
+   - **Output Directory**: `dist`
+   - **Environment Variable**: `VITE_API_URL=https://queenkoba-backend.onrender.com`
 
-Yes, you can!
+2. **Backend API → Render**
+   - **Runtime**: Python 3.11
+   - **Infrastructure Blueprint**: Configured in [`render.yaml`](file:///home/user/projects/qwens-kobas--1-/render.yaml)
+   - **Root Directory**: `backend/koba--backend-only/backend/queen-koba-backend`
+   - **Build Command**: `pip install -r app/requirements.txt gunicorn`
+   - **Start Command**: `gunicorn queenkoba_mongodb:app`
+   - **Health Check**: `/health`
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+3. **Admin Panel (Optional) → Vercel**
+   - **Root Directory**: `qwen-koba-admin`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `qwen-koba-admin/dist`
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
