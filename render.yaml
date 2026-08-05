@@ -23,9 +23,11 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: FRONTEND_URL
-        value: https://queenkoba.vercel.app
+        value: https://www.queenkoba.com
       - key: ADMIN_URL
         value: https://queenkoba-admin.vercel.app
+      - key: CORS_ORIGINS
+        value: https://www.queenkoba.com,https://queenkoba.com,https://queenkoba.vercel.app,https://queenkoba-admin.vercel.app
       - key: M_PESA_ENV
         value: production
       - key: M_PESA_APP_NAME
