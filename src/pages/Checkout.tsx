@@ -760,10 +760,7 @@ const Checkout = () => {
           setPaymentMessage(
             paymentStatus === "paid"
               ? successMessage
-              : attempt < 4
-                ? "Waiting for M-Pesa confirmation..."
-                : payment?.customer_message ||
-                  "Still awaiting payment. Please complete the prompt on your phone."
+              : `M-Pesa prompt sent to phone. Enter your PIN to complete Order #${orderId} (checking status...)`
           );
 
           if (paymentStatus === "paid") {
@@ -782,9 +779,15 @@ const Checkout = () => {
           }
         }
 
-        throw new Error(
-          "Payment confirmation is taking longer than expected. If you completed the M-Pesa prompt, your order is saved. Please check your order status or contact support."
-        );
+        // When polling completes while order is already saved in database
+        clearStoredCheckoutDraft();
+        clearCart();
+        toast({
+          title: `Order Received (#${orderId})`,
+          description: "Your order has been recorded. Once your M-Pesa PIN is entered, payment confirmation will update automatically.",
+        });
+        setTimeout(() => navigate("/shop"), 2500);
+        return;
       }
 
       clearStoredCheckoutDraft();
