@@ -418,7 +418,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setItems(backendItems);
         }
       } catch (error) {
-        console.error("Failed to hydrate cart from backend:", error);
+        // Fallback to local stored cart if backend session expired or user stale
+        if (!cancelled) {
+          setItems(readStoredCartItems());
+        }
       }
     };
 
