@@ -1,11 +1,15 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import AdaptiveImage from "@/components/AdaptiveImage";
 import { productSeoByKey } from "@/data/seoContent";
+import { productsAPI } from "@/lib/api";
 import {
   canonicalProductsByKey,
   formatCurrency,
   getEffectiveProductPrice,
+  mapApiProduct,
+  type StoreProduct,
 } from "@/lib/storefrontCatalog";
 
 interface ProductRecommendationsProps {
@@ -19,9 +23,44 @@ const ProductRecommendations = ({
   description,
   productKeys,
 }: ProductRecommendationsProps) => {
+  const [storeProducts, setStoreProducts] = useState<Record<string, StoreProduct>>(() => canonicalProductsByKey);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    productsAPI
+      .getAll({ lite: false, cacheTtlMs: 1000 * 60 * 5 })
+      .then((data) => {
+        if (cancelled) return;
+        if (Array.isArray(data.products) && data.products.length > 0) {
+          const apiMapped = data.products
+            .map(mapApiProduct)
+            .filter((p): p is StoreProduct => p !== null);
+
+          if (apiMapped.length > 0) {
+            const mappedObj: Record<string, StoreProduct> = { ...canonicalProductsByKey };
+            apiMapped.forEach((prod) => {
+              mappedObj[prod.catalogKey] = prod;
+              if (prod.id) {
+                mappedObj[prod.id] = prod;
+              }
+            });
+            setStoreProducts(mappedObj);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback gracefully to canonical catalog
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const products = productKeys
-    .map((key) => canonicalProductsByKey[key])
-    .filter((product) => Boolean(product));
+    .map((key) => storeProducts[key] || canonicalProductsByKey[key])
+    .filter((product): product is StoreProduct => Boolean(product));
 
   if (products.length === 0) {
     return null;
@@ -41,7 +80,7 @@ const ProductRecommendations = ({
         {products.map((product) => (
           <article
             key={product.catalogKey}
-            className="overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-[0_16px_36px_rgba(24,17,8,0.08)]"
+            className="overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-[0_16px_36px_rgba(24,17,8,0.08)] transition-transform duration-300 hover:-translate-y-1"
           >
             <Link to={`/shop/${product.catalogKey}`} className="block overflow-hidden">
               {product.image_url ? (
@@ -58,7 +97,9 @@ const ProductRecommendations = ({
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/70">
                 {product.stepLabel || "Queen Koba"}
               </p>
-              <h3 className="mt-3 font-display text-2xl font-light text-foreground">{product.name}</h3>
+              <Link to={`/shop/${product.catalogKey}`} className="transition-colors hover:text-primary">
+                <h3 className="mt-3 font-display text-2xl font-light text-foreground">{product.name}</h3>
+              </Link>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
                 {product.subtitle || product.description}
               </p>
@@ -83,3 +124,4 @@ const ProductRecommendations = ({
 };
 
 export default ProductRecommendations;
+
