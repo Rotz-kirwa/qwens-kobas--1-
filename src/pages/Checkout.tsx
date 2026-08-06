@@ -189,7 +189,11 @@ const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve,
 const isTransientMpesaStatusError = (error: unknown) =>
   error instanceof Error &&
   (error.message.includes("Failed to query M-Pesa payment status") ||
-    error.message.includes("500.001.1001"));
+    error.message.includes("500.001.1001") ||
+    error.message.includes("405") ||
+    error.message.includes("404") ||
+    error.message.includes("Method Not Allowed") ||
+    error.message.includes("Failed to fetch"));
 
 const getFriendlyMpesaFailureMessage = (description?: string) => {
   if (!description) return "M-Pesa payment was cancelled or failed.";
